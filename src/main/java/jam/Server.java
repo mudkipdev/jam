@@ -26,7 +26,6 @@ public final class Server implements Config {
 
         eventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
             event.setSpawningInstance(instance);
-            event.getPlayer().setRespawnPoint(Pos.ZERO);
         });
 
         if (FORWARDING_SECRET != null) {
