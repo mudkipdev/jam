@@ -16,6 +16,6 @@ Our submission for the 2024 Minestom Game Jam.
 
 ## Running
 1. Run `./gradlew build` and copy the `jam-0.1.0-all.jar` file.
-2. Set the `ADDRESS` (default: 0.0.0.0) and `PORT` (default: 25565) system properties if necessary.
-3. Set the `FORWARDING_SECRET` system property if you are using a Velocity-like proxy.
+2. Set the `address` (default: 0.0.0.0) and `port` (default: 25565) system properties if necessary.
+3. Set the `FORWARDING` system property to comma-separated tokens if you are using legacy forwarding.
 4. Execute the JAR file.

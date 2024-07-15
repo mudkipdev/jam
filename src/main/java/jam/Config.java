@@ -1,7 +1,8 @@
 package jam;
 
 public interface Config {
-    String FORWARDING_SECRET = System.getProperty("FORWARDING_SECRET");
-    String ADDRESS = System.getProperty("ADDRESS", "0.0.0.0");
-    int PORT = Integer.getInteger("PORT", 25565);
+    // mattw said we're using legacy forwarding :despair:
+    String[] SECRETS = System.getProperty("forwarding", "").split(",");
+    String ADDRESS = System.getProperty("address", "0.0.0.0");
+    int PORT = Integer.getInteger("port", 25565);
 }
