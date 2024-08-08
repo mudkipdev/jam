@@ -1,7 +1,7 @@
 plugins {
     java
     application
-    id("io.github.goooler.shadow") version "8.1.7"
+    id("io.github.goooler.shadow") version "8.1.8"
 }
 
 group = "dev.mudkip"
@@ -13,8 +13,8 @@ repositories {
 }
 
 dependencies {
-    implementation("net.minestom:minestom-snapshots:6932647e24")
-    implementation("org.slf4j:slf4j-simple:2.0.13")
+    implementation("net.minestom:minestom-snapshots:461c56e749")
+    implementation("org.slf4j:slf4j-simple:2.0.14")
 }
 
 tasks.build {
