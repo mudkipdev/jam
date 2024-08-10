@@ -7,17 +7,21 @@ import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.tag.Tag;
+import org.jetbrains.annotations.NotNull;
 
 public enum Team {
-    BASED(new Zone(
+    HUNTER(new Zone(
             new BlockVec(-2, 1, -19), //start
             new BlockVec(2, 1, -17))), // end
 
-    CRINGE(new Zone(
+    RUNNER(new Zone(
             new BlockVec(3, 1, 49), // start
             new BlockVec(-2, 1, 47))); // end
 
     private final Zone spawn;
+
+    public static final @NotNull Tag<Team> TAG = Tag.String("Team").map(Team::valueOf, Team::name);
 
     Team(Zone spawn) {
         this.spawn = spawn;
@@ -26,7 +30,7 @@ public enum Team {
     public Pos pickRandomSpawn() {
         return new Pos(this.spawn.randomBlock())
                 .add(0.0D, 1.5D, 0.0D) // make them spawn on top of the block
-                .withYaw(this == BASED ? 0.0F : 180.0F); // make teams face each other
+                .withYaw(this == HUNTER ? 0.0F : 180.0F); // make teams face each other
     }
 
     // changes the concrete spawn platform's color

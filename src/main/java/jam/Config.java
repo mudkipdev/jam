@@ -1,7 +1,8 @@
 package jam;
 
 public interface Config {
-    boolean DEBUG = Boolean.getBoolean("debug");
+//    boolean DEBUG = Boolean.getBoolean("debug");
+    boolean DEBUG = true;
 
     // BungeeCord Forwarding
     String[] SECRETS = System.getProperty("forwarding", "").split(",");

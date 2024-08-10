@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public final class Queue implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
-    private static final int WAIT_TIME = Config.DEBUG ? 10 : 30;
+    private static final int WAIT_TIME = Config.DEBUG ? 5 : 30;
     private static final int MINIMUM_PLAYERS = Config.DEBUG ? 1 : 2;
     private static final int MAXIMUM_PLAYERS = 8;
 
@@ -44,6 +44,7 @@ public final class Queue implements PacketGroupingAudience {
     // this code is sponsored by my server
     public void addPlayer(Player player) {
         this.players.add(player);
+        player.removeTag(Game.TAG);
         this.countdown = new AtomicInteger(WAIT_TIME);
 
         this.sendMessage(Component.textOfChildren(
@@ -67,10 +68,7 @@ public final class Queue implements PacketGroupingAudience {
                             .collect(Collectors.toSet());
 
                     this.players.removeAll(finalPlayers);
-                    finalPlayers.forEach(it -> {
-                        it.setInstance(game.getInstance());
-                        game.spawnPlayer(it);
-                    });
+                    game.spawnPlayers(finalPlayers);
                 }
 
                 this.playClickSound();
