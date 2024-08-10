@@ -44,6 +44,7 @@ public interface PlayerListeners {
         var player = event.getPlayer();
 
         if (event.isFirstSpawn()) {
+            player.setReducedDebugScreenInformation(true);
             player.sendPlayerListHeaderAndFooter(
                     Component.newline()
                             .append(Server.MINI_MESSAGE.deserialize("<rainbow><b>Color Chase"))

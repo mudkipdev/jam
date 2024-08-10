@@ -79,7 +79,6 @@ public final class Server implements Config {
 
         eventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
             event.setSpawningInstance(lobby.getInstance());
-            event.getPlayer().setReducedDebugScreenInformation(true);
             LOGGER.info("{} connected", event.getPlayer().getUsername());
         });
 
