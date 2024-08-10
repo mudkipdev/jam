@@ -21,9 +21,10 @@ public interface PlayerListeners {
             player.setGameMode(GameMode.SPECTATOR);
             player.updateViewableRule(viewer -> !player.getInstance().equals(lobbyInstance));
 
-            player.sendMessage(Component.text(
-                    "The game will be starting soon! Please stay patient. :)",
-                    NamedTextColor.GRAY));
+            player.sendMessage(Component.textOfChildren(
+                    Component.text("The game will be starting soon! ", NamedTextColor.YELLOW),
+                    Component.text("Please stay patient. :)", NamedTextColor.GRAY),
+                    Component.newline()));
 
             queue.addPlayer(player);
         }

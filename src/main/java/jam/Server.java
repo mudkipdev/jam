@@ -4,6 +4,7 @@ import jam.listener.PlayerListeners;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
+import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.extras.MojangAuth;
@@ -49,6 +50,9 @@ public final class Server implements Config {
 
         eventHandler.addListener(PlayerDisconnectEvent.class, event ->
                 LOGGER.info("{} disconnected", event.getPlayer().getUsername()));
+
+        eventHandler.addListener(PlayerChatEvent.class, event ->
+                LOGGER.info("<{}> {}", event.getPlayer().getUsername(), event.getMessage()));
 
         eventHandler.addListener(PlayerSpawnEvent.class, PlayerListeners::onPlayerSpawn);
         eventHandler.addListener(PlayerDisconnectEvent.class, PlayerListeners::onPlayerDisconnect);

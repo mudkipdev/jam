@@ -1,6 +1,7 @@
 package jam.game;
 
 import jam.Config;
+import jam.Server;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -13,12 +14,16 @@ import net.minestom.server.timer.Task;
 import net.minestom.server.utils.time.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public final class Queue implements PacketGroupingAudience {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
     private static final int WAIT_TIME = Config.DEBUG ? 10 : 30;
     private static final int MINIMUM_PLAYERS = Config.DEBUG ? 1 : 2;
     private static final int MAXIMUM_PLAYERS = 8;
@@ -41,19 +46,31 @@ public final class Queue implements PacketGroupingAudience {
         this.players.add(player);
         this.countdown = new AtomicInteger(WAIT_TIME);
 
+        this.sendMessage(Component.textOfChildren(
+                Component.text(
+                        "+ " + player.getUsername(),
+                        NamedTextColor.GREEN),
+
+                Component.text(
+                        " (" + this.players.size() + " / " + MINIMUM_PLAYERS + " players)",
+                        NamedTextColor.GRAY)));
+
         if (this.countdownTask == null) {
             this.countdownTask = MinecraftServer.getSchedulerManager().buildTask(() -> {
                 if (this.countdown.get() == 0) {
+                    LOGGER.info("Starting the game with {} players in queue.", this.players.size());
                     this.clearTitle();
 
                     Game game = new Game();
-                    this.players.stream()
-                            .limit(MAXIMUM_PLAYERS) // make those bitches wait
-                            .forEach(it -> {
-                                this.removePlayer(it);
-                                it.setInstance(game.getInstance());
-                                game.spawnPlayer(it);
-                            });
+                    Set<Player> finalPlayers = this.players.stream()
+                            .limit(MAXIMUM_PLAYERS)
+                            .collect(Collectors.toSet());
+
+                    this.players.removeAll(finalPlayers);
+                    finalPlayers.forEach(it -> {
+                        it.setInstance(game.getInstance());
+                        game.spawnPlayer(it);
+                    });
                 }
 
                 this.playClickSound();
@@ -67,6 +84,15 @@ public final class Queue implements PacketGroupingAudience {
 
     public void removePlayer(Player player) {
         this.players.remove(player);
+
+        this.sendMessage(Component.textOfChildren(
+                Component.text(
+                        "- " + player.getUsername(),
+                        NamedTextColor.RED),
+
+                Component.text(
+                        " (" + this.players.size() + "/" + MINIMUM_PLAYERS + ")",
+                        NamedTextColor.GRAY)));
 
         if (this.players.size() < MINIMUM_PLAYERS && this.countdownTask != null) {
             this.countdownTask.cancel();

@@ -1,5 +1,6 @@
 package jam.game;
 
+import jam.Config;
 import jam.Server;
 import net.hollowcube.polar.PolarLoader;
 import net.minestom.server.MinecraftServer;
@@ -41,6 +42,6 @@ public final class Game {
 
     public void spawnPlayer(Player player) {
         player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
-        player.setGameMode(GameMode.ADVENTURE);
+        player.setGameMode(Config.DEBUG ? GameMode.CREATIVE : GameMode.ADVENTURE);
     }
 }
