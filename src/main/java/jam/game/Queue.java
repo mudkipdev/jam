@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public final class Queue implements PacketGroupingAudience {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
-    private static final int WAIT_TIME = Config.DEBUG ? 10 : 30;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Queue.class);
+    private static final int WAIT_TIME = Config.DEBUG ? 0 : 30;
     private static final int MINIMUM_PLAYERS = Config.DEBUG ? 1 : 2;
     private static final int MAXIMUM_PLAYERS = 8;
 
@@ -43,6 +43,10 @@ public final class Queue implements PacketGroupingAudience {
 
     // this code is sponsored by my server
     public void addPlayer(Player player) {
+        if (this.players.contains(player)) {
+            return;
+        }
+
         this.players.add(player);
         this.countdown = new AtomicInteger(WAIT_TIME);
 
@@ -52,10 +56,10 @@ public final class Queue implements PacketGroupingAudience {
                         NamedTextColor.GREEN),
 
                 Component.text(
-                        " (" + this.players.size() + " / " + MINIMUM_PLAYERS + " players)",
+                        " (" + this.players.size() + "/" + MINIMUM_PLAYERS + ")",
                         NamedTextColor.GRAY)));
 
-        if (this.countdownTask == null) {
+        if (this.players.size() >= MINIMUM_PLAYERS && this.countdownTask == null) {
             this.countdownTask = MinecraftServer.getSchedulerManager().buildTask(() -> {
                 if (this.countdown.get() == 0) {
                     LOGGER.info("Starting the game with {} players in queue.", this.players.size());

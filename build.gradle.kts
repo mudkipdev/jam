@@ -15,9 +15,14 @@ repositories {
 
 dependencies {
     implementation("net.minestom:minestom-snapshots:461c56e749")
+    implementation("net.kyori:adventure-text-minimessage:4.17.0")
     implementation("com.github.TogAr2:MinestomPvP:7b5cadcad4")
     implementation("dev.hollowcube:polar:1.11.1")
     implementation("org.slf4j:slf4j-simple:2.0.14")
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
 }
 
 tasks.build {

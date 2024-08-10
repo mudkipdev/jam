@@ -13,7 +13,7 @@ import java.util.Random;
 public enum Arena {
     CITY;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Arena.class);
     private static final Random RANDOM = new Random();
 
     public static Arena random() {
