@@ -1,72 +1,56 @@
 package jam;
 
-import net.hollowcube.polar.PolarLoader;
+import jam.listener.PlayerListeners;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
+import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.extras.MojangAuth;
-import net.minestom.server.extras.bungee.BungeeCordProxy;
-import net.minestom.server.instance.Instance;
-import net.minestom.server.instance.InstanceContainer;
-import net.minestom.server.instance.InstanceManager;
-import net.minestom.server.instance.LightingChunk;
-import net.minestom.server.instance.block.Block;
+import net.minestom.server.extras.lan.OpenToLAN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Set;
 
 public final class Server implements Config {
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 
+    private static Lobby lobby;
+
     public static void main(String[] args) {
         MinecraftServer server = MinecraftServer.init();
+        lobby = new Lobby();
+
+        registerEventListeners();
+
+        // TODO: re-enable bungeecord forwarding (you can check git version history)
+        MojangAuth.init();
+        LOGGER.info("Enabled Mojang authentication.");
+
+        if (Config.DEBUG) {
+            OpenToLAN.open();
+        }
+
+        LOGGER.info("Using {} mode.", Config.DEBUG ? "DEBUG" : "PRODUCTION");
+        LOGGER.info("Starting server on {}:{}.", ADDRESS, PORT);
+        server.start(ADDRESS, PORT);
+    }
+
+    public static Lobby getLobby() {
+        return lobby;
+    }
+
+    private static void registerEventListeners() {
         GlobalEventHandler eventHandler = MinecraftServer.getGlobalEventHandler();
-        Instance instance = createInstance();
 
         eventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
-            event.setSpawningInstance(instance);
+            event.setSpawningInstance(lobby.getInstance());
             LOGGER.info("{} connected", event.getPlayer().getUsername());
         });
 
         eventHandler.addListener(PlayerDisconnectEvent.class, event ->
                 LOGGER.info("{} disconnected", event.getPlayer().getUsername()));
 
-        if (SECRETS.length != 0) {
-            BungeeCordProxy.setBungeeGuardTokens(Set.of(SECRETS));
-            BungeeCordProxy.enable();
-            LOGGER.info("Enabled BungeeCord forwarding.");
-        } else {
-            MojangAuth.init();
-            LOGGER.info("Enabled Mojang authentication.");
-        }
-
-        LOGGER.info("Starting server on {}:{}.", ADDRESS, PORT);
-        server.start(ADDRESS, PORT);
-    }
-
-    private static Instance createInstance() {
-        InstanceManager instanceManager = MinecraftServer.getInstanceManager();
-        InstanceContainer instance = instanceManager.createInstanceContainer();
-
-        instance.setChunkSupplier(LightingChunk::new);
-        instance.setTimeRate(0);
-        instance.setTime(6000);
-
-        try (InputStream stream = Server.class.getResourceAsStream("/world.polar")) {
-            if (stream == null) {
-                throw new IOException("Could not find Polar world.");
-            }
-
-            instance.setChunkLoader(new PolarLoader(stream));
-        } catch (IOException e) {
-            LOGGER.error("Failed to load Polar world.", e);
-            System.exit(1);
-        }
-
-        return instance;
+        eventHandler.addListener(PlayerSpawnEvent.class, PlayerListeners::onPlayerSpawn);
+        eventHandler.addListener(PlayerDisconnectEvent.class, PlayerListeners::onPlayerDisconnect);
     }
 }
