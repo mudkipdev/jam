@@ -14,6 +14,8 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.LightingChunk;
+import net.minestom.server.potion.Potion;
+import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.tag.Tag;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.time.TimeUnit;
@@ -70,7 +72,7 @@ public final class Game {
         for (Player player : players) {
             player.setTag(TAG, this);
             player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
-            player.setGameMode(GameMode.CREATIVE);
+            player.setGameMode(GameMode.ADVENTURE);
             player.setInvisible(false);
         }
 
@@ -88,6 +90,7 @@ public final class Game {
             this.hunters.add(player.getUuid());
 
             player.setInstance(instance, Team.HUNTER.pickRandomSpawn());
+            player.addEffect(new Potion(PotionEffect.BLINDNESS, (byte) 0, (GRACE_PERIOD + 1) * 20, 0));
         }
 
         // Init runners
@@ -102,7 +105,7 @@ public final class Game {
                     .append(Component.text("!"));
 
             player.showTitle(Title.title(title, Component.text("Avoid the hunters until the time runs out!")));
-            
+
             player.setInstance(instance, Team.RUNNER.pickRandomSpawn());
         }
 
