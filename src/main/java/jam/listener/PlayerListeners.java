@@ -1,5 +1,6 @@
 package jam.listener;
 
+import jam.Config;
 import jam.Server;
 import jam.game.Projectile;
 import jam.game.Team;
@@ -44,7 +45,7 @@ public interface PlayerListeners {
         var player = event.getPlayer();
 
         if (event.isFirstSpawn()) {
-            player.setReducedDebugScreenInformation(true);
+            player.setReducedDebugScreenInformation(!Config.DEBUG);
             player.sendPlayerListHeaderAndFooter(
                     Component.newline()
                             .append(Server.MINI_MESSAGE.deserialize("<rainbow><b>Color Chase"))
