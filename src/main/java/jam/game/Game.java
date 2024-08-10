@@ -9,6 +9,7 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
+import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
@@ -66,6 +67,13 @@ public final class Game {
     }
 
     public void spawnPlayers(@NotNull Collection<Player> players) {
+        for (Player player : players) {
+            player.setTag(TAG, this);
+            player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
+            player.setGameMode(GameMode.CREATIVE);
+            player.setInvisible(false);
+        }
+
         int hunters = (int) Math.ceil(players.size() / 3.0);
 
         List<Player> initial = new ArrayList<>(players);
@@ -78,6 +86,8 @@ public final class Game {
             player.setTag(Team.TAG, Team.HUNTER);
 
             this.hunters.add(player.getUuid());
+
+            player.setInstance(instance, Team.HUNTER.pickRandomSpawn());
         }
 
         // Init runners
@@ -86,6 +96,14 @@ public final class Game {
             this.runners.add(player.getUuid());
 
             player.updateViewableRule(other -> other.getTag(Team.TAG) == Team.RUNNER);
+
+            Component title = Component.text("You are a ")
+                    .append(Component.text("runner", NamedTextColor.GREEN))
+                    .append(Component.text("!"));
+
+            player.showTitle(Title.title(title, Component.text("Avoid the hunters until the time runs out!")));
+            
+            player.setInstance(instance, Team.RUNNER.pickRandomSpawn());
         }
 
         AtomicInteger timer = new AtomicInteger(GRACE_PERIOD);
@@ -104,13 +122,18 @@ public final class Game {
                                             Component.text("The hunt begins!", NamedTextColor.RED)
                                     ),
                                     Component.textOfChildren(
-                                            Component.text("Your "),
+                                            Component.text("The "),
                                             Component.text("grace period", NamedTextColor.YELLOW),
                                             Component.text(" is over. "),
                                             Component.text("Hunt", NamedTextColor.RED),
                                             Component.text(" and "),
                                             Component.text("eliminate", NamedTextColor.RED),
                                             Component.text("the runners.")
+                                    ),
+                                    Title.Times.times(
+                                            Duration.ZERO,
+                                            Duration.ofMillis(1500),
+                                            Duration.ofMillis(1000)
                                     )
                             ));
                         }
@@ -128,7 +151,7 @@ public final class Game {
                                 Component.text(" second" + (remaining == 1 ? "" : "s") + " left")
                         ),
                         Component.textOfChildren(
-                                Component.text("of your "),
+                                Component.text("of the "),
                                 Component.text("grace period", NamedTextColor.YELLOW),
                                 Component.text("!")
                         )
@@ -136,32 +159,6 @@ public final class Game {
             }
 
         }).repeat(Duration.of(1, ChronoUnit.SECONDS)).schedule();
-
-        for (Player player : players) {
-            player.setTag(TAG, this);
-            player.setInstance(instance);
-            player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
-            player.setGameMode(GameMode.CREATIVE);
-            player.teleport(new Pos(0, 1, 0));
-            player.setInvisible(false);
-
-            switch (player.getTag(Team.TAG)) {
-                case HUNTER -> {
-                    Component title = Component.text("You are a ")
-                            .append(Component.text("hunter", NamedTextColor.RED))
-                            .append(Component.text("!"));
-
-                    player.showTitle(Title.title(title, Component.text("Tag and eliminate each runner!")));
-                }
-                case RUNNER -> {
-                    Component title = Component.text("You are a ")
-                            .append(Component.text("runner", NamedTextColor.GREEN))
-                            .append(Component.text("!"));
-
-                    player.showTitle(Title.title(title, Component.text("Avoid the hunters until the time runs out!")));
-                }
-            }
-        }
     }
 
     public void handlePlayerAttack(@NotNull Player attacker, @NotNull Player target) {
@@ -224,5 +221,11 @@ public final class Game {
                 player.setInstance(Server.getLobby().getInstance());
             }
         }).delay(Duration.of(10, TimeUnit.SECOND)).schedule();
+    }
+
+    public void handlePlayerMove(PlayerMoveEvent event) {
+        if (event.getPlayer().getTag(Team.TAG) == Team.HUNTER && gameStartTask != null && gameStartTask.isAlive()) {
+            event.setCancelled(true);
+        }
     }
 }

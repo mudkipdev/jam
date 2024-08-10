@@ -4,10 +4,7 @@ import jam.listener.PlayerListeners;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.entity.EntityAttackEvent;
-import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
-import net.minestom.server.event.player.PlayerChatEvent;
-import net.minestom.server.event.player.PlayerDisconnectEvent;
-import net.minestom.server.event.player.PlayerSpawnEvent;
+import net.minestom.server.event.player.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,5 +53,6 @@ public final class Server implements Config {
         eventHandler.addListener(PlayerSpawnEvent.class, PlayerListeners::onPlayerSpawn);
         eventHandler.addListener(PlayerDisconnectEvent.class, PlayerListeners::onPlayerDisconnect);
         eventHandler.addListener(EntityAttackEvent.class, PlayerListeners::onEntityAttack);
+        eventHandler.addListener(PlayerMoveEvent.class, PlayerListeners::onPlayerMove);
     }
 }

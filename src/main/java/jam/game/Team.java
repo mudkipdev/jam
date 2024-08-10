@@ -12,12 +12,14 @@ import org.jetbrains.annotations.NotNull;
 
 public enum Team {
     HUNTER(new Zone(
-            new BlockVec(-2, 1, -19), //start
-            new BlockVec(2, 1, -17))), // end
+            new BlockVec(-2, 1, -19),
+            new BlockVec(2, 1, -17)
+    )),
 
     RUNNER(new Zone(
-            new BlockVec(3, 1, 49), // start
-            new BlockVec(-2, 1, 47))); // end
+            new BlockVec(-2, 1, 47),
+            new BlockVec(3, 1, 49)
+    ));
 
     private final Zone spawn;
 
@@ -29,7 +31,7 @@ public enum Team {
 
     public Pos pickRandomSpawn() {
         return new Pos(this.spawn.randomBlock())
-                .add(0.0D, 1.5D, 0.0D) // make them spawn on top of the block
+                .add(0.5, 1, 0.5) // make them spawn on top of the block
                 .withYaw(this == HUNTER ? 0.0F : 180.0F); // make teams face each other
     }
 

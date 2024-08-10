@@ -9,6 +9,7 @@ import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
+import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.instance.Instance;
 
@@ -43,6 +44,13 @@ public interface PlayerListeners {
             if (game != null && game == target.getTag(Game.TAG)) {
                 game.handlePlayerAttack(attacker, target);
             }
+        }
+    }
+
+    static void onPlayerMove(PlayerMoveEvent event) {
+        Game game = event.getPlayer().getTag(Game.TAG);
+        if (game != null) {
+            game.handlePlayerMove(event);
         }
     }
 }

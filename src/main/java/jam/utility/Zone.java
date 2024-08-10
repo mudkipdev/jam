@@ -4,10 +4,10 @@ import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Point;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
 public record Zone(Point start, Point end) {
-    private static final Random RANDOM = new Random();
 
     public void eachBlock(Consumer<BlockVec> consumer) {
         for (int x = this.start.blockX(); x <= this.end.blockX(); x++) {
@@ -19,9 +19,15 @@ public record Zone(Point start, Point end) {
         }
     }
 
+    private static int rng(int min, int max) {
+        return min == max ? min : ThreadLocalRandom.current().nextInt(min, max);
+    }
+
     public BlockVec randomBlock() {
-        List<BlockVec> vectors = new ArrayList<>();
-        this.eachBlock(vectors::add);
-        return vectors.get(RANDOM.nextInt(vectors.size()));
+        return new BlockVec(
+                rng(this.start.blockX(), this.end.blockX()),
+                rng(this.start.blockY(), this.end.blockY()),
+                rng(this.start.blockZ(), this.end.blockZ())
+        );
     }
 }
