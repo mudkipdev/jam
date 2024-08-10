@@ -23,7 +23,7 @@ public interface PlayerListeners {
     Logger LOGGER = LoggerFactory.getLogger(PlayerListeners.class);
 
     Function<PlayerChatEvent, Component> CHAT_FORMAT = event -> {
-        Team team = event.getPlayer().getTag(Tags.TEAM);
+        var team = event.getPlayer().getTag(Tags.TEAM);
 
         return Component.textOfChildren(
                 Component.text(
@@ -46,11 +46,13 @@ public interface PlayerListeners {
         if (event.isFirstSpawn()) {
             player.sendPlayerListHeaderAndFooter(
                     Component.newline()
-                            .append(Server.MINI_MESSAGE.deserialize("<rainbow><b>Color Clash"))
+                            .append(Server.MINI_MESSAGE.deserialize("<rainbow><b>Color Chase"))
                             .appendNewline(),
-                    Component.text(" ".repeat(30))
+                    Component.text(" ".repeat(50))
                             .appendNewline()
-                            .append(Server.MINI_MESSAGE.deserialize("<gradient:#FF76B6:#FF6C32>mudkip ❤ Minestom"))
+                            .append(Server.MINI_MESSAGE.deserialize("<gradient:#FF76B6:#FF6C32>Made for the Minestom Game Jam"))
+                            .appendNewline()
+                            .append(Component.text("by mudkip, Cody, GoldenStack", NamedTextColor.GRAY))
                             .appendNewline());
         }
 

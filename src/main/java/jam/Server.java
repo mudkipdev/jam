@@ -70,7 +70,7 @@ public final class Server implements Config {
             var data = event.getResponseData();
             data.setMaxPlayer(500);
             data.setDescription(Component.textOfChildren(
-                    MINI_MESSAGE.deserialize("<rainbow>Color Clash"),
+                    MINI_MESSAGE.deserialize("<rainbow>Color Chase"),
                     Component.newline(),
                     Component.text("by mudkip, Cody, GoldenStack")));
 
@@ -79,6 +79,7 @@ public final class Server implements Config {
 
         eventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
             event.setSpawningInstance(lobby.getInstance());
+            event.getPlayer().setReducedDebugScreenInformation(true);
             LOGGER.info("{} connected", event.getPlayer().getUsername());
         });
 
