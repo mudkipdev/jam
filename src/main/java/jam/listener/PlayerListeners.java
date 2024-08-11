@@ -10,11 +10,11 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.PlayerChatEvent;
+import net.minestom.server.event.player.PlayerDeathEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.network.packet.server.play.ChangeGameStatePacket;
-import net.minestom.server.network.packet.server.play.EffectPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,6 +101,13 @@ public interface PlayerListeners {
             if (game != null && game == target.getTag(Tags.GAME)) {
                 game.handlePlayerAttack(attacker, target);
             }
+        }
+    }
+
+    static void onPlayerDeath(PlayerDeathEvent event) {
+        var game = event.getPlayer().getTag(Tags.GAME);
+        if (game != null) {
+            game.handleExternalPlayerDeath(event);
         }
     }
 }
