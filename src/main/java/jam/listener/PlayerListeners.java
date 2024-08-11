@@ -18,21 +18,13 @@ import java.util.function.Function;
 public interface PlayerListeners {
     Logger LOGGER = LoggerFactory.getLogger(PlayerListeners.class);
 
-    Function<PlayerChatEvent, Component> CHAT_FORMAT = event -> {
-        var team = event.getPlayer().getTag(Tags.TEAM);
+    Function<PlayerChatEvent, Component> CHAT_FORMAT = event -> Server.MINI_MESSAGE.deserialize(
+            "<gray>" + event.getPlayer().getUsername() + " <gray>» <white>" + event.getMessage());
 
-        return Component.textOfChildren(
-                Component.text(
-                        event.getPlayer().getUsername(),
-                        team == null
-                                ? NamedTextColor.GRAY
-                                : team.color().getTextColor()),
-
-                Component.text(" » ", NamedTextColor.GRAY),
-
-                Component.text(event.getMessage(), NamedTextColor.WHITE));
-
-    };
+//    Component.textOfChildren(
+//                Component.text(event.getPlayer().getUsername(), NamedTextColor.GRAY),
+//                Component.text(" » ", NamedTextColor.GRAY),
+//                Component.text(event.getMessage(), NamedTextColor.WHITE));
 
     static void onPlayerSpawn(PlayerSpawnEvent event) {
         var lobbyInstance = Server.getLobby().getInstance();
@@ -49,7 +41,7 @@ public interface PlayerListeners {
                             .appendNewline()
                             .append(Server.MINI_MESSAGE.deserialize("<gradient:#FF76B6:#FF6C32>Made for the Minestom Game Jam"))
                             .appendNewline()
-                            .append(Component.text("by mudkip, Cody, GoldenStack", NamedTextColor.GRAY))
+                            .append(Component.text("by mudkip, Cody, GoldenStack ❤", NamedTextColor.GRAY))
                             .appendNewline());
         }
 
@@ -60,7 +52,7 @@ public interface PlayerListeners {
 
             player.sendMessage(Component.textOfChildren(
                     Component.newline(),
-                    Component.text("The game will be starting soon! ", NamedTextColor.YELLOW),
+                    Component.text("The game will be starting soon! ", NamedTextColor.WHITE),
                     Component.text("Please stay patient. :)", NamedTextColor.GRAY),
                     Component.newline()));
 
@@ -71,9 +63,8 @@ public interface PlayerListeners {
     static void onPlayerDisconnect(PlayerDisconnectEvent event) {
         var player = event.getPlayer();
 
-        if (player.hasTag(Tags.TEAM)) {
-            var game = player.getTag(Tags.TEAM).game();
-            game.despawnPlayer(player);
+        if (player.hasTag(Tags.GAME)) {
+            player.getTag(Tags.GAME).despawnPlayer(player);
         } else {
             var queue = Server.getLobby().getQueue();
             queue.removePlayer(event.getPlayer());
@@ -88,7 +79,7 @@ public interface PlayerListeners {
     static void onPlayerUseItem(PlayerUseItemEvent event) {
         var player = event.getPlayer();
 
-        if (!player.hasTag(Tags.TEAM)) {
+        if (!player.hasTag(Tags.GAME)) {
             return;
         }
 

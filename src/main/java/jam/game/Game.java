@@ -9,6 +9,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.TitlePart;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
@@ -23,32 +24,20 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
-    private static final int TIMER = 70;
+    private static final int GRACE_PERIOD = 15;
+    private static final int TIMER = 100 + GRACE_PERIOD;
 
     private final Instance instance;
-    private final Set<Team> teams;
-    private final BossBar bossBar;
+    private final Set<Player> players;
     private final AtomicInteger timer = new AtomicInteger(TIMER);
+    private final BossBar bossBar;
 
     public Game() {
         this.instance = Arena.random().createArenaInstance();
-        this.teams = new HashSet<>() {{
-            Team.Color color = Team.Color.random();
-            LOGGER.info("The teams are {} and {}.", color, color.getComplementaryColor());
-            this.add(new Team(Game.this, new HashSet<>(), color, Team.NORTH_SPAWN));
-            this.add(new Team(Game.this, new HashSet<>(), color.getComplementaryColor(), Team.SOUTH_SPAWN));
-        }};
-
-        // change the concrete spawn platform's color
-        this.teams.forEach(team -> team.spawn().eachBlock(vector -> {
-                this.instance.setBlock(vector, team.color().getInkBlock());
-                LOGGER.trace("Filling {} with {}.", team.spawn().start(), team.color().getInkBlock());
-        }));
-
+        this.players = new HashSet<>();
         this.bossBar = BossBar.bossBar(
                 Component.text(this.timer.get() + " seconds left"),
                 1.0F,
@@ -59,18 +48,28 @@ public final class Game implements PacketGroupingAudience {
                 .buildTask(() -> {
                     if (timer.get() == 0) {
                         bossBar.removeViewer(this);
-                        this.getPlayers().forEach(this::despawnPlayer);
+
+                        MinecraftServer.getSchedulerManager().buildTask(() -> {
+                            this.getPlayers().forEach(this::despawnPlayer);
+                        }).delay(10, TimeUnit.SECOND).schedule();
+
                         return;
                     }
 
-                    bossBar.name(Component.text(this.timer.get() + " seconds left"));
-                    bossBar.progress((float) this.timer.getAndDecrement() / TIMER);
-                    bossBar.color(
-                            this.timer.get() < 20
-                                    ? BossBar.Color.RED
-                                    : (this.timer.get() < (TIMER / 3)
-                                            ? BossBar.Color.YELLOW
-                                            : BossBar.Color.GREEN));
+                    var grace = this.timer.get() > (TIMER - GRACE_PERIOD);
+                    var total = grace ? GRACE_PERIOD : TIMER;
+                    var current = grace ? this.timer.get() - TIMER : this.timer.get();
+
+                    if (grace) {
+                        bossBar.name(Component.text(current + " seconds left"));
+                        bossBar.color(current < 20 ? BossBar.Color.RED : BossBar.Color.GREEN);
+                    } else {
+                        bossBar.name(Component.text(current + " seconds left (grace period)"));
+                        bossBar.color(BossBar.Color.BLUE);
+                    }
+
+                    bossBar.progress((float) current / total);
+                    this.timer.decrementAndGet();
                 })
                 .repeat(1, TimeUnit.SECOND)
                 .schedule();
@@ -78,9 +77,7 @@ public final class Game implements PacketGroupingAudience {
 
     @Override
     public @NotNull Collection<@NotNull Player> getPlayers() {
-        return this.teams.stream()
-                .flatMap(team -> team.players().stream())
-                .collect(Collectors.toSet());
+        return this.players;
     }
 
     public Instance getInstance() {
@@ -88,40 +85,49 @@ public final class Game implements PacketGroupingAudience {
     }
 
     public void spawnPlayer(Player player) {
+        player.teleport(new Pos(Arena.SPAWN.randomBlock()));
         player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
         player.setGameMode(Config.DEBUG ? GameMode.CREATIVE : GameMode.ADVENTURE);
 
-        var team = this.teams.stream()
-                .min(Comparator.comparingInt(it -> it.players().size()))
-                .orElseThrow();
-
-        var component = Component.textOfChildren(
-                Component.text("You are on the ", NamedTextColor.GRAY),
-                team.getTitle(),
-                Component.text(" team.", NamedTextColor.GRAY));
-
+        // TODO
+        var team = Team.RUNNER;
+        var color = JamColor.GREEN;
+        player.setTag(Tags.GAME, this);
         player.setTag(Tags.TEAM, team);
-        player.setTeam(team.scoreboard());
-        team.players().add(player);
+        player.setTag(Tags.COLOR, color);
+
+        switch (team) {
+            case HUNTER -> {
+                player.sendTitlePart(TitlePart.SUBTITLE, Server.MINI_MESSAGE.deserialize(
+                        "<gray>The hunters must stay on their color, try to tag them!"));
+
+                player.sendTitlePart(TitlePart.TITLE, Component.text("Hunter Team"));
+            }
+
+            case RUNNER -> {
+                player.sendTitlePart(TitlePart.SUBTITLE, Server.MINI_MESSAGE.deserialize(
+                        "<gray>Run away from the hunters while staying on your color!"));
+
+                player.sendTitlePart(TitlePart.TITLE, Component.text("Runner Team"));
+            }
+        }
 
         player.getInventory().setChestplate(ItemStack.of(Material.LEATHER_CHESTPLATE)
-                .with(ItemComponent.DYED_COLOR, team.color().getDyeColor()));
+                .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
 
         player.getInventory().setLeggings(ItemStack.of(Material.LEATHER_LEGGINGS)
-                .with(ItemComponent.DYED_COLOR, team.color().getDyeColor()));
+                .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
 
         player.getInventory().setBoots(ItemStack.of(Material.LEATHER_BOOTS)
-                .with(ItemComponent.DYED_COLOR, team.color().getDyeColor()));
+                .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
 
         bossBar.addViewer(player);
-        player.sendTitlePart(TitlePart.TITLE, Component.empty());
-        player.sendTitlePart(TitlePart.SUBTITLE, component);
-        player.sendMessage(Component.newline().append(component).appendNewline());
     }
 
     public void despawnPlayer(Player player) {
+        player.removeTag(Tags.GAME);
         player.removeTag(Tags.TEAM);
-        player.setTeam(null);
+        player.removeTag(Tags.COLOR);
         player.getInventory().clear();
         player.setGameMode(GameMode.SPECTATOR);
         player.setInstance(Server.getLobby().getInstance());

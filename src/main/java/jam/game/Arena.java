@@ -1,9 +1,11 @@
 package jam.game;
 
 import jam.Server;
+import jam.utility.Zone;
 import net.hollowcube.polar.PolarLoader;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
@@ -18,16 +20,19 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public enum Arena {
     CITY;
 
+    public static final Zone SPAWN = new Zone(
+            new BlockVec(-4, 1, 45),
+            new BlockVec(4, 1, 45));
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Arena.class);
-    private static final Random RANDOM = new Random();
 
     public static Arena random() {
-        return values()[RANDOM.nextInt(values().length)];
+        return values()[ThreadLocalRandom.current().nextInt(values().length)];
     }
 
     public IChunkLoader createLoader() {
@@ -57,14 +62,15 @@ public enum Arena {
 
         var easterEgg = new Entity(EntityType.TEXT_DISPLAY);
         easterEgg.setNoGravity(true);
+
         easterEgg.editEntityMeta(TextDisplayMeta.class, meta -> {
             meta.setText(Component.text("You just lost the game"));
             meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.CENTER);
             meta.setScale(new Vec(10));
             meta.setBackgroundColor(0);
         });
-        easterEgg.setInstance(instance, new Pos(0.5D, 50.0D, 16.5D));
 
+        easterEgg.setInstance(instance, new Pos(0.5D, 50.0D, 16.5D));
         return instance;
     }
 }
