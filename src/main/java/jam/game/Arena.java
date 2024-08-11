@@ -29,12 +29,12 @@ public enum Arena {
     CITY(
             new Vec(0, 0, 32),
             List.of(new Zone(
-                    new BlockVec(-2, 1, 47),
-                    new BlockVec(3, 1, 49)
+                    new BlockVec(-2, 2, 47),
+                    new BlockVec(3, 2, 49)
             )),
             List.of(new Zone(
-                    new BlockVec(-2, 1, -19),
-                    new BlockVec(2, 1, -17)
+                    new BlockVec(-2, 2, -19),
+                    new BlockVec(2, 2, -17)
             ))
     );
 
