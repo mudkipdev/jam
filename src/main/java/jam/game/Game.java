@@ -123,6 +123,9 @@ public final class Game implements PacketGroupingAudience {
             player.setInstance(instance, arena.hunterSpawn());
             player.addEffect(new Potion(PotionEffect.BLINDNESS, (byte) 0, (GRACE_PERIOD + 1) * 20, 0));
             player.setGlowing(true);
+
+            player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.0D);
+            player.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).setBaseValue(0.0D);
         }
 
         // Init runners
@@ -268,9 +271,6 @@ public final class Game implements PacketGroupingAudience {
             if (player.getTag(Tags.TEAM) != Team.HUNTER) {
                 continue;
             }
-
-            player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.0D);
-            player.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).setBaseValue(0.0D);
 
             player.showTitle(Title.title(
                     Component.textOfChildren(
