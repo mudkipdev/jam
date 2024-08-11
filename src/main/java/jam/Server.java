@@ -19,9 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 
 public final class Server implements Config {
     public static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
@@ -30,11 +28,7 @@ public final class Server implements Config {
 
     public static final @NotNull ResourcePackRequest RESOURCE_PACK_REQUEST = ResourcePackRequest.resourcePackRequest()
             .required(true)
-            .packs(List.of(ResourcePackInfo.resourcePackInfo(
-                    UUID.fromString("dfd11d51-8309-4afc-8061-4e171ce77600"),
-                    URI.create("https://download.mc-packs.net/pack/cf996189ef1c25f22d6a700d4eb64f991b19ec83.zip"),
-                    "cf996189ef1c25f22d6a700d4eb64f991b19ec83"
-            )))
+            .packs(List.of(Config.RESOURCE_PACK))
             .build();
 
     private static Lobby lobby;

@@ -7,6 +7,7 @@ import jam.utility.Sounds;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
@@ -73,6 +74,10 @@ public final class Game implements PacketGroupingAudience {
         for (JamColor color : JamColor.values()) {
             net.minestom.server.scoreboard.Team team = MinecraftServer.getTeamManager()
                     .createBuilder("color-" + color.name().toLowerCase() + "-")
+                    .prefix(Component.text(
+                            color.name().charAt(0),
+                            color.getTextColor(),
+                            TextDecoration.BOLD).appendSpace())
                     .teamColor(color.getTextColor())
                     .build();
             minecraftTeams.put(color, team);
