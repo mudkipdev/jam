@@ -42,9 +42,6 @@ public interface PlayerListeners {
 
         if (event.isFirstSpawn()) {
             player.setReducedDebugScreenInformation(!Config.DEBUG);
-            player.sendPacket(new ChangeGameStatePacket(
-                    ChangeGameStatePacket.Reason.ENABLE_RESPAWN_SCREEN,
-                    1.0F));
 
             player.sendPlayerListHeaderAndFooter(
                     Component.newline()
