@@ -1,7 +1,6 @@
 package jam;
 
 import jam.listener.PlayerListeners;
-import net.kyori.adventure.resource.ResourcePackInfo;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -19,6 +18,9 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Base64;
 import java.util.List;
 
 public final class Server implements Config {
@@ -73,9 +75,21 @@ public final class Server implements Config {
     private static void registerEventListeners() {
         GlobalEventHandler eventHandler = MinecraftServer.getGlobalEventHandler();
 
+        byte[] resource;
+        try (InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("pack.png")) {
+            if (stream == null) throw new IOException("Could not find pack.png");
+            resource = stream.readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        byte[] base64 = Base64.getEncoder().encode(resource);
+        String favicon = "data:image/png;base64," + new String(base64);
+
         eventHandler.addListener(ServerListPingEvent.class, event -> {
             var data = event.getResponseData();
             data.setMaxPlayer(500);
+            data.setFavicon(favicon);
             data.setDescription(Component.textOfChildren(
                     MINI_MESSAGE.deserialize("<rainbow>Color Chase"),
                     Component.newline(),
