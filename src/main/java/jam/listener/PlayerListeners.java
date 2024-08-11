@@ -2,10 +2,7 @@ package jam.listener;
 
 import jam.Config;
 import jam.Server;
-import jam.game.Projectile;
-import jam.game.Team;
 import jam.utility.Tags;
-import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.GameMode;
@@ -13,8 +10,6 @@ import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.player.PlayerUseItemEvent;
-import net.minestom.server.network.packet.server.play.SetCooldownPacket;
-import net.minestom.server.sound.SoundEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,29 +92,6 @@ public interface PlayerListeners {
             return;
         }
 
-        switch (player.getHeldSlot()) {
-            case 0 -> {
-                player.playSound(Sound.sound(
-                        SoundEvent.ENTITY_BLAZE_SHOOT,
-                        Sound.Source.PLAYER,
-                        0.5F,
-                        1.5F));
-
-                new Projectile(player)
-                        .setInstance(event.getInstance(), player.getPosition());
-            }
-
-            case 2 -> {
-                player.playSound(Sound.sound(
-                        SoundEvent.ENTITY_BLAZE_SHOOT,
-                        Sound.Source.PLAYER,
-                        1.0F,
-                        0.5F));
-
-                player.sendPacket(new SetCooldownPacket(
-                        event.getItemStack().material().id(),
-                        20 * 5));
-            }
-        }
+        // TODO: item usage
     }
 }

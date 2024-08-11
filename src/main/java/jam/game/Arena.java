@@ -3,7 +3,6 @@ package jam.game;
 import jam.Server;
 import net.hollowcube.polar.PolarLoader;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;

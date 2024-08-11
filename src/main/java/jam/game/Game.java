@@ -13,13 +13,9 @@ import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.instance.InstanceContainer;
-import net.minestom.server.instance.InstanceManager;
-import net.minestom.server.instance.LightingChunk;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.minestom.server.item.component.DyedItemColor;
 import net.minestom.server.utils.time.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -107,10 +103,6 @@ public final class Game implements PacketGroupingAudience {
         player.setTag(Tags.TEAM, team);
         player.setTeam(team.scoreboard());
         team.players().add(player);
-
-        player.getInventory().setItemStack(0, team.color().getInkBlaster());
-        player.getInventory().setItemStack(1, ItemStack.of(Material.IRON_HOE));
-        player.getInventory().setItemStack(2, ItemStack.of(Material.WIND_CHARGE));
 
         player.getInventory().setChestplate(ItemStack.of(Material.LEATHER_CHESTPLATE)
                 .with(ItemComponent.DYED_COLOR, team.color().getDyeColor()));

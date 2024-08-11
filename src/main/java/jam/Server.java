@@ -1,8 +1,6 @@
 package jam;
 
-import jam.game.Team;
 import jam.listener.PlayerListeners;
-import jam.utility.Tags;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;

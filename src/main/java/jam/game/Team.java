@@ -137,7 +137,7 @@ public record Team(
                 case BLUE -> Material.LIGHT_BLUE_CANDLE;
                 case PINK -> Material.PINK_CANDLE;
             }).with(ItemComponent.ITEM_NAME, Component.text("Ink Blaster"));
-        };
+        }
 
         public Color getComplementaryColor() {
             return switch (this) {
