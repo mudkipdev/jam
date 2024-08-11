@@ -32,6 +32,7 @@ import net.minestom.server.network.packet.server.play.EffectPacket;
 import net.minestom.server.potion.Potion;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.timer.Task;
+import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.utils.time.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -243,7 +244,20 @@ public final class Game implements PacketGroupingAudience {
 
         this.playSound(Sounds.DRAGON);
 
-        this.gameTickTask = MinecraftServer.getSchedulerManager().buildTask(this::handleGameTick).repeat(Duration.of(1, TimeUnit.SECOND)).schedule();
+        this.gameTickTask = MinecraftServer.getSchedulerManager()
+                .buildTask(this::handleGameTick)
+                .repeat(Duration.of(1, TimeUnit.SECOND))
+                .schedule();
+
+        MinecraftServer.getSchedulerManager().submitTask(() -> {
+            if (this.ending.get()) {
+                return TaskSchedule.stop();
+            }
+
+            this.spawnRandomEffect();
+            var random = ThreadLocalRandom.current();
+            return TaskSchedule.duration(random.nextInt(20, 30), TimeUnit.SECOND);
+        });
     }
 
     private void handleGracePeriod() {
@@ -357,10 +371,6 @@ public final class Game implements PacketGroupingAudience {
                         Component.text(color.title(), color.getTextColor()),
                         Component.text("!", NamedTextColor.WHITE)));
             }
-        }
-
-        if (remaining % 5 == 0) {
-            this.spawnRandomEffect();
         }
 
         if (remaining == 15) {
