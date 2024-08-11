@@ -100,10 +100,16 @@ public final class InkBlaster implements Effect {
                     projectile.getInstance(),
                     Block::isSolid);
 
+            var color = shooter.getTag(Tags.COLOR);
+
             for (var nearbyBlock : nearbyBlocks) {
+                Block block = projectile.getInstance().getBlock(nearbyBlock.position());
+
+                if (block.isAir()) continue;
+
                 projectile.getInstance().sendGroupedPacket(new BlockChangePacket(
                         nearbyBlock.position(),
-                        shooter.getTag(Tags.COLOR).convertBlockMaterial(nearbyBlock.block())));
+                        color.convertBlockMaterial(block)));
             }
 
             shooter.getInstance().playSound(

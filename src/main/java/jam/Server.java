@@ -1,6 +1,8 @@
 package jam;
 
 import jam.listener.PlayerListeners;
+import net.kyori.adventure.resource.ResourcePackInfo;
+import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -13,13 +15,27 @@ import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ServerListPingEvent;
 import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.extras.lan.OpenToLAN;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.util.List;
+import java.util.UUID;
 
 public final class Server implements Config {
     public static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
+
+    public static final @NotNull ResourcePackRequest RESOURCE_PACK_REQUEST = ResourcePackRequest.resourcePackRequest()
+            .required(true)
+            .packs(List.of(ResourcePackInfo.resourcePackInfo(
+                    UUID.fromString("dfd11d51-8309-4afc-8061-4e171ce77600"),
+                    URI.create("https://download.mc-packs.net/pack/826dc2fb3927e3ed934bc68f00b6200f7985b03b.zip"),
+                    "826dc2fb3927e3ed934bc68f00b6200f7985b03b"
+            )))
+            .build();
 
     private static Lobby lobby;
 
@@ -76,6 +92,8 @@ public final class Server implements Config {
 
         eventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
             event.setSpawningInstance(lobby.getInstance());
+
+            event.getPlayer().sendResourcePacks(RESOURCE_PACK_REQUEST);
             LOGGER.info("{} connected", event.getPlayer().getUsername());
         });
 
