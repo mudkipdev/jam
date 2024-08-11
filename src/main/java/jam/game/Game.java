@@ -359,7 +359,7 @@ public final class Game implements PacketGroupingAudience {
 
                 this.sendTitlePart(TitlePart.SUBTITLE, Component.textOfChildren(
                         Component.text("Stay on ", NamedTextColor.GRAY),
-                        Component.text(color.title(), color.getTextColor()),
+                        Component.text(color.title().toLowerCase(), color.getTextColor()),
                         Component.text(" blocks to avoid dying.", NamedTextColor.GRAY)));
 
                 this.sendTitlePart(TitlePart.TITLE, Component.textOfChildren(
