@@ -2,14 +2,14 @@ package jam.listener;
 
 import jam.Config;
 import jam.Server;
+import jam.game.Game;
 import jam.utility.Tags;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.GameMode;
-import net.minestom.server.event.player.PlayerChatEvent;
-import net.minestom.server.event.player.PlayerDisconnectEvent;
-import net.minestom.server.event.player.PlayerSpawnEvent;
-import net.minestom.server.event.player.PlayerUseItemEvent;
+import net.minestom.server.entity.Player;
+import net.minestom.server.event.entity.EntityAttackEvent;
+import net.minestom.server.event.player.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,5 +84,21 @@ public interface PlayerListeners {
         }
 
         // TODO: item usage
+    }
+
+    static void onEntityAttack(EntityAttackEvent event) {
+        if (event.getEntity() instanceof Player attacker && event.getTarget() instanceof Player target) {
+            Game game = attacker.getTag(Tags.GAME);
+            if (game != null && game == target.getTag(Tags.GAME)) {
+                game.handlePlayerAttack(attacker, target);
+            }
+        }
+    }
+
+    static void onPlayerMove(PlayerMoveEvent event) {
+        Game game = event.getPlayer().getTag(Tags.GAME);
+        if (game != null) {
+            game.handlePlayerMove(event);
+        }
     }
 }
