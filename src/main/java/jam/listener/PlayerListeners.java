@@ -2,6 +2,7 @@ package jam.listener;
 
 import jam.Config;
 import jam.Server;
+import jam.game.Game;
 import jam.utility.Tags;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
@@ -24,11 +25,12 @@ public interface PlayerListeners {
 
     Set<UUID> DEVELOPERS = Set.of(
             UUID.fromString("0541ed27-7595-4e6a-9101-6c07f879b7b5"),  // mudkip
-            UUID.fromString("7beddb4f-8574-4e21-ad45-9b6b88957725"), // golden
-            UUID.fromString("45bae2bd-1889-44f1-91f6-4f1730b4665b")); // cody
+            UUID.fromString("7beddb4f-8574-4e21-ad45-9b6b88957725"),  // golden
+            UUID.fromString("45bae2bd-1889-44f1-91f6-4f1730b4665b"),  // cody
+            UUID.fromString("7bd5b459-1e6b-4753-8274-1fbd2fe9a4d5")); // emortal
 
     Function<PlayerChatEvent, Component> CHAT_FORMAT = event -> Server.MINI_MESSAGE.deserialize(
-            (DEVELOPERS.contains(event.getPlayer().getUuid()) ? "<gradient:#FF76B6:gold>" : "<gray>")
+            (DEVELOPERS.contains(event.getPlayer().getUuid()) ? "<gradient:gold:#FF76B6>" : "<gray>")
                     + event.getPlayer().getUsername() + " <gray>» <white>" + event.getMessage());
 
     static void onPlayerSpawn(PlayerSpawnEvent event) {
@@ -44,7 +46,7 @@ public interface PlayerListeners {
                             .appendNewline(),
                     Component.text(" ".repeat(50))
                             .appendNewline()
-                            .append(Server.MINI_MESSAGE.deserialize("<gradient:#FF76B6:#FF6C32>Made for the Minestom Game Jam"))
+                            .append(Server.MINI_MESSAGE.deserialize("<gradient:#FF6C32:#FF76B6>Made for the Minestom Game Jam"))
                             .appendNewline()
                             .append(Component.text("by mudkip, Cody, GoldenStack ❤", NamedTextColor.GRAY))
                             .appendNewline());

@@ -23,7 +23,9 @@ import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.component.FireworkExplosion;
+import net.minestom.server.item.component.FireworkList;
 import net.minestom.server.network.packet.server.play.EffectPacket;
+import net.minestom.server.network.packet.server.play.EntityStatusPacket;
 import net.minestom.server.potion.Potion;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.timer.Task;
@@ -32,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.css.RGBColor;
 
 import java.time.Duration;
 import java.util.*;
@@ -41,7 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
-    private static final int GRACE_PERIOD = 15;
+    private static final int GRACE_PERIOD = Config.DEBUG ? 0 : 15;
     private static final int GAME_TIME = 120;
 
     private final Arena arena;
@@ -168,7 +171,7 @@ public final class Game implements PacketGroupingAudience {
         if (attacker.getPosition().distance(target.getPosition()) > 4.5) return;
 
         if (attackerTeam == Team.HUNTER && targetTeam == Team.RUNNER) {
-            this.playEliminationAnimation(attacker, target);
+            playEliminationAnimation(attacker, target);
             target.removeTag(Tags.TEAM);
             runners.remove(target.getUuid());
             target.setGameMode(GameMode.SPECTATOR);
@@ -347,34 +350,34 @@ public final class Game implements PacketGroupingAudience {
     }
 
     public static void playEliminationAnimation(Player hunter, Player runner) {
-        var firework = new Entity(EntityType.FIREWORK_ROCKET);
-        firework.setNoGravity(true);
-
-        firework.editEntityMeta(FireworkRocketMeta.class, meta -> {
-            meta.setFireworkInfo(ItemStack.of(Material.FIREWORK_ROCKET)
-                    .with(ItemComponent.FIREWORK_EXPLOSION, new FireworkExplosion(
-                            FireworkExplosion.Shape.LARGE_BALL,
-                            List.of(),
-                            List.of(),
-                            false,
-                            false)));
-        });
-
-        firework.setInstance(runner.getInstance(), runner.getPosition());
-
-        MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
-            firework.getInstance().sendGroupedPacket(new EffectPacket(
-                    1004,
-                    firework.getPosition(),
-                    0,
-                    false));
-
-            firework.remove();
-        });
-
         runner.takeKnockback(
                 0.5F,
                 Math.sin(Math.toRadians(hunter.getPosition().yaw())),
                 -Math.cos(Math.toRadians(hunter.getPosition().yaw())));
+
+        var firework = new Entity(EntityType.FIREWORK_ROCKET);
+        firework.setNoGravity(true);
+
+        var explosion = new FireworkExplosion(
+                FireworkExplosion.Shape.SMALL_BALL,
+                List.of(runner.getTag(Tags.COLOR).getTextColor()),
+                List.of(runner.getTag(Tags.COLOR).getTextColor()),
+                false,
+                false);
+
+        firework.editEntityMeta(FireworkRocketMeta.class, meta ->
+                meta.setFireworkInfo(ItemStack.of(Material.FIREWORK_ROCKET)
+                        .with(ItemComponent.FIREWORKS, new FireworkList(
+                                (byte) 0, List.of(explosion)))));
+
+        firework.setInstance(runner.getInstance(), runner.getPosition().add(0.0D, 2.0D, 0.0D));
+        firework.triggerStatus((byte) 17);
+        firework.getInstance().sendGroupedPacket(new EffectPacket(
+                1004,
+                firework.getPosition(),
+                0,
+                false));
+
+        MinecraftServer.getSchedulerManager().scheduleNextTick(firework::remove);
     }
 }
