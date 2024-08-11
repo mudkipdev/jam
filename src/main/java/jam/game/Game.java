@@ -10,14 +10,19 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
+import net.minestom.server.entity.metadata.projectile.FireworkRocketMeta;
 import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.item.component.FireworkExplosion;
+import net.minestom.server.network.packet.server.play.EffectPacket;
 import net.minestom.server.potion.Potion;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.timer.Task;
@@ -140,7 +145,10 @@ public final class Game implements PacketGroupingAudience {
             player.setInstance(instance, arena.runnerSpawn());
         }
 
-        this.gracePeriodTask = MinecraftServer.getSchedulerManager().buildTask(this::handleGracePeriod).repeat(Duration.of(1, TimeUnit.SECOND)).schedule();
+        this.gracePeriodTask = MinecraftServer.getSchedulerManager()
+                .buildTask(this::handleGracePeriod)
+                .repeat(Duration.of(1, TimeUnit.SECOND))
+                .schedule();
     }
 
 
@@ -155,6 +163,7 @@ public final class Game implements PacketGroupingAudience {
         if (attacker.getPosition().distance(target.getPosition()) > 4.5) return;
 
         if (attackerTeam == Team.HUNTER && targetTeam == Team.RUNNER) {
+            this.playEliminationAnimation(attacker, target);
             target.removeTag(Tags.TEAM);
             runners.remove(target.getUuid());
             target.setGameMode(GameMode.SPECTATOR);
@@ -191,18 +200,15 @@ public final class Game implements PacketGroupingAudience {
         minecraftTeams.values().forEach(MinecraftServer.getTeamManager()::deleteTeam);
 
         switch (winner) {
-            case HUNTER -> {
-                instance.showTitle(Title.title(
-                        Component.text("Hunters have won!", NamedTextColor.RED),
-                        Component.text("Every runner has been eliminated.")
-                ));
-            }
-            case RUNNER -> {
-                instance.showTitle(Title.title(
-                        Component.text("Runners have won!", NamedTextColor.GREEN),
-                        Component.text("The runners have evaded the hunters.")
-                ));
-            }
+            case HUNTER -> instance.showTitle(Title.title(
+                    Component.text("Hunters have won!", NamedTextColor.RED),
+                    Component.text("Every runner has been eliminated.")
+            ));
+
+            case RUNNER -> instance.showTitle(Title.title(
+                    Component.text("Runners have won!", NamedTextColor.GREEN),
+                    Component.text("The runners have evaded the hunters.")
+            ));
         }
 
         for (var player : getPlayers()) {
@@ -221,12 +227,6 @@ public final class Game implements PacketGroupingAudience {
         }).delay(Duration.of(10, TimeUnit.SECOND)).schedule();
     }
 
-    public void handlePlayerMove(PlayerMoveEvent event) {
-        if (event.getPlayer().getTag(Tags.TEAM) == Team.HUNTER && gracePeriodTask != null && gracePeriodTask.isAlive()) {
-            event.setCancelled(true);
-        }
-    }
-
     public void despawnPlayer(Player player) {
         player.removeTag(Tags.GAME);
         player.removeTag(Tags.TEAM);
@@ -241,22 +241,24 @@ public final class Game implements PacketGroupingAudience {
         this.gracePeriodTask.cancel();
         this.gracePeriodTask = null;
 
-        for (Player player : instance.getPlayers()) {
+        for (var player : instance.getPlayers()) {
+            // fucking vanilla
+            player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.1D);
+            player.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).setBaseValue(0.41999998688697815D);
+
             switch (player.getTag(Tags.TEAM)) {
                 case RUNNER -> player.updateViewableRule(null);
-                case HUNTER -> {
-                    player.showTitle(Title.title(
-                            Component.text("The hunt begins!", NamedTextColor.RED),
-                            Server.MINI_MESSAGE.deserialize(
-                                    "<gray>The <yellow>grace period<gray> is over. <red>Hunt<gray> and <red>eliminate<gray> the runners."
-                            ),
-                            Title.Times.times(
-                                    Duration.ZERO,
-                                    Duration.ofMillis(1500),
-                                    Duration.ofMillis(1000)
-                            )
-                    ));
-                }
+                case HUNTER -> player.showTitle(Title.title(
+                        Component.text("The hunt begins!"),
+                        Server.MINI_MESSAGE.deserialize(
+                                "<gray>The <yellow>grace period<gray> is over. <red>Hunt and eliminate<gray> the runners."
+                        ),
+                        Title.Times.times(
+                                Duration.ZERO,
+                                Duration.ofMillis(5000),
+                                Duration.ofMillis(1000)
+                        )
+                ));
             }
         }
 
@@ -266,26 +268,32 @@ public final class Game implements PacketGroupingAudience {
     }
 
     private void handleGracePeriod() {
-        int remaining = gracePeriod.getAndDecrement();
+        var remaining = gracePeriod.getAndDecrement();
+
         if (remaining == 0) {
-            endGracePeriod();
+            this.endGracePeriod();
             return;
         }
 
-        bossBar.addViewer(this);
+        this.bossBar.addViewer(this);
 
-        for (Player player : instance.getPlayers()) {
-            if (player.getTag(Tags.TEAM) != Team.HUNTER) continue;
+        for (var player : this.instance.getPlayers()) {
+            if (player.getTag(Tags.TEAM) != Team.HUNTER) {
+                continue;
+            }
+
+            player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.0D);
+            player.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).setBaseValue(0.0D);
 
             player.showTitle(Title.title(
                     Component.textOfChildren(
                             Component.text(remaining, NamedTextColor.RED),
-                            Component.text(" second" + (remaining == 1 ? "" : "s") + " left")
+                            Component.text(" second" + (remaining == 1 ? "" : "s") + " left", NamedTextColor.GRAY)
                     ),
                     Component.textOfChildren(
-                            Component.text("of the "),
+                            Component.text("of the ", NamedTextColor.GRAY),
                             Component.text("grace period", NamedTextColor.YELLOW),
-                            Component.text("!")
+                            Component.text("!", NamedTextColor.GRAY)
                     ),
                     Title.Times.times(
                             remaining == GRACE_PERIOD ? Title.DEFAULT_TIMES.fadeIn() : Duration.ZERO,
@@ -295,18 +303,19 @@ public final class Game implements PacketGroupingAudience {
             ));
         }
 
-        bossBar.name(Component.text(remaining + " second" + (remaining == 1 ? "" : "s") + " left (grace period)"));
-        bossBar.color(BossBar.Color.BLUE);
-
-        bossBar.progress((float) remaining / GRACE_PERIOD);
-
+        this.bossBar.name(Component.text(remaining + " second" + (remaining == 1 ? "" : "s") + " left (grace period)"));
+        this.bossBar.color(BossBar.Color.BLUE);
+        this.bossBar.progress((float) remaining / GRACE_PERIOD);
         this.playSound(Sounds.CLICK);
     }
 
     private void handleGameTick() {
-        if (ending.get()) return;
+        if (this.ending.get()) {
+            return;
+        }
 
-        int remaining = gameTime.getAndDecrement();
+        int remaining = this.gameTime.getAndDecrement();
+
         if (remaining == 0) {
             handleGameEnd(Team.RUNNER);
             return;
@@ -330,5 +339,37 @@ public final class Game implements PacketGroupingAudience {
                 player.setGlowing(true);
             }
         }
+    }
+
+    public static void playEliminationAnimation(Player hunter, Player runner) {
+        var firework = new Entity(EntityType.FIREWORK_ROCKET);
+        firework.setNoGravity(true);
+
+        firework.editEntityMeta(FireworkRocketMeta.class, meta -> {
+            meta.setFireworkInfo(ItemStack.of(Material.FIREWORK_ROCKET)
+                    .with(ItemComponent.FIREWORK_EXPLOSION, new FireworkExplosion(
+                            FireworkExplosion.Shape.LARGE_BALL,
+                            List.of(),
+                            List.of(),
+                            false,
+                            false)));
+        });
+
+        firework.setInstance(runner.getInstance(), runner.getPosition());
+
+        MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
+            firework.getInstance().sendGroupedPacket(new EffectPacket(
+                    1004,
+                    firework.getPosition(),
+                    0,
+                    false));
+
+            firework.remove();
+        });
+
+        runner.takeKnockback(
+                0.5F,
+                Math.sin(Math.toRadians(hunter.getPosition().yaw())),
+                -Math.cos(Math.toRadians(hunter.getPosition().yaw())));
     }
 }

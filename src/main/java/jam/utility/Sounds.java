@@ -14,19 +14,19 @@ public interface Sounds {
     Sound DRAGON = Sound.sound(
             SoundEvent.ENTITY_ENDER_DRAGON_GROWL,
             Sound.Source.MASTER,
-            1F, 0F
+            0.7F, 0.9F
     );
 
     Sound FIREWORK_WIN = Sound.sound(
             SoundEvent.ENTITY_FIREWORK_ROCKET_TWINKLE_FAR,
             Sound.Source.MASTER,
-            1F, 1.2F
+            1.0F, 1.2F
     );
 
     Sound DEATH_LOSE = Sound.sound(
             SoundEvent.BLOCK_BEACON_DEACTIVATE,
             Sound.Source.MASTER,
-            1F, 1.2F
+            1.0F, 1.2F
     );
 
 }
