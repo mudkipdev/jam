@@ -29,8 +29,9 @@ public enum Arena {
     CITY(
             new Vec(0, 0, 16),
             new Zone(
-                    new BlockVec(19, 1, 49),
-                    new BlockVec(-19, 1, -2)),
+                    new BlockVec(-19, 1, -2),
+                    new BlockVec(19, 1, 49)
+            ),
             List.of(new Zone(
                     new BlockVec(-2, 2, 47),
                     new BlockVec(3, 2, 49)
