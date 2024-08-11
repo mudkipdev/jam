@@ -79,7 +79,7 @@ public final class Game implements PacketGroupingAudience {
 
         for (JamColor color : JamColor.values()) {
             net.minestom.server.scoreboard.Team team = MinecraftServer.getTeamManager()
-                    .createBuilder("color-" + color.name().toLowerCase() + "-")
+                    .createBuilder("color-" + color.name().toLowerCase())
                     .prefix(Component.text(
                             color.name().charAt(0),
                             color.getTextColor(),
@@ -442,8 +442,13 @@ public final class Game implements PacketGroupingAudience {
     }
 
     public void changeColor(Player player, JamColor color) {
+        JamColor old = player.getTag(Tags.COLOR);
         player.setTag(Tags.COLOR, color);
-        player.setTeam(this.minecraftTeams.get(color));
+
+        if (old != null) {
+            this.minecraftTeams.get(old).removeMember(player.getUsername());
+        }
+        this.minecraftTeams.get(color).addMember(player.getUsername());
 
         player.getInventory().setChestplate(ItemStack.of(Material.LEATHER_CHESTPLATE)
                 .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
