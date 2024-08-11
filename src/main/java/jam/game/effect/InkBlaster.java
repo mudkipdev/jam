@@ -109,9 +109,7 @@ public final class InkBlaster implements Effect {
 
                 if (block.isAir()) continue;
 
-                projectile.getInstance().sendGroupedPacket(new BlockChangePacket(
-                        nearbyBlock.position(),
-                        color.convertBlockMaterial(block)));
+                projectile.getInstance().setBlock(nearbyBlock.position(), color.convertBlockMaterial(block));
             }
 
             shooter.getInstance().playSound(

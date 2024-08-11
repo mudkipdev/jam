@@ -15,6 +15,7 @@ import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
@@ -22,6 +23,7 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.projectile.FireworkRocketMeta;
+import net.minestom.server.event.player.PlayerDeathEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
@@ -107,6 +109,7 @@ public final class Game implements PacketGroupingAudience {
             player.setGameMode(GameMode.ADVENTURE);
             this.changeColor(player, JamColor.random());
             player.setInvisible(false);
+            player.setEnableRespawnScreen(false);
 
             for (var effect : EFFECTS) {
                 effect.activate(player, this);
@@ -335,15 +338,22 @@ public final class Game implements PacketGroupingAudience {
                 this.handleDeath(null, player);
             }
 
-            var block = this.instance.getBlock(player.getPosition().sub(0.0D, 1.0D, 0.0D));
-            var color = JamColor.colorOfBlock(block);
+            Pos pos = player.getPosition();
+
+            JamColor color = JamColor.colorOfBlock(this.instance.getBlock(pos));
+            if (color == null) { // Try another block
+                color = JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -1, 0)));
+                if (color == null) { // Try a final block
+                    color = JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -2, 0)));
+                }
+            }
 
             if (color != null && color != player.getTag(Tags.COLOR)) {
                 if (Config.DEBUG) {
                     player.sendMessage(Component.textOfChildren(
-                            Component.text("Damaging you because you stepped on " + block.name() + " (", NamedTextColor.GRAY),
+                            Component.text("Damaging you because you stepped on ", NamedTextColor.GRAY),
                             Component.text(color.title(), color.getTextColor()),
-                            Component.text(")", NamedTextColor.GRAY)));
+                            Component.text("!", NamedTextColor.GRAY)));
                 }
 
                 player.damage(DamageType.GENERIC, 2.0F);
@@ -385,9 +395,13 @@ public final class Game implements PacketGroupingAudience {
         }
     }
 
-    private void handleDeath(Player hunter, Player runner) {
+    private void handleDeath(@Nullable Player hunter, @NotNull Player player) {
+        Team team = player.getTag(Tags.TEAM);
+        JamColor color = player.getTag(Tags.COLOR);
+        if (team == null || color == null) return;
+
         if (hunter != null) {
-            runner.takeKnockback(
+            player.takeKnockback(
                     0.5F,
                     Math.sin(Math.toRadians(hunter.getPosition().yaw())),
                     -Math.cos(Math.toRadians(hunter.getPosition().yaw())));
@@ -398,8 +412,8 @@ public final class Game implements PacketGroupingAudience {
 
         var explosion = new FireworkExplosion(
                 FireworkExplosion.Shape.SMALL_BALL,
-                List.of(runner.getTag(Tags.COLOR).getTextColor()),
-                List.of(runner.getTag(Tags.COLOR).getTextColor()),
+                List.of(color.getTextColor()),
+                List.of(color.getTextColor()),
                 false,
                 false);
 
@@ -408,7 +422,7 @@ public final class Game implements PacketGroupingAudience {
                         .with(ItemComponent.FIREWORKS, new FireworkList(
                                 (byte) 0, List.of(explosion)))));
 
-        firework.setInstance(runner.getInstance(), runner.getPosition().add(0.0D, 2.0D, 0.0D));
+        firework.setInstance(player.getInstance(), player.getPosition().add(0.0D, 2.0D, 0.0D));
         firework.triggerStatus((byte) 17);
         firework.getInstance().sendGroupedPacket(new EffectPacket(
                 1004,
@@ -418,21 +432,30 @@ public final class Game implements PacketGroupingAudience {
 
         MinecraftServer.getSchedulerManager().scheduleNextTick(firework::remove);
 
-        runner.removeTag(Tags.TEAM);
-        this.runners.remove(runner.getUuid());
-        runner.setGameMode(GameMode.SPECTATOR);
-        runner.playSound(Sounds.DEATH_LOSE);
-        runner.setInvisible(true);
+        if (team == Team.RUNNER) {
+            this.runners.remove(player.getUuid());
 
-        if (this.runners.isEmpty()) {
-            this.handleGameEnd(Team.HUNTER);
+            if (this.runners.isEmpty()) {
+                this.handleGameEnd(Team.HUNTER);
+            }
+        } else if (team == Team.HUNTER) {
+            this.hunters.remove(player.getUuid());
+
+            if (this.hunters.isEmpty()) {
+                this.handleGameEnd(Team.RUNNER);
+            }
         }
+
+        player.removeTag(Tags.TEAM);
+        player.setGameMode(GameMode.SPECTATOR);
+        player.playSound(Sounds.DEATH_LOSE);
+        player.setInvisible(true);
 
         Component message;
 
         if (hunter != null) {
             message = Component.textOfChildren(
-                    Component.text(runner.getUsername(), NamedTextColor.GREEN),
+                    Component.text(player.getUsername(), NamedTextColor.GREEN),
                     Component.text(" was tagged by ", NamedTextColor.YELLOW),
                     Component.text(hunter.getUsername(), NamedTextColor.RED),
                     Component.text("!", NamedTextColor.YELLOW),
@@ -441,7 +464,7 @@ public final class Game implements PacketGroupingAudience {
                     Component.text(" runners remaining.", NamedTextColor.GRAY));
         } else {
             message = Component.textOfChildren(
-                    Component.text(runner.getUsername(), NamedTextColor.GREEN),
+                    Component.text(player.getUsername(), NamedTextColor.GREEN),
                     Component.text(" was eliminated! ", NamedTextColor.YELLOW),
                     Component.text(" There are ", NamedTextColor.GRAY),
                     Component.text(runners.size(), NamedTextColor.YELLOW),
@@ -485,5 +508,14 @@ public final class Game implements PacketGroupingAudience {
 
         var collectible = new Collectible(effect);
         collectible.setInstance(this.instance, newPos);
+    }
+
+    public void handleExternalPlayerDeath(@NotNull PlayerDeathEvent event) {
+        Player player = event.getPlayer();
+        Team team = player.getTag(Tags.TEAM);
+        if (team == null) return;
+
+        event.setChatMessage(null);
+        handleDeath(null, player);
     }
 }

@@ -112,6 +112,7 @@ public final class Server implements Config {
                 .addListener(PlayerSpawnEvent.class, PlayerListeners::onPlayerSpawn)
                 .addListener(PlayerDisconnectEvent.class, PlayerListeners::onPlayerDisconnect)
                 .addListener(EntityAttackEvent.class, PlayerListeners::onEntityAttack)
+                .addListener(PlayerDeathEvent.class, PlayerListeners::onPlayerDeath)
                 .addListener(InventoryPreClickEvent.class, event -> event.setCancelled(true))
                 .addListener(PlayerSwapItemEvent.class, event -> event.setCancelled(true))
                 .addListener(ItemDropEvent.class, event -> event.setCancelled(true));
