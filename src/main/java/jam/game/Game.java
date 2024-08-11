@@ -292,7 +292,7 @@ public final class Game implements PacketGroupingAudience {
 
         this.bossBar.name(Component.text(remaining + " second" + (remaining == 1 ? "" : "s") + " left (grace period)"));
         this.bossBar.color(BossBar.Color.BLUE);
-        this.bossBar.progress((float) remaining / GRACE_PERIOD);
+        this.bossBar.progress(Math.min(1, (float) remaining / GRACE_PERIOD));
         this.playSound(Sounds.CLICK);
     }
 
