@@ -17,6 +17,7 @@ import net.minestom.server.event.server.ServerListPingEvent;
 import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.extras.lan.OpenToLAN;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.network.packet.server.common.ServerLinksPacket;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,11 +113,15 @@ public final class Server implements Config {
         });
 
         eventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
+            LOGGER.info("{} connected", event.getPlayer().getUsername());
             event.setSpawningInstance(lobby.getInstance());
             event.getPlayer().setRespawnPoint(Lobby.SPAWN);
-            event.getPlayer().sendResourcePacks(RESOURCE_PACK_REQUEST);
+//            event.getPlayer().sendResourcePacks(RESOURCE_PACK_REQUEST);
 
-            LOGGER.info("{} connected", event.getPlayer().getUsername());
+            event.getPlayer().sendPacket(new ServerLinksPacket(
+                    new ServerLinksPacket.Entry(Component.text("mudkip's website"), "https://mudkip.dev"),
+                    new ServerLinksPacket.Entry(Component.text("golden's website"), "https://goldenstack.net"),
+                    new ServerLinksPacket.Entry(Component.text("Cody's website"), "https://codyq.dev")));
         });
 
         eventHandler.addListener(PlayerDisconnectEvent.class, event ->
