@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
     private static final Effect[] EFFECTS = { new InkBlaster() };
-    private static final int GRACE_PERIOD = Config.DEBUG ? 1 : 15;
+    private static final int GRACE_PERIOD = Config.DEBUG ? 15 : 60;
     private static final int GAME_TIME = 120;
 
     private final Arena arena;
