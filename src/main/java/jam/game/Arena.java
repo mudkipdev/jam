@@ -1,8 +1,8 @@
 package jam.game;
 
+import jam.Lobby;
 import jam.Server;
 import jam.utility.Zone;
-import net.hollowcube.polar.PolarLoader;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
@@ -15,13 +15,13 @@ import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
 import net.minestom.server.instance.IChunkLoader;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.instance.LightingChunk;
+import net.minestom.server.instance.anvil.AnvilLoader;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -79,16 +79,12 @@ public enum Arena {
         return values()[ThreadLocalRandom.current().nextInt(values().length)];
     }
 
-    public IChunkLoader createLoader() {
-        try (InputStream stream = Server.class.getResourceAsStream(
-                "/" + this.name().toLowerCase() + ".polar")) {
-            if (stream == null) {
-                throw new IOException("Could not find Polar world.");
-            }
-
-            return new PolarLoader(stream);
-        } catch (IOException e) {
-            LOGGER.error("Failed to load Polar world.", e);
+    public static IChunkLoader createLoader(String world) {
+        try {
+            var url = Server.class.getResource("/" + world);
+            return new AnvilLoader(Path.of(url.toURI()));
+        } catch (URISyntaxException e) {
+            LOGGER.error("Failed to load Anvil world.", e);
             System.exit(1);
             return null; // W code
         }
@@ -96,11 +92,10 @@ public enum Arena {
 
     public Instance createArenaInstance() {
         var instanceManager = MinecraftServer.getInstanceManager();
-        var instance = instanceManager.createInstanceContainer();
+        var instance = instanceManager.createInstanceContainer(Lobby.dimension);
         var arena = Arena.random();
 
-        instance.setChunkSupplier(LightingChunk::new);
-        instance.setChunkLoader(arena.createLoader());
+        instance.setChunkLoader(Arena.createLoader(arena.name().toLowerCase()));
         instance.setTimeRate(0);
         instance.setTime(18000);
 

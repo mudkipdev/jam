@@ -40,9 +40,10 @@ public interface PlayerListeners {
         var queue = Server.getLobby().getQueue();
         var player = event.getPlayer();
 
+        player.setGameMode(GameMode.ADVENTURE);
+
         if (event.isFirstSpawn()) {
             player.setReducedDebugScreenInformation(!Config.DEBUG);
-
             player.sendPlayerListHeaderAndFooter(
                     Component.newline()
                             .append(Server.MINI_MESSAGE.deserialize("<rainbow><b>Color Chase"))
@@ -62,7 +63,6 @@ public interface PlayerListeners {
 
         // if they're waiting in queue
         if (lobbyInstance.equals(event.getInstance())) {
-            player.setGameMode(GameMode.SPECTATOR);
             player.updateViewableRule(viewer -> !player.getInstance().equals(lobbyInstance));
 
             player.sendMessage(Component.textOfChildren(

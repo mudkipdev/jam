@@ -10,6 +10,11 @@ public interface Sounds {
             0.5F, 1.2F
     );
 
+    Sound TELEPORT = Sound.sound(
+            SoundEvent.ENTITY_ENDERMAN_TELEPORT,
+            Sound.Source.MASTER,
+            1.0F, 1.0F);
+
     Sound NOTE = Sound.sound(
             SoundEvent.BLOCK_NOTE_BLOCK_HARP,
             Sound.Source.MASTER,

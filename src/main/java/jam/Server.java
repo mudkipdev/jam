@@ -1,11 +1,13 @@
 package jam;
 
 import jam.listener.PlayerListeners;
+import jam.utility.SignHandler;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
@@ -14,6 +16,7 @@ import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ServerListPingEvent;
 import net.minestom.server.extras.MojangAuth;
 import net.minestom.server.extras.lan.OpenToLAN;
+import net.minestom.server.instance.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +43,18 @@ public final class Server implements Config {
                 "org.slf4j.simpleLogger.defaultLogLevel",
                 Config.DEBUG ? "trace" : "info");
 
-        MinecraftServer server = MinecraftServer.init();
+        var server = MinecraftServer.init();
         lobby = new Lobby();
         registerEventListeners();
+
+//        MinecraftServer.getBlockManager().registerHandler(SignHandler.KEY, SignHandler.SUPPLIER);
+//
+//        for (var block : Block.values()) {
+//            if (block.name().endsWith("sign")) {
+//                MinecraftServer.getBlockManager().registerHandler(block.name(), SignHandler.SUPPLIER);
+//                LOGGER.info("Registering sign handler for {}", block.name());
+//            }
+//        }
 
         // TODO: re-enable bungeecord forwarding (you can check git version history)
         MojangAuth.init();
@@ -73,11 +85,12 @@ public final class Server implements Config {
     }
 
     private static void registerEventListeners() {
-        GlobalEventHandler eventHandler = MinecraftServer.getGlobalEventHandler();
+        var eventHandler = MinecraftServer.getGlobalEventHandler();
 
         byte[] resource;
-        try (InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("pack.png")) {
-            if (stream == null) throw new IOException("Could not find pack.png");
+
+        try (var stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("pack.png")) {
+            if (stream == null) throw new IOException("Could not find pack.png!");
             resource = stream.readAllBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -100,6 +113,8 @@ public final class Server implements Config {
 
         eventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
             event.setSpawningInstance(lobby.getInstance());
+            event.getPlayer().setRespawnPoint(Lobby.SPAWN);
+
 //            event.getPlayer().sendResourcePacks(RESOURCE_PACK_REQUEST);
             LOGGER.info("{} connected", event.getPlayer().getUsername());
         });
