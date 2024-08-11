@@ -14,6 +14,9 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.item.ItemComponent;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
 import net.minestom.server.potion.Potion;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.timer.Task;
@@ -75,6 +78,18 @@ public final class Game implements PacketGroupingAudience {
             player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
             player.setGameMode(Config.DEBUG ? GameMode.CREATIVE : GameMode.ADVENTURE);
             player.setInvisible(false);
+
+            JamColor color = JamColor.random();
+            player.setTag(Tags.COLOR, color);
+
+            player.getInventory().setChestplate(ItemStack.of(Material.LEATHER_CHESTPLATE)
+                    .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
+
+            player.getInventory().setLeggings(ItemStack.of(Material.LEATHER_LEGGINGS)
+                    .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
+
+            player.getInventory().setBoots(ItemStack.of(Material.LEATHER_BOOTS)
+                    .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
         }
 
         int hunters = (int) Math.ceil(players.size() / 3.0);
@@ -112,21 +127,6 @@ public final class Game implements PacketGroupingAudience {
         }
 
         this.gracePeriodTask = MinecraftServer.getSchedulerManager().buildTask(this::startGracePeriod).repeat(Duration.of(1, TimeUnit.SECOND)).schedule();
-
-//        TODO: Implement colors
-//        var color = JamColor.GREEN;
-//        player.setTag(Tags.COLOR, color);
-//
-//        player.getInventory().setChestplate(ItemStack.of(Material.LEATHER_CHESTPLATE)
-//                .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
-//
-//        player.getInventory().setLeggings(ItemStack.of(Material.LEATHER_LEGGINGS)
-//                .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
-//
-//        player.getInventory().setBoots(ItemStack.of(Material.LEATHER_BOOTS)
-//                .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
-//
-//        bossBar.addViewer(player);
     }
 
 
