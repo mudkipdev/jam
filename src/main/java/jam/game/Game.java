@@ -255,7 +255,7 @@ public final class Game implements PacketGroupingAudience {
                         ),
                         Title.Times.times(
                                 Duration.ZERO,
-                                Duration.ofMillis(3000),
+                                Duration.ofMillis(5000),
                                 Duration.ofMillis(1000)
                         )
                 ));
