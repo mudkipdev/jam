@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 public record Zone(Point start, Point end) {
     private static int randomNumber(int min, int max) {
-        return max > min ? ThreadLocalRandom.current().nextInt(min, max) : min;
+        return max <= min ? min : ThreadLocalRandom.current().nextInt(min, max);
     }
 
     public void eachBlock(Consumer<BlockVec> consumer) {

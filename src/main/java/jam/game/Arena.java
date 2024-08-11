@@ -28,6 +28,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public enum Arena {
     CITY(
             new Vec(0, 0, 16),
+            new Zone(
+                    new BlockVec(19, 1, 49),
+                    new BlockVec(-19, 1, -2)),
             List.of(new Zone(
                     new BlockVec(-2, 2, 47),
                     new BlockVec(3, 2, 49)
@@ -39,10 +42,12 @@ public enum Arena {
     );
 
     private final Vec center;
+    private final Zone effectSpawnZone;
     private final List<Zone> runnerSpawns, hunterSpawns;
 
-    Arena(Vec center, List<Zone> runnerSpawns, List<Zone> hunterSpawns) {
+    Arena(Vec center, Zone effectSpawnZone, List<Zone> runnerSpawns, List<Zone> hunterSpawns) {
         this.center = center;
+        this.effectSpawnZone = effectSpawnZone;
         this.runnerSpawns = runnerSpawns;
         this.hunterSpawns = hunterSpawns;
     }
@@ -110,5 +115,9 @@ public enum Arena {
 
         easterEgg.setInstance(instance, getCenter().add(0, 50, 0));
         return instance;
+    }
+
+    public BlockVec pickEffectSpawn() {
+        return this.effectSpawnZone.randomBlock();
     }
 }

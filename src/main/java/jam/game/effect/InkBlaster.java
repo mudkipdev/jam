@@ -116,7 +116,7 @@ public final class InkBlaster implements Effect {
                     Sound.sound(
                             SoundEvent.ENTITY_DONKEY_CHEST,
                             Sound.Source.MASTER,
-                            4.0F,
+                            1.0F,
                             2.0F),
                     projectile.getPosition()) ;
 

@@ -13,6 +13,8 @@ import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.entity.EntityAttackEvent;
+import net.minestom.server.network.packet.server.play.ChangeGameStatePacket;
+import net.minestom.server.network.packet.server.play.EffectPacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +42,10 @@ public interface PlayerListeners {
 
         if (event.isFirstSpawn()) {
             player.setReducedDebugScreenInformation(!Config.DEBUG);
+            player.sendPacket(new ChangeGameStatePacket(
+                    ChangeGameStatePacket.Reason.ENABLE_RESPAWN_SCREEN,
+                    1.0F));
+
             player.sendPlayerListHeaderAndFooter(
                     Component.newline()
                             .append(Server.MINI_MESSAGE.deserialize("<rainbow><b>Color Chase"))

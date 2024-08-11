@@ -2,6 +2,9 @@ package jam.game;
 
 import jam.Config;
 import jam.Server;
+import jam.game.effect.Collectible;
+import jam.game.effect.Effect;
+import jam.game.effect.InkBlaster;
 import jam.utility.Tags;
 import jam.utility.Sounds;
 import net.kyori.adventure.bossbar.BossBar;
@@ -9,6 +12,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
+import net.kyori.adventure.title.TitlePart;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.entity.Entity;
@@ -16,8 +20,8 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
+import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.projectile.FireworkRocketMeta;
-import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
@@ -25,7 +29,6 @@ import net.minestom.server.item.Material;
 import net.minestom.server.item.component.FireworkExplosion;
 import net.minestom.server.item.component.FireworkList;
 import net.minestom.server.network.packet.server.play.EffectPacket;
-import net.minestom.server.network.packet.server.play.EntityStatusPacket;
 import net.minestom.server.potion.Potion;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.timer.Task;
@@ -34,7 +37,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.css.RGBColor;
 
 import java.time.Duration;
 import java.util.*;
@@ -44,6 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
+    private static final Effect[] EFFECTS = { new InkBlaster() };
     private static final int GRACE_PERIOD = Config.DEBUG ? 0 : 15;
     private static final int GAME_TIME = 120;
 
@@ -97,33 +100,23 @@ public final class Game implements PacketGroupingAudience {
     }
 
     public void spawnPlayers(Collection<Player> players) {
-        for (Player player : players) {
+        for (var player : players) {
             player.setTag(Tags.GAME, this);
             player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
-            player.setGameMode(Config.DEBUG ? GameMode.CREATIVE : GameMode.ADVENTURE);
+            player.setGameMode(GameMode.ADVENTURE);
+            this.changeColor(player, JamColor.random());
             player.setInvisible(false);
 
-            JamColor color = JamColor.random();
-            player.setTag(Tags.COLOR, color);
-
-            minecraftTeams.get(color).addMember(player.getUsername());
-
-            player.getInventory().setChestplate(ItemStack.of(Material.LEATHER_CHESTPLATE)
-                    .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
-
-            player.getInventory().setLeggings(ItemStack.of(Material.LEATHER_LEGGINGS)
-                    .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
-
-            player.getInventory().setBoots(ItemStack.of(Material.LEATHER_BOOTS)
-                    .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
+            for (var effect : EFFECTS) {
+                effect.activate(player, this);
+            }
         }
 
-        int hunters = (int) Math.ceil(players.size() / 3.0);
-
-        List<Player> initial = new ArrayList<>(players);
+        var hunters = (int) Math.ceil(players.size() / 3.0);
+        var initial = new ArrayList<>(players);
 
         // Init hunters
-        for (int i = 0; i < hunters; i++) {
+        for (var i = 0; i < hunters; i++) {
             int index = ThreadLocalRandom.current().nextInt(initial.size());
 
             Player player = initial.remove(index);
@@ -137,7 +130,7 @@ public final class Game implements PacketGroupingAudience {
         }
 
         // Init runners
-        for (Player player : initial) {
+        for (var player : initial) {
             player.setTag(Tags.TEAM, Team.RUNNER);
             this.runners.add(player.getUuid());
 
@@ -171,29 +164,7 @@ public final class Game implements PacketGroupingAudience {
         if (attacker.getPosition().distance(target.getPosition()) > 4.5) return;
 
         if (attackerTeam == Team.HUNTER && targetTeam == Team.RUNNER) {
-            playEliminationAnimation(attacker, target);
-            target.removeTag(Tags.TEAM);
-            runners.remove(target.getUuid());
-            target.setGameMode(GameMode.SPECTATOR);
-            target.setInvisible(true);
-
-            target.playSound(Sounds.DEATH_LOSE);
-
-            if (runners.isEmpty()) {
-                handleGameEnd(Team.HUNTER);
-            }
-
-            Component message = Component.textOfChildren(
-                    Component.text(target.getUsername(), NamedTextColor.GREEN),
-                    Component.text(" was tagged by ", NamedTextColor.YELLOW),
-                    Component.text(attacker.getUsername(), NamedTextColor.RED),
-                    Component.text("!", NamedTextColor.YELLOW),
-                    Component.text(" There are ", NamedTextColor.GRAY),
-                    Component.text(runners.size(), NamedTextColor.YELLOW),
-                    Component.text(" runners remaining.", NamedTextColor.GRAY)
-            );
-
-            instance.sendMessage(message);
+            this.handleDeath(attacker, target);
         }
     }
 
@@ -208,12 +179,12 @@ public final class Game implements PacketGroupingAudience {
         minecraftTeams.values().forEach(MinecraftServer.getTeamManager()::deleteTeam);
 
         switch (winner) {
-            case HUNTER -> instance.showTitle(Title.title(
+            case HUNTER -> this.showTitle(Title.title(
                     Component.text("Hunters have won!", NamedTextColor.RED),
                     Component.text("Every runner has been eliminated.")
             ));
 
-            case RUNNER -> instance.showTitle(Title.title(
+            case RUNNER -> this.showTitle(Title.title(
                     Component.text("Runners have won!", NamedTextColor.GREEN),
                     Component.text("The runners have evaded the hunters.")
             ));
@@ -333,8 +304,63 @@ public final class Game implements PacketGroupingAudience {
         bossBar.color(remaining < 0.2 * GAME_TIME ? BossBar.Color.RED : BossBar.Color.GREEN);
         bossBar.progress(remaining / (float) GAME_TIME);
 
-        if (remaining != GAME_TIME && (remaining % 30 == 0 || (remaining <= 30 && remaining % 5 == 0) || (remaining <= 15))) {
+        if (remaining < 15 || remaining == 30 || remaining == 60) {
             this.playSound(Sounds.CLICK);
+        }
+
+        for (var player : this.instance.getPlayers()) {
+            if (remaining > (GAME_TIME - 5)) {
+                continue; // invulnerability
+            }
+
+            if (!player.hasTag(Tags.COLOR)) {
+                continue;
+            }
+
+            if (player.getHealth() == 0.0F) {
+                this.handleDeath(null, player);
+            }
+
+            var block = this.instance.getBlock(player.getPosition().sub(0.0D, 1.0D, 0.0D));
+            var color = JamColor.colorOfBlock(block);
+
+            if (color != null && color != player.getTag(Tags.COLOR)) {
+                if (Config.DEBUG) {
+                    player.sendMessage(Component.textOfChildren(
+                            Component.text("Damaging you because you stepped on " + block.name() + " (", NamedTextColor.GRAY),
+                            Component.text(color.title(), color.getTextColor()),
+                            Component.text(")", NamedTextColor.GRAY)));
+                }
+
+                player.damage(DamageType.GENERIC, 2.0F);
+            }
+        }
+
+        if (remaining % 20 == 0) {
+            this.playSound(Sounds.NOTE);
+
+            for (var player : this.getInstance().getPlayers()) {
+                if (!player.hasTag(Tags.COLOR)) {
+                    continue;
+                }
+
+                var color = JamColor.random();
+                this.changeColor(player, color);
+
+                this.sendTitlePart(TitlePart.SUBTITLE, Component.textOfChildren(
+                        Component.text("Stay on ", NamedTextColor.GRAY),
+                        Component.text(color.title(), color.getTextColor()),
+                        Component.text(" blocks to avoid dying.", NamedTextColor.GRAY)));
+
+                this.sendTitlePart(TitlePart.TITLE, Component.textOfChildren(
+                        Component.text("Your color is now ", NamedTextColor.WHITE),
+                        Component.text(color.title(), color.getTextColor()),
+                        Component.text("!", NamedTextColor.WHITE)));
+            }
+        }
+
+        if (remaining % 5 == 0) {
+            this.spawnRandomEffect();
         }
 
         if (remaining == 15) {
@@ -349,11 +375,13 @@ public final class Game implements PacketGroupingAudience {
         }
     }
 
-    public static void playEliminationAnimation(Player hunter, Player runner) {
-        runner.takeKnockback(
-                0.5F,
-                Math.sin(Math.toRadians(hunter.getPosition().yaw())),
-                -Math.cos(Math.toRadians(hunter.getPosition().yaw())));
+    private void handleDeath(Player hunter, Player runner) {
+        if (hunter != null) {
+            runner.takeKnockback(
+                    0.5F,
+                    Math.sin(Math.toRadians(hunter.getPosition().yaw())),
+                    -Math.cos(Math.toRadians(hunter.getPosition().yaw())));
+        }
 
         var firework = new Entity(EntityType.FIREWORK_ROCKET);
         firework.setNoGravity(true);
@@ -379,5 +407,58 @@ public final class Game implements PacketGroupingAudience {
                 false));
 
         MinecraftServer.getSchedulerManager().scheduleNextTick(firework::remove);
+
+        runner.removeTag(Tags.TEAM);
+        this.runners.remove(runner.getUuid());
+        runner.setGameMode(GameMode.SPECTATOR);
+        runner.playSound(Sounds.DEATH_LOSE);
+        runner.setInvisible(true);
+
+        if (this.runners.isEmpty()) {
+            this.handleGameEnd(Team.HUNTER);
+        }
+
+        Component message;
+
+        if (hunter == null) {
+            message = Component.textOfChildren(
+                    Component.text(runner.getUsername(), NamedTextColor.GREEN),
+                    Component.text(" was tagged by ", NamedTextColor.YELLOW),
+                    Component.text(hunter.getUsername(), NamedTextColor.RED),
+                    Component.text("!", NamedTextColor.YELLOW),
+                    Component.text(" There are ", NamedTextColor.GRAY),
+                    Component.text(runners.size(), NamedTextColor.YELLOW),
+                    Component.text(" runners remaining.", NamedTextColor.GRAY));
+        } else {
+            message = Component.textOfChildren(
+                    Component.text(runner.getUsername(), NamedTextColor.GREEN),
+                    Component.text(" was eliminated! ", NamedTextColor.YELLOW),
+                    Component.text(" There are ", NamedTextColor.GRAY),
+                    Component.text(runners.size(), NamedTextColor.YELLOW),
+                    Component.text(" runners remaining.", NamedTextColor.GRAY));
+        }
+
+        this.sendMessage(message);
+    }
+
+    public void changeColor(Player player, JamColor color) {
+        player.setTag(Tags.COLOR, color);
+        player.setTeam(this.minecraftTeams.get(color));
+
+        player.getInventory().setChestplate(ItemStack.of(Material.LEATHER_CHESTPLATE)
+                .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
+
+        player.getInventory().setLeggings(ItemStack.of(Material.LEATHER_LEGGINGS)
+                .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
+
+        player.getInventory().setBoots(ItemStack.of(Material.LEATHER_BOOTS)
+                .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
+    }
+
+    private void spawnRandomEffect() {
+        var effect = EFFECTS[ThreadLocalRandom.current().nextInt(EFFECTS.length)];
+        var position = this.arena.pickEffectSpawn();
+        var collectible = new Collectible(effect);
+        collectible.setInstance(this.instance, position);
     }
 }

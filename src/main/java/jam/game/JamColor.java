@@ -56,6 +56,21 @@ public enum JamColor implements Titleable {
         return blockInfo;
     }
 
+    public static JamColor colorOfBlock(Block block) {
+        // accounting for all possible color names lol
+        if (block.name().contains("red_")) return JamColor.RED;
+        if (block.name().contains("orange_")) return JamColor.ORANGE;
+        if (block.name().contains("yellow_")) return JamColor.YELLOW;
+        if (block.name().contains("green_")) return JamColor.GREEN;
+        if (block.name().contains("lime_")) return JamColor.GREEN;
+        if (block.name().contains("aqua_")) return JamColor.BLUE;
+        if (block.name().contains("blue_")) return JamColor.BLUE;
+        if (block.name().contains("pink_")) return JamColor.PINK;
+        if (block.name().contains("purple_")) return JamColor.PINK;
+        if (block.name().contains("magenta_")) return JamColor.PINK;
+        return null;
+    }
+
     public static JamColor random() {
         return values()[ThreadLocalRandom.current().nextInt(values().length)];
     }
