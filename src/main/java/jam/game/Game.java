@@ -221,6 +221,7 @@ public final class Game implements PacketGroupingAudience {
         player.getInventory().clear();
         player.setGameMode(GameMode.SPECTATOR);
         player.setInvisible(true);
+        player.setGlowing(false);
     }
 
     private void endGracePeriod() {
@@ -292,5 +293,16 @@ public final class Game implements PacketGroupingAudience {
         bossBar.name(Component.text(remaining + " second" + (remaining == 1 ? "" : "s") + " left"));
         bossBar.color(remaining < 0.2 * GAME_TIME ? BossBar.Color.RED : BossBar.Color.GREEN);
         bossBar.progress(remaining / (float) GAME_TIME);
+
+        if (remaining == 15) {
+            sendMessage(Server.MINI_MESSAGE.deserialize(
+                    "<red>15 seconds<gray> left! All <green>runners<gray> are now <yellow>glowing<gray>!"
+            ));
+            for (Player player : instance.getPlayers()) {
+                if (player.getTag(Tags.TEAM) != Team.RUNNER) continue;
+
+                player.setGlowing(true);
+            }
+        }
     }
 }
