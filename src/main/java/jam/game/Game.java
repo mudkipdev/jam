@@ -271,6 +271,11 @@ public final class Game implements PacketGroupingAudience {
                             Component.text("of the "),
                             Component.text("grace period", NamedTextColor.YELLOW),
                             Component.text("!")
+                    ),
+                    Title.Times.times(
+                            remaining == GRACE_PERIOD ? Title.DEFAULT_TIMES.fadeIn() : Duration.ZERO,
+                            Title.DEFAULT_TIMES.stay(),
+                            Title.DEFAULT_TIMES.fadeOut()
                     )
             ));
         }
