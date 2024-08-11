@@ -2,9 +2,7 @@ package jam.listener;
 
 import jam.Config;
 import jam.Server;
-import jam.game.Game;
 import jam.utility.Tags;
-import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.GameMode;
@@ -14,7 +12,6 @@ import net.minestom.server.event.player.PlayerDeathEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
 import net.minestom.server.event.entity.EntityAttackEvent;
-import net.minestom.server.network.packet.server.play.ChangeGameStatePacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,11 +51,6 @@ public interface PlayerListeners {
                             .appendNewline()
                             .append(Component.text("by mudkip, Cody, GoldenStack ❤", NamedTextColor.GRAY))
                             .appendNewline());
-
-            player.openBook(Book.book(
-                    Component.text("How to Play"),
-                    Component.text("mudkip, Cody, GoldenStack"),
-                    Server.MINI_MESSAGE.deserialize(Config.INSTRUCTIONS)));
         }
 
         // if they're waiting in queue
