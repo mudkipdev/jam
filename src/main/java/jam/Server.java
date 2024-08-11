@@ -32,8 +32,8 @@ public final class Server implements Config {
             .required(true)
             .packs(List.of(ResourcePackInfo.resourcePackInfo(
                     UUID.fromString("dfd11d51-8309-4afc-8061-4e171ce77600"),
-                    URI.create("https://download.mc-packs.net/pack/826dc2fb3927e3ed934bc68f00b6200f7985b03b.zip"),
-                    "826dc2fb3927e3ed934bc68f00b6200f7985b03b"
+                    URI.create("https://download.mc-packs.net/pack/cf996189ef1c25f22d6a700d4eb64f991b19ec83.zip"),
+                    "cf996189ef1c25f22d6a700d4eb64f991b19ec83"
             )))
             .build();
 
