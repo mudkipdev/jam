@@ -50,8 +50,9 @@ public enum Arena {
     private @NotNull Pos randomPoint(@NotNull List<Zone> zones) {
         Zone zone = zones.get(ThreadLocalRandom.current().nextInt(zones.size()));
         Point point = zone.randomBlock().add(0.5, 0, 0.5);
-        // TODO: Facing towards center
-        return new Pos(point).withView(0, 0);
+
+        Point diff = point.sub(center);
+        return new Pos(point).withView(90 + (float) Math.toDegrees(Math.atan2(diff.z(), diff.x())), 0);
     }
 
     public @NotNull Pos runnerSpawn() {
