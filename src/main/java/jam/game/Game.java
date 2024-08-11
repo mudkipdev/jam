@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
-    private static final int GRACE_PERIOD = Config.DEBUG ? 15 : 60;
+    private static final int GRACE_PERIOD = 15;
     private static final int GAME_TIME = 120;
 
     private final Arena arena;
@@ -59,7 +59,7 @@ public final class Game implements PacketGroupingAudience {
 
     private final AtomicBoolean ending = new AtomicBoolean(false);
 
-    private final AtomicInteger gracePeriod = new AtomicInteger(GRACE_PERIOD);
+    private final AtomicInteger gracePeriod = new AtomicInteger(GRACE_PERIOD + 1); // Buffer time so it actually displays 15
     private @Nullable Task gracePeriodTask;
 
     private final AtomicInteger gameTime = new AtomicInteger(GAME_TIME);
@@ -144,6 +144,8 @@ public final class Game implements PacketGroupingAudience {
 
             player.setInstance(instance, arena.runnerSpawn());
         }
+
+        this.bossBar.addViewer(this);
 
         this.gracePeriodTask = MinecraftServer.getSchedulerManager()
                 .buildTask(this::handleGracePeriod)
@@ -264,8 +266,6 @@ public final class Game implements PacketGroupingAudience {
             this.endGracePeriod();
             return;
         }
-
-        this.bossBar.addViewer(this);
 
         for (var player : this.instance.getPlayers()) {
             if (player.getTag(Tags.TEAM) != Team.HUNTER) {
