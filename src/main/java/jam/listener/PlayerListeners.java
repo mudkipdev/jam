@@ -73,7 +73,8 @@ public interface PlayerListeners {
 
     static void onPlayerChat(PlayerChatEvent event) {
         event.setChatFormat(CHAT_FORMAT);
-        new InkBlaster().activate(event.getPlayer(), event.getPlayer().getTag(Tags.GAME)); // TODO
+//        new InkBlaster().activate(event.getPlayer(), event.getPlayer().getTag(Tags.GAME)); // TODO
+        Game.playEliminationAnimation(event.getPlayer(), event.getPlayer());
         LOGGER.info("<{}> {}", event.getPlayer().getUsername(), event.getMessage());
     }
 
@@ -94,14 +95,6 @@ public interface PlayerListeners {
             if (game != null && game == target.getTag(Tags.GAME)) {
                 game.handlePlayerAttack(attacker, target);
             }
-        }
-    }
-
-    static void onPlayerMove(PlayerMoveEvent event) {
-        var game = event.getPlayer().getTag(Tags.GAME);
-
-        if (game != null) {
-            game.handlePlayerMove(event);
         }
     }
 }
