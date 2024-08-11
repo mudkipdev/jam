@@ -463,7 +463,17 @@ public final class Game implements PacketGroupingAudience {
     private void spawnRandomEffect() {
         var effect = EFFECTS[ThreadLocalRandom.current().nextInt(EFFECTS.length)];
         var position = this.arena.pickEffectSpawn();
+
+        int y;
+        for (y = position.blockY() + 50; y >= position.blockY(); y--) {
+            if (!instance.getBlock(position.blockX(), y, position.blockZ()).isAir()) {
+                break;
+            }
+        }
+
+        var newPos = position.withY(y).add(0.5, 1, 0.5);
+
         var collectible = new Collectible(effect);
-        collectible.setInstance(this.instance, position);
+        collectible.setInstance(this.instance, newPos);
     }
 }
