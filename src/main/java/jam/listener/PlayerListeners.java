@@ -2,10 +2,12 @@ package jam.listener;
 
 import jam.Config;
 import jam.Server;
+import jam.game.effect.InkBlaster;
 import jam.utility.Tags;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.GameMode;
+import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
@@ -20,11 +22,6 @@ public interface PlayerListeners {
 
     Function<PlayerChatEvent, Component> CHAT_FORMAT = event -> Server.MINI_MESSAGE.deserialize(
             "<gray>" + event.getPlayer().getUsername() + " <gray>» <white>" + event.getMessage());
-
-//    Component.textOfChildren(
-//                Component.text(event.getPlayer().getUsername(), NamedTextColor.GRAY),
-//                Component.text(" » ", NamedTextColor.GRAY),
-//                Component.text(event.getMessage(), NamedTextColor.WHITE));
 
     static void onPlayerSpawn(PlayerSpawnEvent event) {
         var lobbyInstance = Server.getLobby().getInstance();
@@ -73,16 +70,7 @@ public interface PlayerListeners {
 
     static void onPlayerChat(PlayerChatEvent event) {
         event.setChatFormat(CHAT_FORMAT);
+        new InkBlaster().activate(event.getPlayer(), event.getPlayer().getTag(Tags.GAME)); // TODO
         LOGGER.info("<{}> {}", event.getPlayer().getUsername(), event.getMessage());
-    }
-
-    static void onPlayerUseItem(PlayerUseItemEvent event) {
-        var player = event.getPlayer();
-
-        if (!player.hasTag(Tags.GAME)) {
-            return;
-        }
-
-        // TODO: item usage
     }
 }

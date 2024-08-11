@@ -23,6 +23,17 @@ public enum JamColor implements Titleable {
         return values()[ThreadLocalRandom.current().nextInt(values().length)];
     }
 
+    public Block convertBlockMaterial(Block block) {
+        return switch (this) {
+            case RED -> Block.RED_CONCRETE;
+            case ORANGE -> Block.ORANGE_CONCRETE;
+            case YELLOW -> Block.YELLOW_CONCRETE;
+            case GREEN -> Block.LIME_CONCRETE;
+            case BLUE -> Block.LIGHT_BLUE_CONCRETE;
+            case PINK -> Block.PINK_CONCRETE;
+        };
+    }
+
     public NamedTextColor getTextColor() {
         return switch (this) {
             case RED -> NamedTextColor.RED;
@@ -42,17 +53,6 @@ public enum JamColor implements Titleable {
             case GREEN -> new DyedItemColor(8439583);
             case BLUE -> new DyedItemColor(3847130);
             case PINK -> new DyedItemColor(13061821);
-        };
-    }
-
-    public Block getInkBlock() {
-        return switch (this) {
-            case RED -> Block.RED_CONCRETE;
-            case ORANGE -> Block.ORANGE_CONCRETE;
-            case YELLOW -> Block.YELLOW_CONCRETE;
-            case GREEN -> Block.LIME_CONCRETE;
-            case BLUE -> Block.LIGHT_BLUE_CONCRETE;
-            case PINK -> Block.PINK_CONCRETE;
         };
     }
 
