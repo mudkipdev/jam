@@ -53,6 +53,8 @@ public final class Game implements PacketGroupingAudience {
     private final AtomicInteger gameTime = new AtomicInteger(GAME_TIME);
     private @Nullable Task gameTickTask;
 
+    private final Map<JamColor, net.minestom.server.scoreboard.Team> minecraftTeams = new HashMap<>();
+
     public Game() {
         this.arena = Arena.random();
         this.instance = arena.createArenaInstance();
@@ -61,6 +63,14 @@ public final class Game implements PacketGroupingAudience {
                 1.0F,
                 BossBar.Color.WHITE,
                 BossBar.Overlay.PROGRESS);
+
+        for (JamColor color : JamColor.values()) {
+            net.minestom.server.scoreboard.Team team = MinecraftServer.getTeamManager()
+                    .createBuilder("color-" + color.name().toLowerCase() + "-")
+                    .teamColor(color.getTextColor())
+                    .build();
+            minecraftTeams.put(color, team);
+        }
     }
 
     @Override
@@ -81,6 +91,8 @@ public final class Game implements PacketGroupingAudience {
 
             JamColor color = JamColor.random();
             player.setTag(Tags.COLOR, color);
+
+            minecraftTeams.get(color).addMember(player.getUsername());
 
             player.getInventory().setChestplate(ItemStack.of(Material.LEATHER_CHESTPLATE)
                     .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
@@ -107,6 +119,7 @@ public final class Game implements PacketGroupingAudience {
 
             player.setInstance(instance, arena.hunterSpawn());
             player.addEffect(new Potion(PotionEffect.BLINDNESS, (byte) 0, (GRACE_PERIOD + 1) * 20, 0));
+            player.setGlowing(true);
         }
 
         // Init runners
@@ -168,6 +181,8 @@ public final class Game implements PacketGroupingAudience {
         gameTickTask = null;
 
         bossBar.removeViewer(this);
+
+        minecraftTeams.values().forEach(MinecraftServer.getTeamManager()::deleteTeam);
 
         switch (winner) {
             case HUNTER -> {
