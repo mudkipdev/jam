@@ -2,9 +2,6 @@ package jam.game;
 
 import jam.Config;
 import jam.Server;
-import jam.game.effect.Collectible;
-import jam.game.effect.Effect;
-import jam.game.effect.InkBlaster;
 import jam.utility.Tags;
 import jam.utility.Sounds;
 import net.kyori.adventure.bossbar.BossBar;
@@ -49,7 +46,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
-    private static final Effect[] EFFECTS = { new InkBlaster() };
     private static final int GRACE_PERIOD = Config.DEBUG ? 15 : 60;
     private static final int GAME_TIME = 120;
 
@@ -110,10 +106,6 @@ public final class Game implements PacketGroupingAudience {
             this.changeColor(player, JamColor.random());
             player.setInvisible(false);
             player.setEnableRespawnScreen(false);
-
-            for (var effect : EFFECTS) {
-                effect.activate(player, this);
-            }
         }
 
         var hunters = (int) Math.ceil(players.size() / 3.0);
@@ -493,7 +485,7 @@ public final class Game implements PacketGroupingAudience {
     }
 
     private void spawnRandomEffect() {
-        var effect = EFFECTS[ThreadLocalRandom.current().nextInt(EFFECTS.length)];
+        var effect = Effect.random();
         var position = this.arena.pickEffectSpawn();
 
         int y;

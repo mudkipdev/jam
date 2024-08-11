@@ -2,6 +2,7 @@ package jam.game;
 
 import jam.Lobby;
 import jam.Server;
+import jam.utility.Titleable;
 import jam.utility.Zone;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
@@ -25,7 +26,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public enum Arena {
+public enum Arena implements Titleable {
     CITY(
             new Vec(0, 0, 16),
             new Zone(

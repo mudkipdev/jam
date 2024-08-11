@@ -1,7 +1,6 @@
-package jam.game.effect;
+package jam.game;
 
 import jam.Server;
-import jam.game.JamColor;
 import jam.utility.Sounds;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -13,7 +12,6 @@ import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
 import net.minestom.server.instance.Instance;
-import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.time.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,14 +29,14 @@ public final class Collectible extends Entity {
         this.editEntityMeta(ItemDisplayMeta.class, meta -> {
             meta.setHasGlowingEffect(true);
             meta.setGlowColorOverride(JamColor.YELLOW.getTextColor().value());
-            meta.setItemStack(ItemStack.of(effect.icon()));
+            meta.setItemStack(effect.createItemStack());
             meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.CENTER);
         });
 
         this.label = new Entity(EntityType.TEXT_DISPLAY);
         this.label.setNoGravity(true);
         this.label.editEntityMeta(TextDisplayMeta.class, meta -> {
-                meta.setText(Component.text(this.effect.name(), NamedTextColor.YELLOW, TextDecoration.BOLD));
+                meta.setText(Component.text(this.effect.title(), NamedTextColor.YELLOW, TextDecoration.BOLD));
                 meta.setBillboardRenderConstraints(
                         AbstractDisplayMeta.BillboardConstraints.CENTER);
         });
