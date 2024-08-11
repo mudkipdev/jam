@@ -39,7 +39,7 @@ public final class Game implements PacketGroupingAudience {
     private final AtomicInteger timer = new AtomicInteger(TIMER);
 
     public Game() {
-        this.instance = createArenaInstance();
+        this.instance = Arena.random().createArenaInstance();
         this.teams = new HashSet<>() {{
             Team.Color color = Team.Color.random();
             LOGGER.info("The teams are {} and {}.", color, color.getComplementaryColor());
@@ -78,19 +78,6 @@ public final class Game implements PacketGroupingAudience {
                 })
                 .repeat(1, TimeUnit.SECOND)
                 .schedule();
-    }
-
-    private static Instance createArenaInstance() {
-        var instanceManager = MinecraftServer.getInstanceManager();
-        var instance = instanceManager.createInstanceContainer();
-        var arena = Arena.random();
-
-        instance.setChunkSupplier(LightingChunk::new);
-        instance.setChunkLoader(arena.createLoader());
-        instance.setTimeRate(0);
-        instance.setTime(18000);
-
-        return instance;
     }
 
     @Override

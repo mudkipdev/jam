@@ -17,8 +17,6 @@ import net.minestom.server.extras.lan.OpenToLAN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.function.Function;
-
 public final class Server implements Config {
     public static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
 
