@@ -94,13 +94,15 @@ public final class InkBlaster implements Effect {
             }
 
             var shooter = (Player) projectile.getShooter();
+            if (shooter == null) return;
+            var color = shooter.getTag(Tags.COLOR);
+            if (color == null) return;
+
             var nearbyBlocks = Sphere.getNearbyBlocks(
                     projectile.getPosition(),
                     POINTS,
                     projectile.getInstance(),
                     Block::isSolid);
-
-            var color = shooter.getTag(Tags.COLOR);
 
             for (var nearbyBlock : nearbyBlocks) {
                 Block block = projectile.getInstance().getBlock(nearbyBlock.position());
