@@ -4,16 +4,28 @@ import jam.game.Arena;
 import jam.game.Queue;
 import jam.utility.SignHandler;
 import jam.utility.Sounds;
+import net.kyori.adventure.inventory.Book;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Player;
+import net.minestom.server.event.instance.AddEntityToInstanceEvent;
 import net.minestom.server.event.instance.InstanceChunkLoadEvent;
+import net.minestom.server.event.instance.RemoveEntityFromInstanceEvent;
 import net.minestom.server.event.player.PlayerBlockInteractEvent;
 import net.minestom.server.event.player.PlayerMoveEvent;
+import net.minestom.server.event.player.PlayerUseItemEvent;
 import net.minestom.server.instance.InstanceContainer;
+import net.minestom.server.item.ItemComponent;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
+import net.minestom.server.item.component.WrittenBookContent;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.world.DimensionType;
 
+import java.util.List;
 import java.util.Set;
 
 public final class Lobby {
@@ -67,6 +79,34 @@ public final class Lobby {
 
             event.getInstance().setBlock(event.getBlockPosition(), event.getBlock()
                     .withProperty("open", !open ? "true" : "false"));
+        });
+
+        this.instance.eventNode().addListener(AddEntityToInstanceEvent.class, event -> {
+            if (event.getEntity() instanceof Player player) {
+                player.getInventory().setItemStack(0, ItemStack.of(Material.WRITTEN_BOOK)
+                        .with(ItemComponent.ITEM_NAME, Component.text("How to Play", NamedTextColor.GREEN))
+                        .with(ItemComponent.WRITTEN_BOOK_CONTENT, new WrittenBookContent(
+                                List.of(Component.empty()),
+                                "How to Play",
+                                "mudkip")));
+            }
+        });
+
+        this.instance.eventNode().addListener(RemoveEntityFromInstanceEvent.class, event -> {
+            if (event.getEntity() instanceof Player player) {
+                player.getInventory().clear();
+            }
+        });
+
+        this.instance.eventNode().addListener(PlayerUseItemEvent.class, event -> {
+            if (!event.getItemStack().material().equals(Material.WRITTEN_BOOK)) {
+                return;
+            }
+
+            event.getPlayer().openBook(Book.book(
+                    Component.text("How to Play"),
+                    Component.text("mudkip"),
+                    Server.MINI_MESSAGE.deserialize(Config.INSTRUCTIONS)));
         });
     }
 

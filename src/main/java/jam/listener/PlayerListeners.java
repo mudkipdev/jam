@@ -32,7 +32,7 @@ public interface PlayerListeners {
             UUID.fromString("7bd5b459-1e6b-4753-8274-1fbd2fe9a4d5")); // emortal
 
     Function<PlayerChatEvent, Component> CHAT_FORMAT = event -> Server.MINI_MESSAGE.deserialize(
-            (DEVELOPERS.contains(event.getPlayer().getUuid()) ? "<gradient:gold:#FF76B6>" : "<gray>")
+            (DEVELOPERS.contains(event.getPlayer().getUuid()) ? "<gradient:#FF76B6:gold>" : "<gray>")
                     + event.getPlayer().getUsername() + " <gray>» <white>" + event.getMessage());
 
     static void onPlayerSpawn(PlayerSpawnEvent event) {

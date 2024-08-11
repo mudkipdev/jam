@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 public final class Queue implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Queue.class);
-    private static final int WAIT_TIME = Config.DEBUG ? 9999 : 60;
+    private static final int WAIT_TIME = Config.DEBUG ? 1 : 60;
     private static final int MINIMUM_PLAYERS = Config.DEBUG ? 1 : 2;
     private static final int MAXIMUM_PLAYERS = 8;
 
