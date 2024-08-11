@@ -13,8 +13,8 @@ public interface Config {
     // Resource Pack Metadata
     ResourcePackInfo RESOURCE_PACK = ResourcePackInfo.resourcePackInfo(
             UUID.fromString("dfd11d51-8309-4afc-8061-4e171ce77600"),
-            URI.create("https://download.mc-packs.net/pack/cf996189ef1c25f22d6a700d4eb64f991b19ec83.zip"),
-            "cf996189ef1c25f22d6a700d4eb64f991b19ec83");
+            URI.create("https://download.mc-packs.net/pack/5059b0c5fa0f6ffe579b1a07c14e085aca64605e.zip"),
+            "5059b0c5fa0f6ffe579b1a07c14e085aca64605e");
 
     // BungeeCord Forwarding
     String[] SECRETS = System.getProperty("forwarding", "").split(",");

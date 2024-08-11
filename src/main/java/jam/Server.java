@@ -100,7 +100,7 @@ public final class Server implements Config {
 
         eventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
             event.setSpawningInstance(lobby.getInstance());
-//            event.getPlayer().sendResourcePacks(RESOURCE_PACK_REQUEST);
+            event.getPlayer().sendResourcePacks(RESOURCE_PACK_REQUEST);
             LOGGER.info("{} connected", event.getPlayer().getUsername());
         });
 
