@@ -2,8 +2,6 @@ package jam.listener;
 
 import jam.Config;
 import jam.Server;
-import jam.game.effect.InkBlaster;
-import jam.game.Game;
 import jam.utility.Tags;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -12,19 +10,25 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.PlayerChatEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
-import net.minestom.server.event.player.PlayerUseItemEvent;
 import net.minestom.server.event.entity.EntityAttackEvent;
-import net.minestom.server.event.player.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 
 public interface PlayerListeners {
     Logger LOGGER = LoggerFactory.getLogger(PlayerListeners.class);
 
+    Set<UUID> DEVELOPERS = Set.of(
+            UUID.fromString("0541ed27-7595-4e6a-9101-6c07f879b7b5"),  // mudkip
+            UUID.fromString("7beddb4f-8574-4e21-ad45-9b6b88957725"), // golden
+            UUID.fromString("45bae2bd-1889-44f1-91f6-4f1730b4665b")); // cody
+
     Function<PlayerChatEvent, Component> CHAT_FORMAT = event -> Server.MINI_MESSAGE.deserialize(
-            "<gray>" + event.getPlayer().getUsername() + " <gray>» <white>" + event.getMessage());
+            (DEVELOPERS.contains(event.getPlayer().getUuid()) ? "<gradient:#FF76B6:gold>" : "<gray>")
+                    + event.getPlayer().getUsername() + " <gray>» <white>" + event.getMessage());
 
     static void onPlayerSpawn(PlayerSpawnEvent event) {
         var lobbyInstance = Server.getLobby().getInstance();
@@ -73,19 +77,7 @@ public interface PlayerListeners {
 
     static void onPlayerChat(PlayerChatEvent event) {
         event.setChatFormat(CHAT_FORMAT);
-//        new InkBlaster().activate(event.getPlayer(), event.getPlayer().getTag(Tags.GAME)); // TODO
-        Game.playEliminationAnimation(event.getPlayer(), event.getPlayer());
         LOGGER.info("<{}> {}", event.getPlayer().getUsername(), event.getMessage());
-    }
-
-    static void onPlayerUseItem(PlayerUseItemEvent event) {
-        var player = event.getPlayer();
-
-        if (!player.hasTag(Tags.GAME)) {
-            return;
-        }
-
-        // TODO: item usage
     }
 
     static void onEntityAttack(EntityAttackEvent event) {
