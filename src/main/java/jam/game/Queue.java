@@ -1,14 +1,13 @@
 package jam.game;
 
 import jam.Config;
-import net.kyori.adventure.sound.Sound;
+import jam.utility.Sounds;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.TitlePart;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.entity.Player;
-import net.minestom.server.sound.SoundEvent;
 import net.minestom.server.timer.Task;
 import net.minestom.server.utils.time.TimeUnit;
 import org.jetbrains.annotations.NotNull;
@@ -73,7 +72,7 @@ public final class Queue implements PacketGroupingAudience {
                     game.spawnPlayers(finalPlayers);
                 }
 
-                this.playClickSound();
+                this.playSound(Sounds.CLICK);
                 this.sendTitle(Component.textOfChildren(
                         Component.text("Starting in ", NamedTextColor.GRAY),
                         Component.text(this.countdown.getAndDecrement(), NamedTextColor.WHITE),
@@ -98,18 +97,11 @@ public final class Queue implements PacketGroupingAudience {
             this.countdownTask.cancel();
             this.countdownTask = null;
 
-            this.playClickSound();
+            this.playSound(Sounds.CLICK);
             this.sendTitle(Component.text(
                     "Not enough players!",
                     NamedTextColor.RED));
         }
-    }
-
-    private void playClickSound() {
-        this.playSound(Sound.sound(
-                SoundEvent.UI_BUTTON_CLICK.key(),
-                Sound.Source.MASTER,
-                0.5F, 1.2F));
     }
 
     private void sendTitle(Component component) {

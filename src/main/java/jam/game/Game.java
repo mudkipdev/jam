@@ -3,6 +3,7 @@ package jam.game;
 import jam.Config;
 import jam.Server;
 import jam.utility.Tags;
+import jam.utility.Sounds;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -58,6 +59,8 @@ public final class Game implements PacketGroupingAudience {
     private final AtomicInteger gameTime = new AtomicInteger(GAME_TIME);
     private @Nullable Task gameTickTask;
 
+    private final Map<JamColor, net.minestom.server.scoreboard.Team> minecraftTeams = new HashMap<>();
+
     public Game() {
         this.arena = Arena.random();
         this.instance = arena.createArenaInstance();
@@ -66,6 +69,14 @@ public final class Game implements PacketGroupingAudience {
                 1.0F,
                 BossBar.Color.WHITE,
                 BossBar.Overlay.PROGRESS);
+
+        for (JamColor color : JamColor.values()) {
+            net.minestom.server.scoreboard.Team team = MinecraftServer.getTeamManager()
+                    .createBuilder("color-" + color.name().toLowerCase() + "-")
+                    .teamColor(color.getTextColor())
+                    .build();
+            minecraftTeams.put(color, team);
+        }
     }
 
     @Override
@@ -86,6 +97,8 @@ public final class Game implements PacketGroupingAudience {
 
             JamColor color = JamColor.random();
             player.setTag(Tags.COLOR, color);
+
+            minecraftTeams.get(color).addMember(player.getUsername());
 
             player.getInventory().setChestplate(ItemStack.of(Material.LEATHER_CHESTPLATE)
                     .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
@@ -112,6 +125,7 @@ public final class Game implements PacketGroupingAudience {
 
             player.setInstance(instance, arena.hunterSpawn());
             player.addEffect(new Potion(PotionEffect.BLINDNESS, (byte) 0, (GRACE_PERIOD + 1) * 20, 0));
+            player.setGlowing(true);
         }
 
         // Init runners
@@ -132,7 +146,7 @@ public final class Game implements PacketGroupingAudience {
         }
 
         this.gracePeriodTask = MinecraftServer.getSchedulerManager()
-                .buildTask(this::startGracePeriod)
+                .buildTask(this::handleGracePeriod)
                 .repeat(Duration.of(1, TimeUnit.SECOND))
                 .schedule();
     }
@@ -145,12 +159,17 @@ public final class Game implements PacketGroupingAudience {
         Team targetTeam = target.getTag(Tags.TEAM);
         if (attackerTeam == null || targetTeam == null || attackerTeam == targetTeam) return;
 
+        // magic reach check
+        if (attacker.getPosition().distance(target.getPosition()) > 4.5) return;
+
         if (attackerTeam == Team.HUNTER && targetTeam == Team.RUNNER) {
             this.playEliminationAnimation(attacker, target);
             target.removeTag(Tags.TEAM);
             runners.remove(target.getUuid());
             target.setGameMode(GameMode.SPECTATOR);
             target.setInvisible(true);
+
+            target.playSound(Sounds.DEATH_LOSE);
 
             if (runners.isEmpty()) {
                 handleGameEnd(Team.HUNTER);
@@ -178,6 +197,8 @@ public final class Game implements PacketGroupingAudience {
 
         bossBar.removeViewer(this);
 
+        minecraftTeams.values().forEach(MinecraftServer.getTeamManager()::deleteTeam);
+
         switch (winner) {
             case HUNTER -> instance.showTitle(Title.title(
                     Component.text("Hunters have won!", NamedTextColor.RED),
@@ -188,6 +209,13 @@ public final class Game implements PacketGroupingAudience {
                     Component.text("Runners have won!", NamedTextColor.GREEN),
                     Component.text("The runners have evaded the hunters.")
             ));
+        }
+
+        for (var player : getPlayers()) {
+            Team team = player.getTag(Tags.TEAM);
+            if (team != Team.HUNTER && team != Team.RUNNER) continue;
+
+            player.playSound(team == winner ? Sounds.FIREWORK_WIN : Sounds.DEATH_LOSE);
         }
 
         this.getPlayers().forEach(this::despawnPlayer);
@@ -206,6 +234,7 @@ public final class Game implements PacketGroupingAudience {
         player.getInventory().clear();
         player.setGameMode(GameMode.SPECTATOR);
         player.setInvisible(true);
+        player.setGlowing(false);
     }
 
     private void endGracePeriod() {
@@ -233,11 +262,13 @@ public final class Game implements PacketGroupingAudience {
             }
         }
 
+        this.playSound(Sounds.DRAGON);
+
         this.gameTickTask = MinecraftServer.getSchedulerManager().buildTask(this::handleGameTick).repeat(Duration.of(1, TimeUnit.SECOND)).schedule();
     }
 
-    private void startGracePeriod() {
-        var remaining = this.gracePeriod.getAndDecrement();
+    private void handleGracePeriod() {
+        var remaining = gracePeriod.getAndDecrement();
 
         if (remaining == 0) {
             this.endGracePeriod();
@@ -263,14 +294,19 @@ public final class Game implements PacketGroupingAudience {
                             Component.text("of the ", NamedTextColor.GRAY),
                             Component.text("grace period", NamedTextColor.YELLOW),
                             Component.text("!", NamedTextColor.GRAY)
+                    ),
+                    Title.Times.times(
+                            remaining == GRACE_PERIOD ? Title.DEFAULT_TIMES.fadeIn() : Duration.ZERO,
+                            Title.DEFAULT_TIMES.stay(),
+                            Title.DEFAULT_TIMES.fadeOut()
                     )
             ));
         }
 
         this.bossBar.name(Component.text(remaining + " second" + (remaining == 1 ? "" : "s") + " left (grace period)"));
         this.bossBar.color(BossBar.Color.BLUE);
-
         this.bossBar.progress((float) remaining / GRACE_PERIOD);
+        this.playSound(Sounds.CLICK);
     }
 
     private void handleGameTick() {
@@ -288,6 +324,21 @@ public final class Game implements PacketGroupingAudience {
         bossBar.name(Component.text(remaining + " second" + (remaining == 1 ? "" : "s") + " left"));
         bossBar.color(remaining < 0.2 * GAME_TIME ? BossBar.Color.RED : BossBar.Color.GREEN);
         bossBar.progress(remaining / (float) GAME_TIME);
+
+        if (remaining != GAME_TIME && (remaining % 30 == 0 || (remaining <= 30 && remaining % 5 == 0) || (remaining <= 15))) {
+            this.playSound(Sounds.CLICK);
+        }
+
+        if (remaining == 15) {
+            sendMessage(Server.MINI_MESSAGE.deserialize(
+                    "<red>15 seconds<gray> left! All <green>runners<gray> are now <yellow>glowing<gray>!"
+            ));
+            for (Player player : instance.getPlayers()) {
+                if (player.getTag(Tags.TEAM) != Team.RUNNER) continue;
+
+                player.setGlowing(true);
+            }
+        }
     }
 
     public static void playEliminationAnimation(Player hunter, Player runner) {
