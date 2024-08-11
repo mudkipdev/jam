@@ -70,10 +70,7 @@ public final class Queue implements PacketGroupingAudience {
                             .collect(Collectors.toSet());
 
                     this.players.removeAll(finalPlayers);
-                    finalPlayers.forEach(it -> {
-                        it.setInstance(game.getInstance());
-                        game.spawnPlayer(it);
-                    });
+                    game.spawnPlayers(finalPlayers);
                 }
 
                 this.playClickSound();

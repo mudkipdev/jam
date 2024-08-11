@@ -6,6 +6,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.event.GlobalEventHandler;
+import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.player.*;
@@ -85,6 +86,9 @@ public final class Server implements Config {
                 .addListener(PlayerChatEvent.class, PlayerListeners::onPlayerChat)
                 .addListener(PlayerSpawnEvent.class, PlayerListeners::onPlayerSpawn)
                 .addListener(PlayerDisconnectEvent.class, PlayerListeners::onPlayerDisconnect)
+                .addListener(PlayerUseItemEvent.class, PlayerListeners::onPlayerUseItem)
+                .addListener(EntityAttackEvent.class, PlayerListeners::onEntityAttack)
+                .addListener(PlayerMoveEvent.class, PlayerListeners::onPlayerMove)
                 .addListener(InventoryPreClickEvent.class, event -> event.setCancelled(true))
                 .addListener(PlayerSwapItemEvent.class, event -> event.setCancelled(true))
                 .addListener(ItemDropEvent.class, event -> event.setCancelled(true));
