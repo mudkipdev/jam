@@ -2,12 +2,17 @@ package jam.listener;
 
 import jam.Config;
 import jam.Server;
+import jam.game.effect.InkBlaster;
 import jam.game.Game;
 import jam.utility.Tags;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
+import net.minestom.server.event.player.PlayerChatEvent;
+import net.minestom.server.event.player.PlayerDisconnectEvent;
+import net.minestom.server.event.player.PlayerSpawnEvent;
+import net.minestom.server.event.player.PlayerUseItemEvent;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.player.*;
 import org.slf4j.Logger;
@@ -20,11 +25,6 @@ public interface PlayerListeners {
 
     Function<PlayerChatEvent, Component> CHAT_FORMAT = event -> Server.MINI_MESSAGE.deserialize(
             "<gray>" + event.getPlayer().getUsername() + " <gray>» <white>" + event.getMessage());
-
-//    Component.textOfChildren(
-//                Component.text(event.getPlayer().getUsername(), NamedTextColor.GRAY),
-//                Component.text(" » ", NamedTextColor.GRAY),
-//                Component.text(event.getMessage(), NamedTextColor.WHITE));
 
     static void onPlayerSpawn(PlayerSpawnEvent event) {
         var lobbyInstance = Server.getLobby().getInstance();
@@ -73,6 +73,7 @@ public interface PlayerListeners {
 
     static void onPlayerChat(PlayerChatEvent event) {
         event.setChatFormat(CHAT_FORMAT);
+        new InkBlaster().activate(event.getPlayer(), event.getPlayer().getTag(Tags.GAME)); // TODO
         LOGGER.info("<{}> {}", event.getPlayer().getUsername(), event.getMessage());
     }
 
@@ -88,7 +89,8 @@ public interface PlayerListeners {
 
     static void onEntityAttack(EntityAttackEvent event) {
         if (event.getEntity() instanceof Player attacker && event.getTarget() instanceof Player target) {
-            Game game = attacker.getTag(Tags.GAME);
+            var game = attacker.getTag(Tags.GAME);
+
             if (game != null && game == target.getTag(Tags.GAME)) {
                 game.handlePlayerAttack(attacker, target);
             }
@@ -96,7 +98,8 @@ public interface PlayerListeners {
     }
 
     static void onPlayerMove(PlayerMoveEvent event) {
-        Game game = event.getPlayer().getTag(Tags.GAME);
+        var game = event.getPlayer().getTag(Tags.GAME);
+
         if (game != null) {
             game.handlePlayerMove(event);
         }
