@@ -27,7 +27,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public enum Arena {
     CITY(
-            new Vec(0, 0, 32),
+            new Vec(0, 0, 16),
             List.of(new Zone(
                     new BlockVec(-2, 2, 47),
                     new BlockVec(3, 2, 49)
