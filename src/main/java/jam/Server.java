@@ -111,7 +111,7 @@ public final class Server implements Config {
             LOGGER.info("{} connected", event.getPlayer().getUsername());
             event.setSpawningInstance(lobby.getInstance());
             event.getPlayer().setRespawnPoint(Lobby.SPAWN);
-//            event.getPlayer().sendResourcePacks(RESOURCE_PACK_REQUEST);
+            event.getPlayer().sendResourcePacks(RESOURCE_PACK_REQUEST);
 
             event.getPlayer().sendPacket(new ServerLinksPacket(
                     new ServerLinksPacket.Entry(Component.text("mudkip's website"), "https://mudkip.dev"),
