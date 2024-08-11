@@ -34,12 +34,15 @@ public enum Arena implements Titleable {
                     new BlockVec(19, 2, 49)
             ),
             List.of(new Zone(
-                    new BlockVec(-2, 2, 47),
-                    new BlockVec(3, 2, 49)
+                    new BlockVec(-18, 2, 13),
+                    new BlockVec(-15, 2, 16)
+            ), new Zone(
+                    new BlockVec(-1, 2, -1),
+                    new BlockVec(2, 2, 0)
             )),
             List.of(new Zone(
-                    new BlockVec(-2, 2, -19),
-                    new BlockVec(2, 2, -17)
+                    new BlockVec(-2, 2, 43),
+                    new BlockVec(5, 2, 48)
             ))
     );
 
