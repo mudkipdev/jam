@@ -1,6 +1,7 @@
 package jam.game;
 
 import jam.Config;
+import jam.Lobby;
 import jam.utility.Sounds;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -44,6 +45,8 @@ public final class Queue implements PacketGroupingAudience {
         if (this.players.contains(player)) {
             return;
         }
+
+        player.teleport(Lobby.SPAWN);
 
         this.players.add(player);
         this.countdown = new AtomicInteger(WAIT_TIME);
