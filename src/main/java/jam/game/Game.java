@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
     private static final Effect[] EFFECTS = { new InkBlaster() };
-    private static final int GRACE_PERIOD = Config.DEBUG ? 0 : 15;
+    private static final int GRACE_PERIOD = Config.DEBUG ? 1 : 15;
     private static final int GAME_TIME = 120;
 
     private final Arena arena;
@@ -79,7 +79,7 @@ public final class Game implements PacketGroupingAudience {
 
         for (JamColor color : JamColor.values()) {
             net.minestom.server.scoreboard.Team team = MinecraftServer.getTeamManager()
-                    .createBuilder("color-" + color.name().toLowerCase() + "-")
+                    .createBuilder("color-" + color.name().toLowerCase())
                     .prefix(Component.text(
                             color.name().charAt(0),
                             color.getTextColor(),
@@ -420,7 +420,7 @@ public final class Game implements PacketGroupingAudience {
 
         Component message;
 
-        if (hunter == null) {
+        if (hunter != null) {
             message = Component.textOfChildren(
                     Component.text(runner.getUsername(), NamedTextColor.GREEN),
                     Component.text(" was tagged by ", NamedTextColor.YELLOW),
@@ -442,8 +442,13 @@ public final class Game implements PacketGroupingAudience {
     }
 
     public void changeColor(Player player, JamColor color) {
+        JamColor old = player.getTag(Tags.COLOR);
         player.setTag(Tags.COLOR, color);
-        player.setTeam(this.minecraftTeams.get(color));
+
+        if (old != null) {
+            this.minecraftTeams.get(old).removeMember(player.getUsername());
+        }
+        this.minecraftTeams.get(color).addMember(player.getUsername());
 
         player.getInventory().setChestplate(ItemStack.of(Material.LEATHER_CHESTPLATE)
                 .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
@@ -458,7 +463,17 @@ public final class Game implements PacketGroupingAudience {
     private void spawnRandomEffect() {
         var effect = EFFECTS[ThreadLocalRandom.current().nextInt(EFFECTS.length)];
         var position = this.arena.pickEffectSpawn();
+
+        int y;
+        for (y = position.blockY() + 50; y >= position.blockY(); y--) {
+            if (!instance.getBlock(position.blockX(), y, position.blockZ()).isAir()) {
+                break;
+            }
+        }
+
+        var newPos = position.withY(y).add(0.5, 1, 0.5);
+
         var collectible = new Collectible(effect);
-        collectible.setInstance(this.instance, position);
+        collectible.setInstance(this.instance, newPos);
     }
 }
