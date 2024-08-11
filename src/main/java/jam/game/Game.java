@@ -150,6 +150,9 @@ public final class Game implements PacketGroupingAudience {
         Team targetTeam = target.getTag(Tags.TEAM);
         if (attackerTeam == null || targetTeam == null || attackerTeam == targetTeam) return;
 
+        // magic reach check
+        if (attacker.getPosition().distance(target.getPosition()) > 4.5) return;
+
         if (attackerTeam == Team.HUNTER && targetTeam == Team.RUNNER) {
             target.removeTag(Tags.TEAM);
             runners.remove(target.getUuid());
