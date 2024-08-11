@@ -420,7 +420,7 @@ public final class Game implements PacketGroupingAudience {
 
         Component message;
 
-        if (hunter == null) {
+        if (hunter != null) {
             message = Component.textOfChildren(
                     Component.text(runner.getUsername(), NamedTextColor.GREEN),
                     Component.text(" was tagged by ", NamedTextColor.YELLOW),
