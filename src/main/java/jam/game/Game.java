@@ -249,13 +249,13 @@ public final class Game implements PacketGroupingAudience {
             switch (player.getTag(Tags.TEAM)) {
                 case RUNNER -> player.updateViewableRule(null);
                 case HUNTER -> player.showTitle(Title.title(
-                        Component.text("The hunt begins!", NamedTextColor.RED),
+                        Component.text("The hunt begins!"),
                         Server.MINI_MESSAGE.deserialize(
-                                "<gray>The <yellow>grace period<gray> is over. <red>Hunt<gray> and <red>eliminate<gray> the runners."
+                                "<gray>The <yellow>grace period<gray> is over. <red>Hunt and eliminate<gray> the runners."
                         ),
                         Title.Times.times(
                                 Duration.ZERO,
-                                Duration.ofMillis(1500),
+                                Duration.ofMillis(3000),
                                 Duration.ofMillis(1000)
                         )
                 ));
