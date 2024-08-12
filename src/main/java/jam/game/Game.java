@@ -1,16 +1,14 @@
 package jam.game;
 
-import io.github.togar2.pvp.feature.CombatFeatureSet;
-import io.github.togar2.pvp.feature.CombatFeatures;
 import jam.Config;
 import jam.Server;
+import jam.utility.Components;
 import jam.utility.Tags;
 import jam.utility.Sounds;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
@@ -50,7 +48,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
-    private static final CombatFeatureSet COMBAT = CombatFeatures.modernVanilla();
     private static final int GRACE_PERIOD = Config.DEBUG ? 1 : 15;
     private static final int GAME_TIME = 120;
 
@@ -94,8 +91,6 @@ public final class Game implements PacketGroupingAudience {
                     .build();
             minecraftTeams.put(color, team);
         }
-
-        this.instance.eventNode().addChild(COMBAT.createNode());
 
         this.instance.eventNode().addListener(PlayerMoveEvent.class, event -> {
             if (event.getPlayer().getTag(Tags.TEAM) == null) {
@@ -390,8 +385,8 @@ public final class Game implements PacketGroupingAudience {
             if (color != null && color != player.getTag(Tags.COLOR)) {
                 if (Config.DEBUG) {
                     player.sendMessage(Component.textOfChildren(
-                            Component.text("[WARNING]", NamedTextColor.RED, TextDecoration.BOLD),
-                            Component.text(" Wrong color!", TextColor.color(255, 165, 0)),
+                            Components.PREFIX,
+                            Component.text(" Wrong color!", NamedTextColor.RED),
                             Component.text(" Get off the ", NamedTextColor.GRAY),
                             Component.text(color.title().toLowerCase(), color.getTextColor()),
                             Component.text("!", NamedTextColor.GRAY)
@@ -427,7 +422,7 @@ public final class Game implements PacketGroupingAudience {
 
         if (remaining == 15) {
             sendMessage(Server.MINI_MESSAGE.deserialize(
-                    "<yellow><bold>[GAME]<reset> <red>15 seconds<gray> left! All <green>runners<gray> are now <yellow>glowing<gray>!"
+                    Components.PREFIX_MM + "<red>15 seconds<gray> left! All <green>runners<gray> are now <yellow>glowing<gray>!"
             ));
             for (Player player : instance.getPlayers()) {
                 if (player.getTag(Tags.TEAM) != Team.RUNNER) continue;
@@ -497,6 +492,7 @@ public final class Game implements PacketGroupingAudience {
 
         if (hunter != null) {
             message = Component.textOfChildren(
+                    Components.PREFIX,
                     Component.text(player.getUsername(), NamedTextColor.GREEN),
                     Component.text(" was tagged by ", NamedTextColor.YELLOW),
                     Component.text(hunter.getUsername(), NamedTextColor.RED),
@@ -506,6 +502,7 @@ public final class Game implements PacketGroupingAudience {
                     Component.text(" runners remaining.", NamedTextColor.GRAY));
         } else {
             message = Component.textOfChildren(
+                    Components.PREFIX,
                     Component.text(player.getUsername(), NamedTextColor.GREEN),
                     Component.text(" was eliminated! ", NamedTextColor.YELLOW),
                     Component.text(" There are ", NamedTextColor.GRAY),

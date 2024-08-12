@@ -1,6 +1,5 @@
 package jam;
 
-import io.github.togar2.pvp.MinestomPvP;
 import jam.listener.PlayerListeners;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
@@ -43,8 +42,6 @@ public final class Server implements Config {
         var server = MinecraftServer.init();
         lobby = new Lobby();
         registerEventListeners();
-
-        MinestomPvP.init();
 
         // TODO: re-enable bungeecord forwarding (you can check git version history)
         MojangAuth.init();

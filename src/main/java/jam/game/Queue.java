@@ -3,6 +3,7 @@ package jam.game;
 import jam.Config;
 import jam.Lobby;
 import jam.Server;
+import jam.utility.Components;
 import jam.utility.Sounds;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -53,10 +54,7 @@ public final class Queue implements PacketGroupingAudience {
         this.countdown = new AtomicInteger(WAIT_TIME);
 
         this.sendMessage(Component.textOfChildren(
-                Component.text(
-                        "+ " + player.getUsername(),
-                        NamedTextColor.GREEN),
-
+                Component.text("+ " + player.getUsername(), NamedTextColor.GREEN),
                 Component.text(
                         " (" + this.players.size() + "/" + MINIMUM_PLAYERS + ")",
                         NamedTextColor.GRAY)));
@@ -82,7 +80,7 @@ public final class Queue implements PacketGroupingAudience {
 
                 if (time % 10 == 0) {
                     sendMessage(Server.MINI_MESSAGE.deserialize(
-                            "<yellow><bold>[GAME]<reset> <gray>Starting in <white>" + time + "<gray> second" + (time == 1 ? "" : "s") + "!"));
+                            Components.PREFIX_MM + "Starting in <white>" + time + "<gray> second" + (time == 1 ? "" : "s") + "!"));
                 }
 
                 if (time <= 5) {

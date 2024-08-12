@@ -2,6 +2,7 @@ package jam.listener;
 
 import jam.Config;
 import jam.Server;
+import jam.utility.Components;
 import jam.utility.Tags;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -32,8 +33,7 @@ public interface PlayerListeners {
             (DEVELOPERS.contains(event.getPlayer().getUuid()) ? "<gradient:#FF76B6:gold>" : "<gray>")
                     + event.getPlayer().getUsername() + " <gray>» <white>" + event.getMessage());
 
-    Component STARTING_SOON = Server.MINI_MESSAGE.deserialize(
-            "<gray>The game will start soon. Please stay patient. :)");
+    Component STARTING_SOON = Server.MINI_MESSAGE.deserialize(Components.PREFIX_MM + "<gray>The game will start soon. Please stay patient. :)");
 
     static void onPlayerSpawn(PlayerSpawnEvent event) {
         var lobbyInstance = Server.getLobby().getInstance();
