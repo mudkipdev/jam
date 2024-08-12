@@ -2,6 +2,7 @@ package jam;
 
 import jam.game.Arena;
 import jam.game.Queue;
+import jam.utility.Colorblind;
 import jam.utility.SignHandler;
 import jam.utility.Sounds;
 import net.kyori.adventure.inventory.Book;
@@ -30,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public final class Lobby implements PacketGroupingAudience {
@@ -41,6 +43,8 @@ public final class Lobby implements PacketGroupingAudience {
     public static DynamicRegistry.Key<DimensionType> dimension;
     private final InstanceContainer instance;
     private final Queue queue;
+
+    private final Colorblind colorblind;
 
     public Lobby() {
         dimension = MinecraftServer.getDimensionTypeRegistry()
@@ -115,29 +119,29 @@ public final class Lobby implements PacketGroupingAudience {
                     Config.INSTRUCTIONS));
         });
 
-//        Colorblind.slime(instance,
-//                Map.entry(new Pos(8, -18, 8), 3.25),
-//                Map.entry(new Pos(8, -18, -8), 3.25),
-//                Map.entry(new Pos(-8, -18, 8), 3.25),
-//                Map.entry(new Pos(-8, -18, -8), 3.25),
-//
-//                Map.entry(new Pos(8, -18, 24), 3.25),
-//                Map.entry(new Pos(24, -18, 8), 3.25),
-//                Map.entry(new Pos(24, -18, -8), 3.25),
-//
-//                Map.entry(new Pos(5, -3, 34.5), 7.5),
-//
-//                Map.entry(new Pos(-6, -3, -23), 3.25),
-//                Map.entry(new Pos(-6, -3 + 15, -23), 3.25),
-//                Map.entry(new Pos(-6 + 15, -3, -23), 3.25),
-//                Map.entry(new Pos(-6 + 15, -3 + 15, -23), 3.25),
-//                Map.entry(new Pos(-6 + 15*2, -3, -23+10), 3.25),
-//                Map.entry(new Pos(-6 + 15*2, -3 + 15, -23+10), 3.25),
-//
-//                Map.entry(new Pos(-31, -3, 0), 7.0),
-//                Map.entry(new Pos(33 + 8, -3, 0), 7.0),
-//                Map.entry(new Pos(5, 25, 0), 8.0)
-//        );
+        this.colorblind = new Colorblind(instance,
+                Map.entry(new Pos(8, -18, 8), 3.25),
+                Map.entry(new Pos(8, -18, -8), 3.25),
+                Map.entry(new Pos(-8, -18, 8), 3.25),
+                Map.entry(new Pos(-8, -18, -8), 3.25),
+
+                Map.entry(new Pos(8, -18, 24), 3.25),
+                Map.entry(new Pos(24, -18, 8), 3.25),
+                Map.entry(new Pos(24, -18, -8), 3.25),
+
+                Map.entry(new Pos(5, -3, 34.5), 7.5),
+
+                Map.entry(new Pos(-6, -3, -23), 3.25),
+                Map.entry(new Pos(-6, -3 + 15, -23), 3.25),
+                Map.entry(new Pos(-6 + 15, -3, -23), 3.25),
+                Map.entry(new Pos(-6 + 15, -3 + 15, -23), 3.25),
+                Map.entry(new Pos(-6 + 15*2, -3, -23+10), 3.25),
+                Map.entry(new Pos(-6 + 15*2, -3 + 15, -23+10), 3.25),
+
+                Map.entry(new Pos(-31, -3, 0), 7.0),
+                Map.entry(new Pos(33 + 8, -3, 0), 7.0),
+                Map.entry(new Pos(5, 25, 0), 8.0)
+        );
     }
 
     @Override

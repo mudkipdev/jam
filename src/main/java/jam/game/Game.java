@@ -13,6 +13,7 @@ import net.kyori.adventure.title.TitlePart;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.coordinate.Point;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.*;
 import net.minestom.server.entity.attribute.Attribute;
@@ -95,6 +96,8 @@ public final class Game implements PacketGroupingAudience {
 
     private final Map<JamColor, net.minestom.server.scoreboard.Team> minecraftTeams = new HashMap<>();
 
+    private final Colorblind colorblind;
+
     public Game(Collection<Player> players) {
         this.players = new HashSet<>(players);
         this.queuedHunters = new ArrayList<>(players);
@@ -172,6 +175,11 @@ public final class Game implements PacketGroupingAudience {
         instance.eventNode().addChild(EffectListeners.inkBlaster());
         instance.eventNode().addChild(EffectListeners.tnt());
         instance.eventNode().addChild(EffectListeners.enderPearl());
+        instance.eventNode().addChild(EffectListeners.splashColorblindness());
+
+        colorblind = new Colorblind(instance,
+                Map.entry(new Pos(0, -18, 0), 3.25)
+        );
     }
 
     @Override
@@ -181,6 +189,10 @@ public final class Game implements PacketGroupingAudience {
 
     public Instance getInstance() {
         return this.instance;
+    }
+
+    public Colorblind getColorblind() {
+        return colorblind;
     }
 
     public void beginNextRound() {
@@ -357,6 +369,7 @@ public final class Game implements PacketGroupingAudience {
         player.getInventory().clear();
         player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
         player.setGlowing(false);
+        colorblind.removeViewer(player);
     }
 
     private void endGracePeriod() {
@@ -573,6 +586,8 @@ public final class Game implements PacketGroupingAudience {
                     Math.sin(Math.toRadians(hunter.getPosition().yaw())),
                     -Math.cos(Math.toRadians(hunter.getPosition().yaw())));
         }
+
+        colorblind.removeViewer(player);
 
         var firework = new Entity(EntityType.FIREWORK_ROCKET);
         firework.setNoGravity(true);

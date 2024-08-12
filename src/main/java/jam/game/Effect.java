@@ -4,6 +4,8 @@ import jam.Server;
 import jam.utility.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
@@ -11,8 +13,10 @@ import net.minestom.server.entity.metadata.item.SnowballMeta;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.item.component.PotionContents;
 import net.minestom.server.utils.time.TimeUnit;
 
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public enum Effect implements Titleable {
@@ -54,11 +58,31 @@ public enum Effect implements Titleable {
         void activate(Player player, Game game) {
             player.getInventory().addItemStack(PEARL_ITEM);
         }
+    },
+    SPLASH_COLORBLINDNESS(ItemStack.of(Material.SPLASH_POTION).with(ItemComponent.POTION_CONTENTS, new PotionContents(null, new Color(150, 150, 150), List.of())),
+            """
+            <newline><prefix><gray>A <white>Colorblindness Potion<gray> has spawned in a random spot!
+            <prefix>Collect and throw it to make other players <white>colorblind<gray>!<newline>
+            """.trim()) {
+        @Override
+        void activate(Player player, Game game) {
+            var item = createItemStack()
+                    .with(ItemComponent.HIDE_ADDITIONAL_TOOLTIP)
+                    .with(ItemComponent.LORE, List.of(Component.text("Colorblindness (0:15)", NamedTextColor.BLUE).decoration(TextDecoration.ITALIC, false)));
+            player.getInventory().addItemStack(item);
+        }
+
+        @Override
+        public String title() {
+            return "Splash Potion of Colorblindness";
+        }
     };
 
     public static final ItemStack PEARL_ITEM = ItemStack.of(Material.ENDER_PEARL)
             .withTag(Tags.EFFECT, ENDER_PEARL)
             .with(ItemComponent.ITEM_NAME, Component.text("Ender Pearl", NamedTextColor.LIGHT_PURPLE));
+
+    public static final int COLORBLINDNESS_DURATION = 15 * 20;
 
     public static final double SPREAD = 0.15D;
     public static final double BULLETS = 10.0D;
@@ -83,12 +107,20 @@ public enum Effect implements Titleable {
         inkBall.scheduleRemove(10, TimeUnit.SECOND);
     }
 
-    private final Material icon;
+    private final ItemStack icon;
     private final Component spawnMessage;
 
-    Effect(Material icon, String spawnMessage) {
+    Effect(ItemStack icon, Component spawnMessage) {
         this.icon = icon;
-        this.spawnMessage = Server.MM.deserialize(spawnMessage);
+        this.spawnMessage = spawnMessage;
+    }
+
+    Effect(ItemStack icon, String spawnMessage) {
+        this(icon, Server.MM.deserialize(spawnMessage));
+    }
+
+    Effect(Material icon, String spawnMessage) {
+        this(ItemStack.of(icon), Server.MM.deserialize(spawnMessage));
     }
 
     public static Effect random() {
@@ -97,8 +129,8 @@ public enum Effect implements Titleable {
 
     abstract void activate(Player player, Game game);
 
-    public Material getIcon() {
-        return this.icon;
+    public ItemStack getIcon() {
+        return icon;
     }
 
     public Component getSpawnMessage() {
@@ -106,7 +138,7 @@ public enum Effect implements Titleable {
     }
 
     public ItemStack createItemStack() {
-        return ItemStack.of(this.icon)
+        return this.icon
                 .with(ItemComponent.ITEM_NAME, Component.text(this.title()))
                 .withTag(Tags.EFFECT, this);
     }

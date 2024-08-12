@@ -60,4 +60,10 @@ public interface Sounds {
             0.5f, 0.4f / (ThreadLocalRandom.current().nextFloat() * 0.4f + 0.8f)
     );
 
+    Supplier<Sound> SPLASH_THROW = () -> Sound.sound(
+            SoundEvent.ENTITY_SPLASH_POTION_THROW,
+            Sound.Source.NEUTRAL,
+            0.5f, 0.4f / (ThreadLocalRandom.current().nextFloat() * 0.4f + 0.8f)
+    );
+
 }
