@@ -14,7 +14,6 @@ import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
-import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.*;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.DamageType;
@@ -23,6 +22,7 @@ import net.minestom.server.event.player.PlayerDeathEvent;
 import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.event.player.PlayerUseItemEvent;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.instance.batch.AbsoluteBlockBatch;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
@@ -259,6 +259,7 @@ public final class Game implements PacketGroupingAudience {
     private void endGracePeriod() {
         this.gracePeriodTask.cancel();
         this.gracePeriodTask = null;
+        this.changeMapColor();
 
         for (var player : instance.getPlayers()) {
             // fucking vanilla
@@ -393,6 +394,7 @@ public final class Game implements PacketGroupingAudience {
         }
 
         if (remaining % 20 == 0) {
+            this.changeMapColor();
             this.playSound(Sounds.NOTE);
 
             for (var player : this.getInstance().getPlayers()) {
@@ -562,5 +564,20 @@ public final class Game implements PacketGroupingAudience {
 
         event.setChatMessage(null);
         handleDeath(null, player);
+    }
+
+    public void changeMapColor() {
+        var blockBatch = new AbsoluteBlockBatch();
+
+        for (var x = -20; x <= 20; x++) {
+            for (var z = -5; z <= 50; z++) {
+                for (var y = -10; y <= 10; y++) {
+                    var block = this.instance.getBlock(x, y, z);
+                    blockBatch.setBlock(x, y, z, JamColor.random().convertBlockMaterial(block));
+                }
+            }
+        }
+
+        blockBatch.apply(this.instance, () -> {});
     }
 }
