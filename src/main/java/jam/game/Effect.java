@@ -28,7 +28,7 @@ public enum Effect implements Titleable {
     },
     TNT(Material.TNT, """
             <newline><prefix><gray>A <red><bold>TNT<reset><gray> has spawned in a random spot!
-            <prefix>Collect and place it to <red>explode<gray> a region into its color!<newline>
+            <prefix>Collect and place it to <light_purple>explode a region into its color!<newline>
             """.trim()) {
         @Override
         void activate(Player player, Game game) {
@@ -37,8 +37,8 @@ public enum Effect implements Titleable {
         }
     },
     HEALTH_PACK(Material.GOLDEN_APPLE, """
-            <newline><prefix><gray>A <yellow><bold>health pack<reset><gray> has spawned in a random spot!
-            <prefix>Collect it to receive a few <gold>bonus hearts<gray>!<newline>
+            <newline><prefix><gray>A <yellow><bold>Health Pack<reset><gray> has spawned in a random spot!
+            <prefix>Collect it to <light_purple>receive a few bonus hearts!<newline>
             """.trim()) {
         @Override
         void activate(Player player, Game game) {
@@ -47,8 +47,8 @@ public enum Effect implements Titleable {
         }
     },
     ENDER_PEARL(Material.ENDER_PEARL, """
-            <newline><prefix><gray>An <dark_purple><bold>ender pearl<reset><gray> has spawned in a random spot!
-            <prefix>Collect and throw it to <light_purple>teleport<gray> where it lands!<newline>
+            <newline><prefix><gray>An <dark_purple><bold>Ender Pearl<reset><gray> has spawned in a random spot!
+            <prefix>Collect and throw it to <light_purple>teleport where it lands!<newline>
             """.trim()) {
         @Override
         void activate(Player player, Game game) {
