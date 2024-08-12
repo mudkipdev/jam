@@ -24,7 +24,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public enum Effect implements Titleable {
     INK_BLASTER(
             Material.WHITE_CANDLE,
-            Components.PREFIX_MM + "<newline><gray>An <yellow><bold>Ink Blaster<reset><gray> has spawned in a random spot!\n" +
+            "<newline>" + Components.PREFIX_MM + "<gray>An <yellow><bold>Ink Blaster<reset><gray> has spawned in a random spot!\n" +
                     Components.PREFIX_MM + "Shoot ink to <light_purple>change the colors of blocks<gray>!<newline>"
     ) {
         private static final Set<Point> POINTS = Sphere.getBlocksInSphere(2.0D);
