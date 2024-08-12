@@ -377,17 +377,19 @@ public final class Game implements PacketGroupingAudience {
 
             if (color == null) { // Try another block
                 color = JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -1, 0)));
-
-//                if (color == null) { // Try a final block
-//                    color = JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -2, 0)));
-//                }
             }
 
-            if (color != null && color != player.getTag(Tags.COLOR)) {
+            if (!player.hasTag(Tags.COLOR)) {
+                continue;
+            }
+
+            var playerColor = player.getTag(Tags.COLOR);
+
+            if (color != null && color != playerColor) {
                 player.sendActionBar(Component.textOfChildren(
                         Component.text("Wrong color! ", NamedTextColor.WHITE),
-                        Component.text("Get off the ", NamedTextColor.GRAY),
-                        Component.text(color.title().toLowerCase(), color.getTextColor()),
+                        Component.text("Go to the ", NamedTextColor.GRAY),
+                        Component.text(playerColor.title(), playerColor.getTextColor()),
                         Component.text("!", NamedTextColor.GRAY)));
 
                 player.damage(DamageType.GENERIC, 2.0F);
@@ -415,6 +417,13 @@ public final class Game implements PacketGroupingAudience {
                         Component.text("Your color is now ", NamedTextColor.WHITE),
                         Component.text(color.title(), color.getTextColor()),
                         Component.text("!", NamedTextColor.WHITE)));
+            }
+        }
+
+        if (remaining % 5 == 0) {
+            for (var player : this.getInstance().getPlayers()) {
+                var max = player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH);
+                player.setHealth(Math.min(player.getHealth() + 1.0F, (float) max));
             }
         }
 
