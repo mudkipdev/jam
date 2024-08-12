@@ -157,4 +157,9 @@ public enum JamColor implements Titleable {
                 .withTag(Tags.COLOR, this)
                 .with(ItemComponent.CAN_PLACE_ON, new BlockPredicates(BlockPredicate.ALL));
     }
+
+    public ItemStack getTeamIndicator() {
+        return ItemStack.of(blockInfo.solid().registry().material())
+                .with(ItemComponent.ITEM_NAME, Component.text(title(), getTextColor()).append(Component.text(" Team", getTextColor())));
+    }
 }

@@ -305,16 +305,20 @@ public final class Game implements PacketGroupingAudience {
 
             switch (player.getTag(Tags.TEAM)) {
                 case RUNNER -> player.updateViewableRule(null);
-                case HUNTER -> player.showTitle(Title.title(
-                        Component.text("The hunt begins!"),
-                        Server.MINI_MESSAGE.deserialize(
-                                "<gray>The <yellow>grace period<gray> is over. <red>Hunt and eliminate<gray> the runners."
-                        ),
-                        Title.Times.times(
-                                Duration.ZERO,
-                                Duration.ofMillis(5000),
-                                Duration.ofMillis(1000)
-                        )
+                case HUNTER -> player.sendMessage(Component.textOfChildren(
+                        Component.newline(),
+                        Components.PREFIX,
+                        Component.text("The hunt begins!", NamedTextColor.RED),
+                        Component.newline(),
+                        Components.PREFIX,
+                        Component.text("The ", NamedTextColor.GRAY),
+                        Component.text("grace period", NamedTextColor.YELLOW),
+                        Component.text(" is over. ", NamedTextColor.GRAY),
+                        Component.text("Hunt", NamedTextColor.RED),
+                        Component.text(" and ", NamedTextColor.GRAY),
+                        Component.text("eliminate", NamedTextColor.RED),
+                        Component.text(" the runners.", NamedTextColor.RED),
+                        Component.newline()
                 ));
             }
         }
@@ -343,6 +347,15 @@ public final class Game implements PacketGroupingAudience {
         if (remaining == 0) {
             this.endGracePeriod();
             return;
+        }
+
+        if (remaining == GRACE_PERIOD) {
+            for (var player : this.instance.getPlayers()) {
+                var team = player.getTag(Tags.TEAM);
+                if (team == null || team == Team.SPECTATOR) continue;
+
+                this.changeColor(player, JamColor.random());
+            }
         }
 
         this.bossBar.addViewer(this);
@@ -581,6 +594,15 @@ public final class Game implements PacketGroupingAudience {
 
         player.getInventory().setBoots(ItemStack.of(Material.LEATHER_BOOTS)
                 .with(ItemComponent.DYED_COLOR, color.getDyeColor()));
+
+        player.getInventory().setItemStack(8, color.getTeamIndicator());
+
+        player.sendMessage(Component.textOfChildren(
+                Components.PREFIX,
+                Component.text("You are now ", NamedTextColor.GRAY),
+                Component.text(color.title(), color.getTextColor()),
+                Component.text(".", NamedTextColor.GRAY)
+        ));
     }
 
     private void spawnRandomEffect() {

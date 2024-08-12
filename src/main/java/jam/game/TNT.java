@@ -69,12 +69,7 @@ public class TNT extends Entity {
                         Component.text(" by ", NamedTextColor.GRAY),
                         Component.text(color.title(), color.getTextColor()),
                         Component.text(" TNT", NamedTextColor.RED),
-                        Component.text("!", NamedTextColor.GRAY),
-                        Component.newline(),
-                        Components.PREFIX,
-                        Component.text("You are now ", NamedTextColor.GRAY),
-                        Component.text(color.title(), color.getTextColor()),
-                        Component.text(".", NamedTextColor.GRAY)
+                        Component.text("!", NamedTextColor.GRAY)
                 ));
 
                 player.getTag(Tags.GAME).changeColor(player, color);
