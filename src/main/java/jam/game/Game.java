@@ -45,6 +45,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
@@ -55,12 +56,17 @@ public final class Game implements PacketGroupingAudience {
     private final Instance instance;
     private final BossBar bossBar;
 
+    private final Set<Player> players;
+
     // Stored as UUIDs to prevent potential memory leaks
     private final Set<UUID> hunters = new HashSet<>();
     private final Set<UUID> runners = new HashSet<>();
 
     // Store the players that will be hunters in the next rounds
-    private final Set<UUID> queuedHunters = new HashSet<>();
+    private final List<Player> queuedHunters;
+
+    private final Map<UUID, Integer> points = new HashMap<>();
+    private final AtomicInteger round = new AtomicInteger();
 
     private final AtomicBoolean ending = new AtomicBoolean(false);
 
@@ -74,7 +80,10 @@ public final class Game implements PacketGroupingAudience {
 
     private final Map<JamColor, net.minestom.server.scoreboard.Team> minecraftTeams = new HashMap<>();
 
-    public Game() {
+    public Game(Collection<Player> players) {
+        this.players = new HashSet<>(players);
+        this.queuedHunters = new ArrayList<>(players);
+
         this.arena = Arena.random();
         this.instance = arena.createArenaInstance();
         this.bossBar = BossBar.bossBar(
@@ -145,7 +154,18 @@ public final class Game implements PacketGroupingAudience {
         return this.instance;
     }
 
-    public void spawnPlayers(Collection<Player> players) {
+    public void beginNextRound() {
+        // Reset everything
+        this.hunters.clear();
+        this.runners.clear();
+        this.collectibles.clear();
+        this.gracePeriod.set(GRACE_PERIOD + 1);
+        this.gameTime.set(GAME_TIME);
+
+        // Purge offline players & incr round count
+        this.purgeOfflinePlayers();
+        int round = this.round.incrementAndGet();
+
         for (var player : players) {
             player.setTag(Tags.GAME, this);
             player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
@@ -153,26 +173,42 @@ public final class Game implements PacketGroupingAudience {
             this.changeColor(player, JamColor.random());
             player.setInvisible(false);
             player.setEnableRespawnScreen(false);
+
+            player.sendMessage(Component.textOfChildren(
+                    Component.text("Beginning round ", NamedTextColor.GRAY),
+                    Component.text(round, NamedTextColor.GREEN),
+                    Component.text(".", NamedTextColor.GRAY)));
         }
 
         var hunters = (int) Math.ceil(players.size() / 3.0);
         var initial = new ArrayList<>(players);
 
         // Init hunters
-        for (var i = 0; i < hunters; i++) {
-            int index = ThreadLocalRandom.current().nextInt(initial.size());
-
-            Player player = initial.remove(index);
+        for (var i = 0; i < hunters && !queuedHunters.isEmpty(); i++) {
+            int index = ThreadLocalRandom.current().nextInt(queuedHunters.size());
+            var player = queuedHunters.remove(index);
             player.setTag(Tags.TEAM, Team.HUNTER);
+
+            initial.remove(player);
 
             this.hunters.add(player.getUuid());
 
-            player.setInstance(instance, arena.hunterSpawn());
+            if (round == 1) {
+                player.setInstance(instance, arena.hunterSpawn());
+            } else {
+                player.teleport(arena.hunterSpawn());
+            }
+
             player.addEffect(new Potion(PotionEffect.BLINDNESS, (byte) 0, (GRACE_PERIOD + 2) * 20, 0));
             player.setGlowing(true);
 
             player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.0D);
             player.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).setBaseValue(0.0D);
+
+            player.showTitle(Title.title(
+                    Server.MINI_MESSAGE.deserialize("You are a <green>hunter<gray>!"),
+                    Component.text("Avoid the hunters until the time runs out!")
+            ));
         }
 
         // Init runners
@@ -183,13 +219,15 @@ public final class Game implements PacketGroupingAudience {
             player.updateViewableRule(other -> other.getTag(Tags.TEAM) == Team.RUNNER);
 
             player.showTitle(Title.title(
-                    Server.MINI_MESSAGE.deserialize(
-                            "You are a <green>runner<gray>!"
-                    ),
+                    Server.MINI_MESSAGE.deserialize("You are a <green>runner<gray>!"),
                     Component.text("Avoid the hunters until the time runs out!")
             ));
 
-            player.setInstance(instance, arena.runnerSpawn());
+            if (round == 1) {
+                player.setInstance(instance, arena.runnerSpawn());
+            } else {
+                player.teleport(arena.runnerSpawn());
+            }
         }
 
         this.bossBar.addViewer(this);
@@ -200,6 +238,10 @@ public final class Game implements PacketGroupingAudience {
                 .schedule();
     }
 
+    private void purgeOfflinePlayers() {
+        players.removeIf(player -> !player.isOnline());
+        queuedHunters.removeIf(player -> !player.isOnline());
+    }
 
     public void handlePlayerAttack(@NotNull Player attacker, @NotNull Player target) {
         if (ending.get()) return;
@@ -216,8 +258,8 @@ public final class Game implements PacketGroupingAudience {
         }
     }
 
-    public void handleGameEnd(@NotNull Team winner) {
-        if (ending.getAndSet(true)) return;
+    public void handleRoundEnd(@NotNull Team winner) {
+        if (queuedHunters.isEmpty() && ending.getAndSet(true)) return;
 
         gameTickTask.cancel();
         gameTickTask = null;
@@ -228,12 +270,12 @@ public final class Game implements PacketGroupingAudience {
 
         switch (winner) {
             case HUNTER -> this.showTitle(Title.title(
-                    Component.text("Hunters have won!", NamedTextColor.RED),
+                    Component.text("Hunters have won the round!", NamedTextColor.RED),
                     Component.text("Every runner has been eliminated.")
             ));
 
             case RUNNER -> this.showTitle(Title.title(
-                    Component.text("Runners have won!", NamedTextColor.GREEN),
+                    Component.text("Runners have won the round!", NamedTextColor.GREEN),
                     Component.text("The runners have evaded the hunters.")
             ));
         }
@@ -247,11 +289,19 @@ public final class Game implements PacketGroupingAudience {
 
         this.getPlayers().forEach(this::despawnPlayer);
 
-        MinecraftServer.getSchedulerManager().buildTask(() -> {
-            for (Player player : instance.getPlayers()) {
-                player.setInstance(Server.getLobby().getInstance());
-            }
-        }).delay(Duration.of(10, TimeUnit.SECOND)).schedule();
+        if (queuedHunters.isEmpty()) {
+            MinecraftServer.getSchedulerManager().buildTask(() -> {
+                for (Player player : instance.getPlayers()) {
+                    player.setInstance(Server.getLobby().getInstance());
+                }
+            }).delay(Duration.of(10, TimeUnit.SECOND)).schedule();
+        } else {
+            // Begin the next round after 5 seconds
+            MinecraftServer.getSchedulerManager()
+                    .buildTask(this::beginNextRound)
+                    .delay(Duration.of(5, TimeUnit.SECOND))
+                    .schedule();
+        }
     }
 
     public void despawnPlayer(Player player) {
@@ -353,7 +403,7 @@ public final class Game implements PacketGroupingAudience {
         int remaining = this.gameTime.getAndDecrement();
 
         if (remaining == 0) {
-            handleGameEnd(Team.RUNNER);
+            handleRoundEnd(Team.RUNNER);
             return;
         }
 
@@ -484,13 +534,13 @@ public final class Game implements PacketGroupingAudience {
             this.runners.remove(player.getUuid());
 
             if (this.runners.isEmpty()) {
-                this.handleGameEnd(Team.HUNTER);
+                this.handleRoundEnd(Team.HUNTER);
             }
         } else if (team == Team.HUNTER) {
             this.hunters.remove(player.getUuid());
 
             if (this.hunters.isEmpty()) {
-                this.handleGameEnd(Team.RUNNER);
+                this.handleRoundEnd(Team.RUNNER);
             }
         }
 
@@ -608,6 +658,7 @@ public final class Game implements PacketGroupingAudience {
             }
         }
 
-        blockBatch.apply(this.instance, () -> {});
+        blockBatch.apply(this.instance, () -> {
+        });
     }
 }

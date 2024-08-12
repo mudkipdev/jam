@@ -16,6 +16,12 @@ public interface Config {
     // Developer Mode
     boolean DEBUG = Boolean.getBoolean("debug");
 
+    // Offline mode
+    boolean OFFLINE_MODE = Boolean.getBoolean("offline-mode");
+
+    // Enable resource pack
+    boolean ENABLE_RESOURCE_PACK = Boolean.parseBoolean(System.getProperty("enable-resource-pack", "true"));
+
     // Commands and Permissions
     Set<UUID> DEVELOPERS = Set.of(
             UUID.fromString("0541ed27-7595-4e6a-9101-6c07f879b7b5"),  // mudkip

@@ -55,9 +55,7 @@ public final class Queue implements PacketGroupingAudience {
 
         this.sendMessage(Component.textOfChildren(
                 Component.text("+ " + player.getUsername(), NamedTextColor.GREEN),
-                Component.text(
-                        " (" + this.players.size() + "/" + MINIMUM_PLAYERS + ")",
-                        NamedTextColor.GRAY)));
+                Component.text(" (" + this.players.size() + "/" + MINIMUM_PLAYERS + ")", NamedTextColor.GRAY)));
 
         if (this.players.size() >= MINIMUM_PLAYERS && this.countdownTask == null) {
             this.countdownTask = MinecraftServer.getSchedulerManager().buildTask(() -> {
@@ -69,8 +67,7 @@ public final class Queue implements PacketGroupingAudience {
 
                 if (time % 10 == 0) {
                     this.playSound(Sounds.CLICK);
-                    sendMessage(Server.MINI_MESSAGE.deserialize(
-                            "<prefix>Starting in <white>" + time + "<gray> second" + (time == 1 ? "" : "s") + "!"));
+                    sendMessage(Server.MINI_MESSAGE.deserialize("<prefix>Starting in <white>" + time + "<gray> seconds!"));
                 }
 
                 if (time <= 5) {
@@ -113,13 +110,12 @@ public final class Queue implements PacketGroupingAudience {
         LOGGER.info("Starting the game with {} players in queue.", this.players.size());
         this.clearTitle();
 
-        Game game = new Game();
         Set<Player> finalPlayers = this.players.stream()
                 .limit(MAXIMUM_PLAYERS)
                 .collect(Collectors.toSet());
-
+        Game game = new Game(finalPlayers);
+        game.beginNextRound();
         this.players.removeAll(finalPlayers);
-        game.spawnPlayers(finalPlayers);
     }
 
     private void sendTitle(Component component) {
