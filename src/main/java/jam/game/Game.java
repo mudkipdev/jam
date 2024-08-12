@@ -631,6 +631,7 @@ public final class Game implements PacketGroupingAudience {
     }
 
     public void changeMapColor() {
+        if (ending.get()) return;
         var blockBatch = new AbsoluteBlockBatch();
 
         var sphere = Sphere.getBlocksInSphere(3.5);
@@ -640,6 +641,9 @@ public final class Game implements PacketGroupingAudience {
         );
 
         for (int i = 0; i < 350; i++) {
+            // This task is laggy - make sure the game doesn't end while it's going on.
+            if (ending.get()) return;
+
             var color = JamColor.random();
             var block = zonepos.randomBlock();
 
