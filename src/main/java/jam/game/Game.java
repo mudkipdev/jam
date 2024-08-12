@@ -289,7 +289,7 @@ public final class Game implements PacketGroupingAudience {
                 .repeat(Duration.of(1, TimeUnit.SECOND))
                 .schedule();
 
-        MinecraftServer.getSchedulerManager().submitTask(() -> {
+        MinecraftServer.getSchedulerManager().buildTask(() -> MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (this.ending.get()) {
                 return TaskSchedule.stop();
             }
@@ -297,7 +297,7 @@ public final class Game implements PacketGroupingAudience {
             this.spawnRandomEffect();
             var random = ThreadLocalRandom.current();
             return TaskSchedule.duration(random.nextInt(20, 30), TimeUnit.SECOND);
-        });
+        })).delay(10, TimeUnit.SECOND).schedule();
     }
 
     private void handleGracePeriod() {
