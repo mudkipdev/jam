@@ -19,6 +19,7 @@ import net.minestom.server.entity.*;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.projectile.FireworkRocketMeta;
+import net.minestom.server.event.instance.InstanceTickEvent;
 import net.minestom.server.event.player.PlayerDeathEvent;
 import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.instance.Instance;
@@ -30,6 +31,8 @@ import net.minestom.server.item.Material;
 import net.minestom.server.item.component.FireworkExplosion;
 import net.minestom.server.item.component.FireworkList;
 import net.minestom.server.network.packet.server.play.EffectPacket;
+import net.minestom.server.network.packet.server.play.ParticlePacket;
+import net.minestom.server.particle.Particle;
 import net.minestom.server.potion.Potion;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.timer.Task;
@@ -122,6 +125,30 @@ public final class Game implements PacketGroupingAudience {
                 if (collectible.getDistanceSquared(event.getNewPosition()) <= range) {
                     collectible.collect(player);
                 }
+            }
+        });
+
+        instance.eventNode().addListener(InstanceTickEvent.class, event -> {
+            for (var player : instance.getPlayers()) {
+                Team team = player.getTag(Tags.TEAM);
+                if (team == null || team == Team.SPECTATOR) continue;
+
+                JamColor color = player.getTag(Tags.COLOR);
+                if (color == null) continue;
+
+                ParticlePacket packet = new ParticlePacket(
+                        Particle.DUST.withColor(color.getTextColor()),
+                        player.getPosition().add(0, 1, 0),
+                        new Vec(
+                                ThreadLocalRandom.current().nextDouble()-0.5,
+                                ThreadLocalRandom.current().nextDouble()-0.5,
+                                ThreadLocalRandom.current().nextDouble()-0.5
+                        ),
+                        0.2f,
+                        1
+                );
+
+                player.sendPacketToViewersAndSelf(packet);
             }
         });
 
