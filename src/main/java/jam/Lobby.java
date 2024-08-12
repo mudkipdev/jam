@@ -117,29 +117,29 @@ public final class Lobby implements PacketGroupingAudience {
                     Config.INSTRUCTIONS));
         });
 
-        Colorblind.slime(instance,
-                Map.entry(new Pos(8, -18, 8), 3.25),
-                Map.entry(new Pos(8, -18, -8), 3.25),
-                Map.entry(new Pos(-8, -18, 8), 3.25),
-                Map.entry(new Pos(-8, -18, -8), 3.25),
-
-                Map.entry(new Pos(8, -18, 24), 3.25),
-                Map.entry(new Pos(24, -18, 8), 3.25),
-                Map.entry(new Pos(24, -18, -8), 3.25),
-
-                Map.entry(new Pos(5, -3, 34.5), 7.5),
-
-                Map.entry(new Pos(-6, -3, -23), 3.25),
-                Map.entry(new Pos(-6, -3 + 15, -23), 3.25),
-                Map.entry(new Pos(-6 + 15, -3, -23), 3.25),
-                Map.entry(new Pos(-6 + 15, -3 + 15, -23), 3.25),
-                Map.entry(new Pos(-6 + 15*2, -3, -23+10), 3.25),
-                Map.entry(new Pos(-6 + 15*2, -3 + 15, -23+10), 3.25),
-
-                Map.entry(new Pos(-31, -3, 0), 7.0),
-                Map.entry(new Pos(33 + 8, -3, 0), 7.0),
-                Map.entry(new Pos(5, 25, 0), 8.0)
-        );
+//        Colorblind.slime(instance,
+//                Map.entry(new Pos(8, -18, 8), 3.25),
+//                Map.entry(new Pos(8, -18, -8), 3.25),
+//                Map.entry(new Pos(-8, -18, 8), 3.25),
+//                Map.entry(new Pos(-8, -18, -8), 3.25),
+//
+//                Map.entry(new Pos(8, -18, 24), 3.25),
+//                Map.entry(new Pos(24, -18, 8), 3.25),
+//                Map.entry(new Pos(24, -18, -8), 3.25),
+//
+//                Map.entry(new Pos(5, -3, 34.5), 7.5),
+//
+//                Map.entry(new Pos(-6, -3, -23), 3.25),
+//                Map.entry(new Pos(-6, -3 + 15, -23), 3.25),
+//                Map.entry(new Pos(-6 + 15, -3, -23), 3.25),
+//                Map.entry(new Pos(-6 + 15, -3 + 15, -23), 3.25),
+//                Map.entry(new Pos(-6 + 15*2, -3, -23+10), 3.25),
+//                Map.entry(new Pos(-6 + 15*2, -3 + 15, -23+10), 3.25),
+//
+//                Map.entry(new Pos(-31, -3, 0), 7.0),
+//                Map.entry(new Pos(33 + 8, -3, 0), 7.0),
+//                Map.entry(new Pos(5, 25, 0), 8.0)
+//        );
     }
 
     @Override
