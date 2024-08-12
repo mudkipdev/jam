@@ -50,7 +50,6 @@ import java.util.stream.Stream;
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
     private static final int GRACE_PERIOD = Config.DEBUG ? 1 : 15;
-    private static final int GAME_TIME = 120;
 
     private final Arena arena;
     private final Instance instance;
@@ -75,7 +74,8 @@ public final class Game implements PacketGroupingAudience {
     private final AtomicInteger gracePeriod = new AtomicInteger(GRACE_PERIOD + 1); // Buffer time so it actually displays 15
     private @Nullable Task gracePeriodTask;
 
-    private final AtomicInteger gameTime = new AtomicInteger(GAME_TIME);
+    private int maxGameTime;
+    private AtomicInteger gameTime;
     private @Nullable Task gameTickTask;
 
     private final Map<JamColor, net.minestom.server.scoreboard.Team> minecraftTeams = new HashMap<>();
@@ -160,7 +160,6 @@ public final class Game implements PacketGroupingAudience {
         this.runners.clear();
         this.collectibles.clear();
         this.gracePeriod.set(GRACE_PERIOD + 1);
-        this.gameTime.set(GAME_TIME);
 
         // Purge offline players & incr round count
         this.purgeOfflinePlayers();
@@ -230,6 +229,8 @@ public final class Game implements PacketGroupingAudience {
             }
         }
 
+        this.maxGameTime = 15 + (30 * runners.size());
+        this.gameTime = new AtomicInteger(this.maxGameTime);
         this.bossBar.addViewer(this);
 
         this.gracePeriodTask = MinecraftServer.getSchedulerManager()
@@ -408,15 +409,15 @@ public final class Game implements PacketGroupingAudience {
         }
 
         bossBar.name(Component.text(remaining + " second" + (remaining == 1 ? "" : "s") + " left"));
-        bossBar.color(remaining < 0.2 * GAME_TIME ? BossBar.Color.RED : BossBar.Color.GREEN);
-        bossBar.progress(remaining / (float) GAME_TIME);
+        bossBar.color(remaining < 0.2 * this.maxGameTime ? BossBar.Color.RED : BossBar.Color.GREEN);
+        bossBar.progress(remaining / (float) this.maxGameTime);
 
         if (remaining < 15 || remaining == 30 || remaining == 60) {
             this.playSound(Sounds.CLICK);
         }
 
         for (var player : this.instance.getPlayers()) {
-            if (remaining > (GAME_TIME - 5)) {
+            if (remaining > (this.maxGameTime - 5)) {
                 continue; // invulnerability
             }
 
