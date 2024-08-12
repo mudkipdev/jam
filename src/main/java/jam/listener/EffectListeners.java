@@ -3,7 +3,7 @@ package jam.listener;
 import io.github.togar2.pvp.entity.projectile.ThrownEnderpearl;
 import io.github.togar2.pvp.feature.fall.FallFeature;
 import jam.game.Effect;
-import jam.game.TNT;
+import jam.game.Tnt;
 import jam.utility.Sounds;
 import jam.utility.Sphere;
 import jam.utility.Tags;
@@ -106,7 +106,7 @@ public interface EffectListeners {
                 case OFF -> player.setItemInOffHand(player.getItemInOffHand().withAmount(i -> i - 1));
             }
 
-            new TNT(item.getTag(Tags.COLOR)).setInstance(event.getInstance(), event.getBlockPosition().add(0.5, 0, 0.5));
+            new Tnt(item.getTag(Tags.COLOR)).setInstance(event.getInstance(), event.getBlockPosition().add(0.5, 0, 0.5));
             event.setCancelled(true);
         });
     }

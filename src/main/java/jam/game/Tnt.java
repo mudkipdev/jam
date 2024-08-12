@@ -20,14 +20,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class TNT extends Entity {
-
+public class Tnt extends Entity {
     public static final double RANGE = 6;
     public static final Set<Point> POINTS = Sphere.getBlocksInSphere(RANGE);
 
     private final JamColor color;
 
-    public TNT(@NotNull JamColor color) {
+    public Tnt(@NotNull JamColor color) {
         super(EntityType.TNT);
 
         this.color = color;

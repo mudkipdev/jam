@@ -2,7 +2,6 @@ package jam;
 
 import jam.game.Arena;
 import jam.game.Queue;
-import jam.utility.Colorblind;
 import jam.utility.SignHandler;
 import jam.utility.Sounds;
 import net.kyori.adventure.inventory.Book;
@@ -31,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public final class Lobby implements PacketGroupingAudience {
