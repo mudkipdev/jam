@@ -561,7 +561,7 @@ public final class Game implements PacketGroupingAudience {
                     Component.text(" There are ", NamedTextColor.GRAY),
                     Component.text(runners.size(), NamedTextColor.YELLOW),
                     Component.text(" runners remaining.", NamedTextColor.GRAY));
-        } else {
+        } else if (team == Team.RUNNER) {
             message = Component.textOfChildren(
                     Components.PREFIX,
                     Component.text(player.getUsername(), NamedTextColor.GREEN),
@@ -569,6 +569,14 @@ public final class Game implements PacketGroupingAudience {
                     Component.text("There are ", NamedTextColor.GRAY),
                     Component.text(runners.size(), NamedTextColor.YELLOW),
                     Component.text(" runners remaining.", NamedTextColor.GRAY));
+        } else {
+            message = Component.textOfChildren(
+                    Components.PREFIX,
+                    Component.text(player.getUsername(), NamedTextColor.GREEN),
+                    Component.text(" was eliminated! ", NamedTextColor.YELLOW),
+                    Component.text("There are ", NamedTextColor.GRAY),
+                    Component.text(hunters.size(), NamedTextColor.YELLOW),
+                    Component.text(" hunters remaining.", NamedTextColor.GRAY));
         }
 
         this.sendMessage(message);
