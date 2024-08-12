@@ -575,7 +575,7 @@ public final class Game implements PacketGroupingAudience {
                 for (var y = -10; y <= 10; y++) {
                     var block = this.instance.getBlock(x, y, z);
 
-                    if (block.getTag(Tags.PLAYER)) {
+                    if (block.hasTag(Tags.PLAYER)) {
                         continue;
                     }
 
