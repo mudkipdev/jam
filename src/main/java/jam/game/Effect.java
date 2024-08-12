@@ -26,6 +26,16 @@ public enum Effect implements Titleable {
             var itemStack = player.getTag(Tags.COLOR).getInkBlaster().withAmount(16);
             player.getInventory().addItemStack(itemStack);
         }
+    },
+    TNT(Material.TNT, """
+            <newline><prefix><gray>A <red><bold>TNT<reset><gray> has spawned in a random spot!
+            <prefix>Collect and place it to <red>explode<gray> a region into its color!<newline>
+            """.trim()) {
+        @Override
+        void activate(Player player, Game game) {
+            var itemStack = JamColor.random().getTnt();
+            player.getInventory().addItemStack(itemStack);
+        }
     };
 
     public static final double SPREAD = 0.15D;

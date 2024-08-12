@@ -119,30 +119,9 @@ public final class Game implements PacketGroupingAudience {
             }
         });
 
-        this.instance.eventNode().addListener(PlayerUseItemEvent.class, event -> {
-            var effect = event.getItemStack().getTag(Tags.EFFECT);
-
-            if (effect == null) {
-                return;
-            }
-
-            if (event.getHand() != Player.Hand.MAIN) {
-                return;
-            }
-
-            var player = event.getPlayer();
-            event.setCancelled(true);
-
-            for (var i = 0; i < Effect.BULLETS; i++) {
-                Effect.spawnInkBall(event.getPlayer(), Effect.calculateEyeDirection(player).mul(26));
-            }
-
-            player.setItemInMainHand(event.getItemStack().withAmount(i -> i - 1));
-            playSound(Sounds.GHAST_SHOOT, Sound.Emitter.self());
-        });
-
         // Add the event listeners for effects
-        instance.eventNode().addListener(EffectListeners.inkBlaster());
+        instance.eventNode().addChild(EffectListeners.inkBlaster());
+        instance.eventNode().addChild(EffectListeners.tnt());
     }
 
     @Override
@@ -174,9 +153,10 @@ public final class Game implements PacketGroupingAudience {
             player.setEnableRespawnScreen(false);
 
             player.sendMessage(Component.textOfChildren(
+                    Components.PREFIX,
                     Component.text("Beginning round ", NamedTextColor.GRAY),
                     Component.text(round, NamedTextColor.GREEN),
-                    Component.text(".", NamedTextColor.GRAY)));
+                    Component.text("!", NamedTextColor.GRAY)));
         }
 
         var hunters = (int) Math.ceil(players.size() / 3.0);
