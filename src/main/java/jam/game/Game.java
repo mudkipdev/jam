@@ -460,7 +460,7 @@ public final class Game implements PacketGroupingAudience {
             if (color == null) { // Try another block
                 color = JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -1, 0)));
                 if (color == null) { // Try a final block
-                    JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -2, 0)));
+                    color = JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -2, 0)));
                 }
             }
 
