@@ -3,6 +3,7 @@ package jam.game;
 import jam.Config;
 import jam.Server;
 import jam.utility.Components;
+import jam.utility.Sphere;
 import jam.utility.Tags;
 import jam.utility.Sounds;
 import net.kyori.adventure.bossbar.BossBar;
@@ -14,6 +15,7 @@ import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
+import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.entity.*;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.DamageType;
@@ -393,6 +395,7 @@ public final class Game implements PacketGroupingAudience {
                         Component.text(playerColor.title(), playerColor.getTextColor()),
                         Component.text("!", NamedTextColor.GRAY)));
 
+                // TODO: add 2-3s invulnerability after color changes
                 player.damage(DamageType.GENERIC, 2.0F);
             }
         }
@@ -583,13 +586,27 @@ public final class Game implements PacketGroupingAudience {
         for (var x = -20; x <= 20; x++) {
             for (var z = -5; z <= 50; z++) {
                 for (var y = -10; y <= 10; y++) {
-                    var block = this.instance.getBlock(x, y, z);
-
-                    if (block.hasTag(Tags.PLAYER)) {
+                    if (ThreadLocalRandom.current().nextDouble() < 0.9D) {
                         continue;
                     }
 
-                    blockBatch.setBlock(x, y, z, JamColor.random().convertBlockMaterial(block));
+                    var sphere = Sphere.getBlocksInSphere(3.0D);
+                    var blocks = Sphere.getNearbyBlocks(
+                            new BlockVec(x, y, z),
+                            sphere,
+                            this.instance,
+                            block -> true);
+
+                    for (var block : blocks) {
+                        // ink blaster
+                        if (block.block().hasTag(Tags.PLAYER)) {
+                            continue;
+                        }
+
+                        blockBatch.setBlock(
+                                block.position(),
+                                JamColor.random().convertBlockMaterial(block.block()));
+                    }
                 }
             }
         }
