@@ -31,58 +31,11 @@ public enum Effect implements Titleable {
             "<gray>An <yellow><bold>Ink Blaster<reset><gray> has spawned in a <light_purple>random<gray> spot!\n<gray>Shoot ink to change the colors of blocks!"
     ) {
         private static final Set<Point> POINTS = Sphere.getBlocksInSphere(2.0D);
-        private static final double SPREAD = 0.1D;
-        private static final double BULLETS = 10.0D;
-
-        private static Vec calculateEyeDirection(Player player) {
-            var random = ThreadLocalRandom.current();
-
-            return player.getPosition().direction()
-                    .rotateAroundX(random.nextDouble(-SPREAD, SPREAD))
-                    .rotateAroundY(random.nextDouble(-SPREAD, SPREAD))
-                    .rotateAroundZ(random.nextDouble(-SPREAD, SPREAD));
-        }
-
-        private static void spawnInkBall(Player player, Vec velocity) {
-            var instance = player.getInstance();
-            var inkBall = new BetterEntityProjectile(player, EntityType.SNOWBALL);
-
-            var meta = (SnowballMeta) inkBall.getEntityMeta();
-            meta.setItem(ItemStack.of(player.getTag(Tags.COLOR).getInkDye()));
-            inkBall.setVelocity(velocity);
-            inkBall.setInstance(instance, player.getPosition().add(0.0D, player.getEyeHeight(), 0.0D));
-            inkBall.scheduleRemove(10, TimeUnit.SECOND);
-        }
 
         @Override
         public void activate(Player player, Game game) {
-            var itemStack = player.getTag(Tags.COLOR).getInkBlaster();
-            player.getInventory().setItemStack(0, itemStack);
-
-            player.eventNode().addListener(PlayerUseItemEvent.class, event -> {
-                // TODO: account for color changes
-                if (!event.getItemStack().equals(itemStack)) {
-                    return;
-                }
-
-                if (event.getHand() != Player.Hand.MAIN) {
-                    return;
-                }
-
-                event.setCancelled(true);
-
-                for (var i = 0; i < BULLETS; i++) {
-                    spawnInkBall(event.getPlayer(), calculateEyeDirection(player).mul(26));
-                }
-
-                game.getInstance().playSound(
-                        Sound.sound(
-                                SoundEvent.ENTITY_GHAST_SHOOT,
-                                Sound.Source.MASTER,
-                                0.5F,
-                                2.0F),
-                        Sound.Emitter.self());
-            });
+            var itemStack = player.getTag(Tags.COLOR).getInkBlaster().withAmount(16);
+            player.getInventory().addItemStack(itemStack);
 
             game.getInstance().eventNode().addListener(ProjectileCollideWithBlockEvent.class, event -> {
                 if (!(event.getEntity() instanceof EntityProjectile projectile)) {
@@ -120,6 +73,29 @@ public enum Effect implements Titleable {
             });
         }
     };
+
+    public static final double SPREAD = 0.1D;
+    public static final double BULLETS = 10.0D;
+
+    public static Vec calculateEyeDirection(Player player) {
+        var random = ThreadLocalRandom.current();
+
+        return player.getPosition().direction()
+                .rotateAroundX(random.nextDouble(-SPREAD, SPREAD))
+                .rotateAroundY(random.nextDouble(-SPREAD, SPREAD))
+                .rotateAroundZ(random.nextDouble(-SPREAD, SPREAD));
+    }
+
+    public static void spawnInkBall(Player player, Vec velocity) {
+        var instance = player.getInstance();
+        var inkBall = new BetterEntityProjectile(player, EntityType.SNOWBALL);
+
+        var meta = (SnowballMeta) inkBall.getEntityMeta();
+        meta.setItem(ItemStack.of(player.getTag(Tags.COLOR).getInkDye()));
+        inkBall.setVelocity(velocity);
+        inkBall.setInstance(instance, player.getPosition().add(0.0D, player.getEyeHeight(), 0.0D));
+        inkBall.scheduleRemove(10, TimeUnit.SECOND);
+    }
 
     private final Material icon;
     private final Component spawnMessage;
