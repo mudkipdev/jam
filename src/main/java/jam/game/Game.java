@@ -409,12 +409,12 @@ public final class Game implements PacketGroupingAudience {
                 var color = JamColor.random();
                 this.changeColor(player, color);
 
-                this.sendTitlePart(TitlePart.SUBTITLE, Component.textOfChildren(
+                player.sendTitlePart(TitlePart.SUBTITLE, Component.textOfChildren(
                         Component.text("Stay on ", NamedTextColor.GRAY),
                         Component.text(color.title().toLowerCase(), color.getTextColor()),
                         Component.text(" blocks to avoid dying.", NamedTextColor.GRAY)));
 
-                this.sendTitlePart(TitlePart.TITLE, Component.textOfChildren(
+                player.sendTitlePart(TitlePart.TITLE, Component.textOfChildren(
                         Component.text("Your color is now ", NamedTextColor.WHITE),
                         Component.text(color.title(), color.getTextColor()),
                         Component.text("!", NamedTextColor.WHITE)));
