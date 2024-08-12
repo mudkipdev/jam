@@ -1,11 +1,13 @@
 package jam;
 
 import jam.listener.PlayerListeners;
+import jam.utility.Components;
 import jam.utility.JamConditions;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.Inserting;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.condition.Conditions;
@@ -27,7 +29,18 @@ import java.util.Base64;
 import java.util.List;
 
 public final class Server implements Config {
-    public static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    public static final MiniMessage MINI_MESSAGE = MiniMessage.builder()
+            .editTags(builder -> builder.tag("prefix", new Inserting() {
+                @Override
+                public @NotNull Component value() {
+                    return Components.PREFIX;
+                }
+
+                @Override
+                public boolean allowsChildren() {
+                    return false;
+                }
+            })).build();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 

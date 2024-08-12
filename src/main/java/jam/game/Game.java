@@ -2,6 +2,7 @@ package jam.game;
 
 import jam.Config;
 import jam.Server;
+import jam.listener.EffectListeners;
 import jam.utility.*;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.sound.Sound;
@@ -57,6 +58,9 @@ public final class Game implements PacketGroupingAudience {
     // Stored as UUIDs to prevent potential memory leaks
     private final Set<UUID> hunters = new HashSet<>();
     private final Set<UUID> runners = new HashSet<>();
+
+    // Store the players that will be hunters in the next rounds
+    private final Set<UUID> queuedHunters = new HashSet<>();
 
     private final AtomicBoolean ending = new AtomicBoolean(false);
 
@@ -127,6 +131,9 @@ public final class Game implements PacketGroupingAudience {
             player.setItemInMainHand(event.getItemStack().withAmount(i -> i - 1));
             playSound(Sounds.GHAST_SHOOT, Sound.Emitter.self());
         });
+
+        // Add the event listeners for effects
+        instance.eventNode().addListener(EffectListeners.inkBlaster());
     }
 
     @Override
@@ -409,12 +416,8 @@ public final class Game implements PacketGroupingAudience {
                 var color = JamColor.random();
                 this.changeColor(player, color);
 
+                player.sendTitlePart(TitlePart.TITLE, Component.empty());
                 player.sendTitlePart(TitlePart.SUBTITLE, Component.textOfChildren(
-                        Component.text("Stay on ", NamedTextColor.GRAY),
-                        Component.text(color.title().toLowerCase(), color.getTextColor()),
-                        Component.text(" blocks to avoid dying.", NamedTextColor.GRAY)));
-
-                player.sendTitlePart(TitlePart.TITLE, Component.textOfChildren(
                         Component.text("Your color is now ", NamedTextColor.WHITE),
                         Component.text(color.title(), color.getTextColor()),
                         Component.text("!", NamedTextColor.WHITE)));
@@ -430,7 +433,7 @@ public final class Game implements PacketGroupingAudience {
 
         if (remaining == 15) {
             sendMessage(Server.MINI_MESSAGE.deserialize(
-                    Components.PREFIX_MM + "<red>15 seconds<gray> left! All <green>runners<gray> are now <yellow>glowing<gray>!"
+                    "<prefix><red>15 seconds<gray> left! All <green>runners<gray> are now <yellow>glowing<gray>!"
             ));
             for (Player player : instance.getPlayers()) {
                 if (player.getTag(Tags.TEAM) != Team.RUNNER) continue;

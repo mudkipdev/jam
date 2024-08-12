@@ -25,7 +25,7 @@ public interface PlayerListeners {
             (Config.DEVELOPERS.contains(event.getPlayer().getUuid()) ? "<gradient:#FF76B6:gold>" : "<gray>")
                     + event.getPlayer().getUsername() + " <gray>» <white>" + event.getMessage());
 
-    Component STARTING_SOON = Server.MINI_MESSAGE.deserialize(Components.PREFIX_MM + "<gray>The game will start soon. Please stay patient. :)");
+    Component STARTING_SOON = Server.MINI_MESSAGE.deserialize("<prefix><gray>The game will start soon. Please stay patient. :)");
 
     static void onPlayerSpawn(PlayerSpawnEvent event) {
         var lobbyInstance = Server.getLobby().getInstance();

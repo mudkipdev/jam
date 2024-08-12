@@ -70,7 +70,7 @@ public final class Queue implements PacketGroupingAudience {
                 if (time % 10 == 0) {
                     this.playSound(Sounds.CLICK);
                     sendMessage(Server.MINI_MESSAGE.deserialize(
-                            Components.PREFIX_MM + "Starting in <white>" + time + "<gray> second" + (time == 1 ? "" : "s") + "!"));
+                            "<prefix>Starting in <white>" + time + "<gray> second" + (time == 1 ? "" : "s") + "!"));
                 }
 
                 if (time <= 5) {

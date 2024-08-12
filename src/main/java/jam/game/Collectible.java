@@ -36,15 +36,14 @@ public final class Collectible extends Entity {
             meta.setHasGlowingEffect(true);
             meta.setGlowColorOverride(JamColor.YELLOW.getTextColor().value());
             meta.setItemStack(effect.createItemStack());
-            meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.CENTER);
+            meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.VERTICAL);
         });
 
         this.label = new Entity(EntityType.TEXT_DISPLAY);
         this.label.setNoGravity(true);
         this.label.editEntityMeta(TextDisplayMeta.class, meta -> {
-                meta.setText(Component.text(this.effect.title(), NamedTextColor.YELLOW, TextDecoration.BOLD));
-                meta.setBillboardRenderConstraints(
-                        AbstractDisplayMeta.BillboardConstraints.CENTER);
+            meta.setText(Component.text(this.effect.title(), NamedTextColor.YELLOW, TextDecoration.BOLD));
+            meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.VERTICAL);
         });
     }
 
