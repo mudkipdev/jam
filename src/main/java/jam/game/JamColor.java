@@ -86,10 +86,6 @@ public enum JamColor implements Titleable {
     }
 
     public Block convertBlockMaterial(Block block) {
-        if (!block.isSolid() || block == Block.BARRIER) {
-            return block;
-        }
-
         for (var entry : MAPS.entrySet()) {
             if (entry.getKey().test(block.namespace())) {
                 var updated = entry.getValue().apply(this.blockInfo);
@@ -100,6 +96,10 @@ public enum JamColor implements Titleable {
 
                 return updated;
             }
+        }
+
+        if (!block.isSolid() || block == Block.BARRIER) {
+            return block;
         }
 
         return blockInfo.solid;
