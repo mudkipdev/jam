@@ -38,4 +38,10 @@ public interface Sounds {
             1.0F, 1.2F
     );
 
+    Sound PICKUP = Sound.sound(
+            SoundEvent.ENTITY_ITEM_PICKUP,
+            Sound.Source.MASTER,
+            1.0F, 1.2F
+    );
+
 }

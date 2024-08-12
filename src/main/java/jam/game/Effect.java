@@ -1,5 +1,6 @@
 package jam.game;
 
+import jam.Server;
 import jam.utility.BetterEntityProjectile;
 import jam.utility.Sphere;
 import jam.utility.Tags;
@@ -25,7 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public enum Effect implements Titleable {
-    INK_BLASTER(Material.WHITE_CANDLE) {
+    INK_BLASTER(Material.WHITE_CANDLE, "<yellow><bold>[INFO]<reset> <gray>An <yellow>Ink Blaster<gray> has spawned in a <light_purple>random<gray> spot!\n<yellow><bold>[INFO]<reset> <gray>Shoot <dark_gray>ink<gray> to change the <red>color<gray> of blocks!") {
         private static final Set<Point> POINTS = Sphere.getBlocksInSphere(2.0D);
         private static final double SPREAD = 0.1D;
         private static final double BULLETS = 10.0D;
@@ -118,9 +119,11 @@ public enum Effect implements Titleable {
     };
 
     private final Material icon;
+    private final Component spawnMessage;
 
-    Effect(Material icon) {
+    Effect(Material icon, String spawnMessage) {
         this.icon = icon;
+        this.spawnMessage = Server.MINI_MESSAGE.deserialize(spawnMessage);
     }
 
     public static Effect random() {
@@ -133,6 +136,10 @@ public enum Effect implements Titleable {
 
     public Material getIcon() {
         return this.icon;
+    }
+
+    public Component getSpawnMessage() {
+        return spawnMessage;
     }
 
     public ItemStack createItemStack() {

@@ -1,13 +1,14 @@
 package jam.game;
 
-import jam.Server;
 import jam.utility.Sounds;
+import jam.utility.Tags;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
@@ -16,10 +17,15 @@ import net.minestom.server.utils.time.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Collectible extends Entity {
+
+    public static final double COLLECT_DISTANCE = 2.5;
+
     private final Effect effect;
     private final Entity label;
+    private final AtomicBoolean collected = new AtomicBoolean(false);
 
     public Collectible(Effect effect) {
         super(EntityType.ITEM_DISPLAY);
@@ -60,7 +66,14 @@ public final class Collectible extends Entity {
         super.spawn();
         this.scheduleRemove(30, TimeUnit.SECOND);
         this.getInstance().playSound(Sounds.CLICK);
-        this.getInstance().sendMessage(Server.MINI_MESSAGE.deserialize(
-                "<yellow>" + effect.name() + " <gray>has spawned in a random spot on the map!"));
+        this.getInstance().sendMessage(effect.getSpawnMessage());
+    }
+
+    public void collect(@NotNull Player player) {
+        if (collected.getAndSet(true)) return;
+
+        effect.activate(player, player.getTag(Tags.GAME));
+        player.playSound(Sounds.PICKUP);
+        this.remove();
     }
 }

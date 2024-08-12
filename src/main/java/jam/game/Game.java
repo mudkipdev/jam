@@ -13,15 +13,14 @@ import net.kyori.adventure.title.TitlePart;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.EntityType;
-import net.minestom.server.entity.GameMode;
-import net.minestom.server.entity.Player;
+import net.minestom.server.entity.*;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.projectile.FireworkRocketMeta;
 import net.minestom.server.event.player.PlayerDeathEvent;
+import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
@@ -59,6 +58,8 @@ public final class Game implements PacketGroupingAudience {
 
     private final AtomicBoolean ending = new AtomicBoolean(false);
 
+    private final List<Collectible> collectibles = new ArrayList<>();
+
     private final AtomicInteger gracePeriod = new AtomicInteger(GRACE_PERIOD + 1); // Buffer time so it actually displays 15
     private @Nullable Task gracePeriodTask;
 
@@ -87,6 +88,19 @@ public final class Game implements PacketGroupingAudience {
                     .build();
             minecraftTeams.put(color, team);
         }
+
+        instance.eventNode().addListener(PlayerMoveEvent.class, event -> {
+            if (event.getPlayer().getTag(Tags.TEAM) == null) return;
+
+            Player player = event.getPlayer();
+            double range = Collectible.COLLECT_DISTANCE * Collectible.COLLECT_DISTANCE;
+
+            for (var collectible : collectibles) {
+                if (collectible.getDistanceSquared(event.getNewPosition()) <= range) {
+                    collectible.collect(player);
+                }
+            }
+        });
     }
 
     @Override
@@ -121,7 +135,7 @@ public final class Game implements PacketGroupingAudience {
             this.hunters.add(player.getUuid());
 
             player.setInstance(instance, arena.hunterSpawn());
-            player.addEffect(new Potion(PotionEffect.BLINDNESS, (byte) 0, (GRACE_PERIOD + 1) * 20, 0));
+            player.addEffect(new Potion(PotionEffect.BLINDNESS, (byte) 0, (GRACE_PERIOD + 2) * 20, 0));
             player.setGlowing(true);
 
             player.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED).setBaseValue(0.0D);
@@ -266,6 +280,8 @@ public final class Game implements PacketGroupingAudience {
             this.endGracePeriod();
             return;
         }
+
+        this.bossBar.addViewer(this);
 
         for (var player : this.instance.getPlayers()) {
             if (player.getTag(Tags.TEAM) != Team.HUNTER) {
@@ -490,7 +506,8 @@ public final class Game implements PacketGroupingAudience {
 
         int y;
         for (y = position.blockY() + 50; y >= position.blockY(); y--) {
-            if (!instance.getBlock(position.blockX(), y, position.blockZ()).isAir()) {
+            Block block = instance.getBlock(position.blockX(), y, position.blockZ());
+            if (!block.isAir() && block.id() != Block.BARRIER.id()) {
                 break;
             }
         }
@@ -499,6 +516,7 @@ public final class Game implements PacketGroupingAudience {
 
         var collectible = new Collectible(effect);
         collectible.setInstance(this.instance, newPos);
+        collectibles.add(collectible);
     }
 
     public void handleExternalPlayerDeath(@NotNull PlayerDeathEvent event) {
