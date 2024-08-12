@@ -50,10 +50,7 @@ public interface PlayerListeners {
 
         // if they're waiting in queue
         if (lobbyInstance.equals(event.getInstance())) {
-            player.updateViewableRule(viewer -> !player.getInstance().equals(lobbyInstance));
-
             player.sendMessage(STARTING_SOON);
-
             queue.addPlayer(player);
         }
     }
