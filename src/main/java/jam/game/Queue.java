@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 
 public final class Queue implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Queue.class);
-    private static final int WAIT_TIME = Config.DEBUG ? 1 : 60;
-    private static final int MINIMUM_PLAYERS = Config.DEBUG ? 1 : 2;
+    private static final int WAIT_TIME = 60;
+    private static final int MINIMUM_PLAYERS = 2;
     private static final int MAXIMUM_PLAYERS = 8;
 
     private final Set<Player> players;
@@ -66,16 +66,7 @@ public final class Queue implements PacketGroupingAudience {
                 int time = this.countdown.get();
 
                 if (time == 0) {
-                    LOGGER.info("Starting the game with {} players in queue.", this.players.size());
-                    this.clearTitle();
-
-                    Game game = new Game();
-                    Set<Player> finalPlayers = this.players.stream()
-                            .limit(MAXIMUM_PLAYERS)
-                            .collect(Collectors.toSet());
-
-                    this.players.removeAll(finalPlayers);
-                    game.spawnPlayers(finalPlayers);
+                    this.start();
                 }
 
                 this.playSound(Sounds.CLICK);
@@ -118,6 +109,19 @@ public final class Queue implements PacketGroupingAudience {
                     "Not enough players!",
                     NamedTextColor.RED));
         }
+    }
+
+    public void start() {
+        LOGGER.info("Starting the game with {} players in queue.", this.players.size());
+        this.clearTitle();
+
+        Game game = new Game();
+        Set<Player> finalPlayers = this.players.stream()
+                .limit(MAXIMUM_PLAYERS)
+                .collect(Collectors.toSet());
+
+        this.players.removeAll(finalPlayers);
+        game.spawnPlayers(finalPlayers);
     }
 
     private void sendTitle(Component component) {

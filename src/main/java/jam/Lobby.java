@@ -8,6 +8,7 @@ import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
@@ -25,11 +26,13 @@ import net.minestom.server.item.Material;
 import net.minestom.server.item.component.WrittenBookContent;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.world.DimensionType;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-public final class Lobby {
+public final class Lobby implements PacketGroupingAudience {
     public static final Pos SPAWN = new Pos(0.5D, 2.0D, 0.5D);
     public static final Set<BlockVec> SIGNS = Set.of(
             new BlockVec(0, 0, -2),
@@ -108,8 +111,13 @@ public final class Lobby {
             event.getPlayer().openBook(Book.book(
                     Component.text("How to Play"),
                     Component.text("mudkip"),
-                    Server.MINI_MESSAGE.deserialize(Config.INSTRUCTIONS)));
+                    Config.INSTRUCTIONS));
         });
+    }
+
+    @Override
+    public @NotNull Collection<@NotNull Player> getPlayers() {
+        return this.instance.getPlayers();
     }
 
     public InstanceContainer getInstance() {

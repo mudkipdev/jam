@@ -1,7 +1,5 @@
 package jam.game;
 
-import io.github.togar2.pvp.feature.CombatFeatureSet;
-import io.github.togar2.pvp.feature.CombatFeatures;
 import jam.Config;
 import jam.Server;
 import jam.utility.Tags;
@@ -50,7 +48,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
-    private static final CombatFeatureSet COMBAT = CombatFeatures.modernVanilla();
     private static final int GRACE_PERIOD = Config.DEBUG ? 1 : 15;
     private static final int GAME_TIME = 120;
 
@@ -94,8 +91,6 @@ public final class Game implements PacketGroupingAudience {
                     .build();
             minecraftTeams.put(color, team);
         }
-
-        this.instance.eventNode().addChild(COMBAT.createNode());
 
         this.instance.eventNode().addListener(PlayerMoveEvent.class, event -> {
             if (event.getPlayer().getTag(Tags.TEAM) == null) {
@@ -377,9 +372,9 @@ public final class Game implements PacketGroupingAudience {
                 this.handleDeath(null, player);
             }
 
-            Pos pos = player.getPosition();
+            var pos = player.getPosition();
+            var color = JamColor.colorOfBlock(this.instance.getBlock(pos));
 
-            JamColor color = JamColor.colorOfBlock(this.instance.getBlock(pos));
             if (color == null) { // Try another block
                 color = JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -1, 0)));
                 if (color == null) { // Try a final block
@@ -388,15 +383,11 @@ public final class Game implements PacketGroupingAudience {
             }
 
             if (color != null && color != player.getTag(Tags.COLOR)) {
-                if (Config.DEBUG) {
-                    player.sendMessage(Component.textOfChildren(
-                            Component.text("[WARNING]", NamedTextColor.RED, TextDecoration.BOLD),
-                            Component.text(" Wrong color!", TextColor.color(255, 165, 0)),
-                            Component.text(" Get off the ", NamedTextColor.GRAY),
-                            Component.text(color.title().toLowerCase(), color.getTextColor()),
-                            Component.text("!", NamedTextColor.GRAY)
-                    ));
-                }
+                player.sendActionBar(Component.textOfChildren(
+                        Component.text("Wrong color! ", NamedTextColor.WHITE),
+                        Component.text("Get off the ", NamedTextColor.GRAY),
+                        Component.text(color.title().toLowerCase(), color.getTextColor()),
+                        Component.text("!", NamedTextColor.GRAY)));
 
                 player.damage(DamageType.GENERIC, 2.0F);
             }

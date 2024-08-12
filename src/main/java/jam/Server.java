@@ -1,12 +1,15 @@
 package jam;
 
-import io.github.togar2.pvp.MinestomPvP;
 import jam.listener.PlayerListeners;
+import jam.utility.JamConditions;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.command.builder.Command;
+import net.minestom.server.command.builder.condition.Conditions;
+import net.minestom.server.entity.Player;
 import net.minestom.server.event.entity.EntityAttackEvent;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.event.item.ItemDropEvent;
@@ -44,7 +47,19 @@ public final class Server implements Config {
         lobby = new Lobby();
         registerEventListeners();
 
-        MinestomPvP.init();
+        MinecraftServer.getCommandManager().register(new Command("start") {{
+            this.setCondition(Conditions.all(
+                    Conditions::playerOnly,
+                    JamConditions.DEVELOPER,
+                    JamConditions.LOBBY));
+
+            this.addSyntax((sender, context) -> {
+                var player = (Player) sender;
+                LOGGER.info("{} force started the game.", player.getUsername());
+                lobby.sendMessage(Component.text(player.getUsername() + " has force started the game.", NamedTextColor.GRAY));
+                lobby.getQueue().start();
+            });
+        }});
 
         // TODO: re-enable bungeecord forwarding (you can check git version history)
         MojangAuth.init();
