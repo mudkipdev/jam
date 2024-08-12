@@ -420,7 +420,7 @@ public final class Game implements PacketGroupingAudience {
             }
         }
 
-        if (remaining % 5 == 0) {
+        if (remaining % 3 == 0) {
             for (var player : this.getInstance().getPlayers()) {
                 var max = player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH);
                 player.setHealth(Math.min(player.getHealth() + 1.0F, (float) max));
