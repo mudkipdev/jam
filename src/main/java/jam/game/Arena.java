@@ -5,6 +5,7 @@ import jam.Server;
 import jam.utility.Titleable;
 import jam.utility.Zone;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Point;

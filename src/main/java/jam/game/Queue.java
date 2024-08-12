@@ -67,14 +67,14 @@ public final class Queue implements PacketGroupingAudience {
                     this.start();
                 }
 
-                this.playSound(Sounds.CLICK);
-
                 if (time % 10 == 0) {
+                    this.playSound(Sounds.CLICK);
                     sendMessage(Server.MINI_MESSAGE.deserialize(
                             Components.PREFIX_MM + "Starting in <white>" + time + "<gray> second" + (time == 1 ? "" : "s") + "!"));
                 }
 
                 if (time <= 5) {
+                    this.playSound(Sounds.CLICK);
                     this.sendTitle(Component.textOfChildren(
                             Component.text("Starting in ", NamedTextColor.GRAY),
                             Component.text(time, NamedTextColor.WHITE),

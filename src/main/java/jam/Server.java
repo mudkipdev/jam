@@ -50,7 +50,8 @@ public final class Server implements Config {
         MinecraftServer.getCommandManager().register(new Command("start") {{
             this.setCondition(Conditions.all(
                     Conditions::playerOnly,
-                    JamConditions.DEVELOPER,
+                    Conditions.any(JamConditions.DEVELOPER, (sender, commandString) ->
+                            "notmattw".equals(((Player) sender).getUsername())),
                     JamConditions.LOBBY));
 
             this.addSyntax((sender, context) -> {

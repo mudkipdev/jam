@@ -513,7 +513,7 @@ public final class Game implements PacketGroupingAudience {
                     Components.PREFIX,
                     Component.text(player.getUsername(), NamedTextColor.GREEN),
                     Component.text(" was eliminated! ", NamedTextColor.YELLOW),
-                    Component.text(" There are ", NamedTextColor.GRAY),
+                    Component.text("There are ", NamedTextColor.GRAY),
                     Component.text(runners.size(), NamedTextColor.YELLOW),
                     Component.text(" runners remaining.", NamedTextColor.GRAY));
         }
