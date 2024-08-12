@@ -2,10 +2,7 @@ package jam.game;
 
 import jam.Config;
 import jam.Server;
-import jam.utility.Components;
-import jam.utility.Sphere;
-import jam.utility.Tags;
-import jam.utility.Sounds;
+import jam.utility.*;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
@@ -15,7 +12,7 @@ import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
-import net.minestom.server.coordinate.BlockVec;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.*;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.damage.DamageType;
@@ -583,31 +580,28 @@ public final class Game implements PacketGroupingAudience {
     public void changeMapColor() {
         var blockBatch = new AbsoluteBlockBatch();
 
-        for (var x = -20; x <= 20; x++) {
-            for (var z = -5; z <= 50; z++) {
-                for (var y = -10; y <= 10; y++) {
-                    if (ThreadLocalRandom.current().nextDouble() < 0.9D) {
-                        continue;
-                    }
+        var sphere = Sphere.getBlocksInSphere(3.5);
+        var zonepos = new Zone(
+                new Vec(-20, -5, -10),
+                new Vec(20, 10, 50)
+        );
 
-                    var sphere = Sphere.getBlocksInSphere(3.0D);
-                    var blocks = Sphere.getNearbyBlocks(
-                            new BlockVec(x, y, z),
-                            sphere,
-                            this.instance,
-                            block -> true);
+        for (int i = 0; i < 350; i++) {
+            var color = JamColor.random();
+            var block = zonepos.randomBlock();
 
-                    for (var block : blocks) {
-                        // ink blaster
-                        if (block.block().hasTag(Tags.PLAYER)) {
-                            continue;
-                        }
+            for (var loc : sphere) {
+                int x = loc.blockX() + block.blockX();
+                int y = loc.blockY() + block.blockY();
+                int z = loc.blockZ() + block.blockZ();
+                Block atPos = instance.getBlock(x, y, z);
 
-                        blockBatch.setBlock(
-                                block.position(),
-                                JamColor.random().convertBlockMaterial(block.block()));
-                    }
+                // ink blaster
+                if (atPos.hasTag(Tags.PLAYER)) {
+                    continue;
                 }
+
+                blockBatch.setBlock(x, y, z, color.convertBlockMaterial(atPos));
             }
         }
 
