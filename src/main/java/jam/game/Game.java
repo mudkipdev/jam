@@ -369,6 +369,7 @@ public final class Game implements PacketGroupingAudience {
         player.getInventory().clear();
         player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
         player.setGlowing(false);
+        player.setAdditionalHearts(0);
         colorblind.removeViewer(player);
     }
 
