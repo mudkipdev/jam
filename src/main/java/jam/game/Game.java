@@ -388,7 +388,7 @@ public final class Game implements PacketGroupingAudience {
             if (color != null && color != playerColor) {
                 player.sendActionBar(Component.textOfChildren(
                         Component.text("Wrong color! ", NamedTextColor.WHITE),
-                        Component.text("Go to the ", NamedTextColor.GRAY),
+                        Component.text("Get to the ", NamedTextColor.GRAY),
                         Component.text(playerColor.title(), playerColor.getTextColor()),
                         Component.text("!", NamedTextColor.GRAY)));
 
