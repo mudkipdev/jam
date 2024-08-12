@@ -1,10 +1,7 @@
 package jam.game;
 
 import jam.Server;
-import jam.utility.BetterEntityProjectile;
-import jam.utility.Sphere;
-import jam.utility.Tags;
-import jam.utility.Titleable;
+import jam.utility.*;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.coordinate.Point;
@@ -14,7 +11,6 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.item.SnowballMeta;
 import net.minestom.server.event.entity.projectile.ProjectileCollideWithBlockEvent;
-import net.minestom.server.event.player.PlayerUseItemEvent;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
@@ -28,7 +24,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public enum Effect implements Titleable {
     INK_BLASTER(
             Material.WHITE_CANDLE,
-            "<newline><gray>An <yellow><bold>Ink Blaster<reset><gray> has spawned in a random spot on the map!\n<gray>Shoot ink to <light_purple>change the colors of blocks<gray>!<newline>"
+            Components.PREFIX_MM + "<newline><gray>An <yellow><bold>Ink Blaster<reset><gray> has spawned in a random spot!\n" +
+                    Components.PREFIX_MM + "Shoot ink to <light_purple>change the colors of blocks<gray>!<newline>"
     ) {
         private static final Set<Point> POINTS = Sphere.getBlocksInSphere(2.0D);
 
