@@ -253,7 +253,6 @@ public final class Game implements PacketGroupingAudience {
         player.removeTag(Tags.TEAM);
         player.removeTag(Tags.COLOR);
         player.getInventory().clear();
-        player.setInvisible(true);
         player.setGlowing(false);
     }
 

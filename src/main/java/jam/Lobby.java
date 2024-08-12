@@ -88,6 +88,7 @@ public final class Lobby implements PacketGroupingAudience {
 
         this.instance.eventNode().addListener(AddEntityToInstanceEvent.class, event -> {
             if (event.getEntity() instanceof Player player) {
+                player.setInvisible(false);
                 player.getInventory().setItemStack(0, ItemStack.of(Material.WRITTEN_BOOK)
                         .with(ItemComponent.ITEM_NAME, Component.text("How to Play", NamedTextColor.GREEN))
                         .with(ItemComponent.WRITTEN_BOOK_CONTENT, new WrittenBookContent(
