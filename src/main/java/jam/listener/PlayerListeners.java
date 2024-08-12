@@ -20,11 +20,11 @@ import java.util.function.Function;
 public interface PlayerListeners {
     Logger LOGGER = LoggerFactory.getLogger(PlayerListeners.class);
 
-    Function<PlayerChatEvent, Component> CHAT_FORMAT = event -> Server.MINI_MESSAGE.deserialize(
+    Function<PlayerChatEvent, Component> CHAT_FORMAT = event -> Server.MM.deserialize(
             (Config.DEVELOPERS.contains(event.getPlayer().getUuid()) ? "<gradient:#FF76B6:gold>" : "<gray>")
                     + event.getPlayer().getUsername() + " <gray>» <white>" + event.getMessage());
 
-    Component STARTING_SOON = Server.MINI_MESSAGE.deserialize("<prefix><gray>The game will start soon. Please stay patient. :)");
+    Component STARTING_SOON = Server.MM.deserialize("<prefix><gray>The game will start soon. Please stay patient. :)");
 
     static void onPlayerSpawn(PlayerSpawnEvent event) {
         var lobbyInstance = Server.getLobby().getInstance();
@@ -37,11 +37,11 @@ public interface PlayerListeners {
             player.setReducedDebugScreenInformation(!Config.DEBUG);
             player.sendPlayerListHeaderAndFooter(
                     Component.newline()
-                            .append(Server.MINI_MESSAGE.deserialize("<rainbow><b>Color Chase"))
+                            .append(Server.MM.deserialize("<rainbow><b>Color Chase"))
                             .appendNewline(),
                     Component.text(" ".repeat(50))
                             .appendNewline()
-                            .append(Server.MINI_MESSAGE.deserialize("<gradient:#FF6C32:#FF76B6>Made for the Minestom Game Jam"))
+                            .append(Server.MM.deserialize("<gradient:#FF6C32:#FF76B6>Made for the Minestom Game Jam"))
                             .appendNewline()
                             .append(Component.text("by mudkip, Cody, GoldenStack ❤", NamedTextColor.GRAY))
                             .appendNewline());

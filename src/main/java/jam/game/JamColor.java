@@ -7,9 +7,11 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.instance.block.predicate.BlockPredicate;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
+import net.minestom.server.item.component.BlockPredicates;
 import net.minestom.server.item.component.DyedItemColor;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
@@ -144,7 +146,20 @@ public enum JamColor implements Titleable {
             case GREEN -> Material.LIME_CANDLE;
             case BLUE -> Material.LIGHT_BLUE_CANDLE;
             case PINK -> Material.PINK_CANDLE;
-        }).with(ItemComponent.ITEM_NAME, Component.text("Ink Blaster"))
+        }).with(ItemComponent.ITEM_NAME, Component.text("Ink Blaster", NamedTextColor.YELLOW))
                 .withTag(Tags.EFFECT, Effect.INK_BLASTER);
+    }
+
+    public ItemStack getTnt() {
+        return ItemStack.of(Material.TNT)
+                .with(ItemComponent.ITEM_NAME, Component.text(title(), getTextColor()).append(Component.text(" TNT", NamedTextColor.RED)))
+                .withTag(Tags.EFFECT, Effect.TNT)
+                .withTag(Tags.COLOR, this)
+                .with(ItemComponent.CAN_PLACE_ON, new BlockPredicates(BlockPredicate.ALL));
+    }
+
+    public ItemStack getTeamIndicator() {
+        return ItemStack.of(blockInfo.solid().registry().material())
+                .with(ItemComponent.ITEM_NAME, Component.text(title(), getTextColor()).append(Component.text(" Team", getTextColor())));
     }
 }

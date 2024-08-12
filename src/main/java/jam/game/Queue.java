@@ -65,7 +65,7 @@ public final class Queue implements PacketGroupingAudience {
 
                 if (time % 10 == 0) {
                     this.playSound(Sounds.CLICK);
-                    sendMessage(Server.MINI_MESSAGE.deserialize("<prefix>Starting in <white>" + time + "<gray> seconds!"));
+                    sendMessage(Server.MM.deserialize("<prefix>Starting in <white>" + time + "<gray> seconds!"));
                 }
 
                 if (time <= 5) {

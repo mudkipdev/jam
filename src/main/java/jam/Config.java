@@ -63,6 +63,6 @@ public interface Config {
 
             <rainbow><b>Have fun!
             """.stripIndent())
-                    .map(Server.MINI_MESSAGE::deserialize)
+                    .map(Server.MM::deserialize)
                     .collect(Collectors.toList());
 }
