@@ -64,6 +64,7 @@ public final class Queue implements PacketGroupingAudience {
         if (this.players.size() >= MINIMUM_PLAYERS && this.countdownTask == null) {
             this.countdownTask = MinecraftServer.getSchedulerManager().buildTask(() -> {
                 int time = this.countdown.get();
+
                 if (time == 0) {
                     LOGGER.info("Starting the game with {} players in queue.", this.players.size());
                     this.clearTitle();
@@ -79,10 +80,9 @@ public final class Queue implements PacketGroupingAudience {
 
                 this.playSound(Sounds.CLICK);
 
-                if (time % 10 == 0 || time <= 10) {
+                if (time % 10 == 0) {
                     sendMessage(Server.MINI_MESSAGE.deserialize(
-                            "<yellow><bold>[GAME]<reset> <gray>Starting in <gold>" + time + "<gray> second" + (time==1?"":"s") + "!"
-                    ));
+                            "<yellow><bold>[GAME]<reset> <gray>Starting in <white>" + time + "<gray> second" + (time == 1 ? "" : "s") + "!"));
                 }
 
                 if (time <= 5) {

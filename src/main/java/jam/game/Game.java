@@ -1,5 +1,7 @@
 package jam.game;
 
+import io.github.togar2.pvp.feature.CombatFeatureSet;
+import io.github.togar2.pvp.feature.CombatFeatures;
 import jam.Config;
 import jam.Server;
 import jam.utility.Tags;
@@ -47,6 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
+    private static final CombatFeatureSet COMBAT = CombatFeatures.modernVanilla();
     private static final int GRACE_PERIOD = Config.DEBUG ? 1 : 15;
     private static final int GAME_TIME = 120;
 
@@ -91,8 +94,12 @@ public final class Game implements PacketGroupingAudience {
             minecraftTeams.put(color, team);
         }
 
-        instance.eventNode().addListener(PlayerMoveEvent.class, event -> {
-            if (event.getPlayer().getTag(Tags.TEAM) == null) return;
+        this.instance.eventNode().addChild(COMBAT.createNode());
+
+        this.instance.eventNode().addListener(PlayerMoveEvent.class, event -> {
+            if (event.getPlayer().getTag(Tags.TEAM) == null) {
+                return;
+            }
 
             Player player = event.getPlayer();
             double range = Collectible.COLLECT_DISTANCE * Collectible.COLLECT_DISTANCE;
@@ -104,12 +111,18 @@ public final class Game implements PacketGroupingAudience {
             }
         });
 
-        instance.eventNode().addListener(PlayerUseItemEvent.class, event -> {
-            Effect effect = event.getItemStack().getTag(Tags.EFFECT);
-            if (effect == null) return;
-            if (event.getHand() != Player.Hand.MAIN) return;
+        this.instance.eventNode().addListener(PlayerUseItemEvent.class, event -> {
+            var effect = event.getItemStack().getTag(Tags.EFFECT);
 
-            Player player = event.getPlayer();
+            if (effect == null) {
+                return;
+            }
+
+            if (event.getHand() != Player.Hand.MAIN) {
+                return;
+            }
+
+            var player = event.getPlayer();
             event.setCancelled(true);
 
             for (var i = 0; i < Effect.BULLETS; i++) {
@@ -117,7 +130,6 @@ public final class Game implements PacketGroupingAudience {
             }
 
             player.setItemInMainHand(event.getItemStack().withAmount(i -> i - 1));
-
             playSound(Sounds.GHAST_SHOOT, Sound.Emitter.self());
         });
     }

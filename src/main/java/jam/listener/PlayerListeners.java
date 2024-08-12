@@ -33,8 +33,7 @@ public interface PlayerListeners {
                     + event.getPlayer().getUsername() + " <gray>» <white>" + event.getMessage());
 
     Component STARTING_SOON = Server.MINI_MESSAGE.deserialize(
-            "<yellow><bold>[INFO]<reset> <gray>The game will start soon!\n<yellow><bold>[INFO]<reset> <gray>Please stay patient. :)"
-    );
+            "<gray>The game will start soon. Please stay patient. :)");
 
     static void onPlayerSpawn(PlayerSpawnEvent event) {
         var lobbyInstance = Server.getLobby().getInstance();
