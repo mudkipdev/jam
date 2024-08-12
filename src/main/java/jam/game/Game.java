@@ -377,9 +377,10 @@ public final class Game implements PacketGroupingAudience {
 
             if (color == null) { // Try another block
                 color = JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -1, 0)));
-                if (color == null) { // Try a final block
-                    color = JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -2, 0)));
-                }
+
+//                if (color == null) { // Try a final block
+//                    color = JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -2, 0)));
+//                }
             }
 
             if (color != null && color != player.getTag(Tags.COLOR)) {
@@ -573,6 +574,11 @@ public final class Game implements PacketGroupingAudience {
             for (var z = -5; z <= 50; z++) {
                 for (var y = -10; y <= 10; y++) {
                     var block = this.instance.getBlock(x, y, z);
+
+                    if (block.getTag(Tags.PLAYER)) {
+                        continue;
+                    }
+
                     blockBatch.setBlock(x, y, z, JamColor.random().convertBlockMaterial(block));
                 }
             }

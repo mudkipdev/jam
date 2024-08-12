@@ -53,9 +53,12 @@ public enum Effect implements Titleable {
                 for (var nearbyBlock : nearbyBlocks) {
                     Block block = projectile.getInstance().getBlock(nearbyBlock.position());
 
-                    if (block.isAir()) continue;
+                    if (block.isAir()) {
+                        continue;
+                    }
 
-                    projectile.getInstance().setBlock(nearbyBlock.position(), color.convertBlockMaterial(block));
+                    projectile.getInstance().setBlock(nearbyBlock.position(), color.convertBlockMaterial(block)
+                            .withTag(Tags.PLAYER, true));
                 }
 
                 shooter.getInstance().playSound(
