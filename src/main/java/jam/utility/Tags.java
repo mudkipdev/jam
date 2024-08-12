@@ -10,5 +10,5 @@ public interface Tags {
     Tag<Game> GAME = Tag.Transient("game");
     Tag<Team> TEAM = Tag.Transient("team");
     Tag<JamColor> COLOR = Tag.Transient("color");
-    Tag<Effect> EFFECT = Tag.Transient("effect");
+    Tag<Effect> EFFECT = Tag.String("effect").map(Effect::valueOf, Effect::name);
 }

@@ -1,5 +1,6 @@
 package jam.game;
 
+import jam.utility.Tags;
 import jam.utility.Titleable;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -139,6 +140,7 @@ public enum JamColor implements Titleable {
             case GREEN -> Material.LIME_CANDLE;
             case BLUE -> Material.LIGHT_BLUE_CANDLE;
             case PINK -> Material.PINK_CANDLE;
-        }).with(ItemComponent.ITEM_NAME, Component.text("Ink Blaster"));
+        }).with(ItemComponent.ITEM_NAME, Component.text("Ink Blaster"))
+                .withTag(Tags.EFFECT, Effect.INK_BLASTER);
     }
 }

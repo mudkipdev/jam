@@ -5,6 +5,7 @@ import jam.Server;
 import jam.utility.Tags;
 import jam.utility.Sounds;
 import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -19,6 +20,7 @@ import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.projectile.FireworkRocketMeta;
 import net.minestom.server.event.player.PlayerDeathEvent;
 import net.minestom.server.event.player.PlayerMoveEvent;
+import net.minestom.server.event.player.PlayerUseItemEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemComponent;
@@ -45,7 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
-    private static final int GRACE_PERIOD = 15;
+    private static final int GRACE_PERIOD = Config.DEBUG ? 1 : 15;
     private static final int GAME_TIME = 120;
 
     private final Arena arena;
@@ -100,6 +102,23 @@ public final class Game implements PacketGroupingAudience {
                     collectible.collect(player);
                 }
             }
+        });
+
+        instance.eventNode().addListener(PlayerUseItemEvent.class, event -> {
+            Effect effect = event.getItemStack().getTag(Tags.EFFECT);
+            if (effect == null) return;
+            if (event.getHand() != Player.Hand.MAIN) return;
+
+            Player player = event.getPlayer();
+            event.setCancelled(true);
+
+            for (var i = 0; i < Effect.BULLETS; i++) {
+                Effect.spawnInkBall(event.getPlayer(), Effect.calculateEyeDirection(player).mul(26));
+            }
+
+            player.setItemInMainHand(event.getItemStack().withAmount(i -> i - 1));
+
+            playSound(Sounds.GHAST_SHOOT, Sound.Emitter.self());
         });
     }
 
@@ -492,6 +511,15 @@ public final class Game implements PacketGroupingAudience {
             this.minecraftTeams.get(old).removeMember(player.getUsername());
         }
         this.minecraftTeams.get(color).addMember(player.getUsername());
+
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack item = player.getInventory().getItemStack(i);
+
+            Effect effect = item.getTag(Tags.EFFECT);
+            if (effect == Effect.INK_BLASTER) {
+                player.getInventory().setItemStack(i, player.getTag(Tags.COLOR).getInkBlaster().withAmount(item.amount()));
+            }
+        }
 
         player.getInventory().setChestplate(ItemStack.of(Material.LEATHER_CHESTPLATE)
                 .with(ItemComponent.DYED_COLOR, color.getDyeColor()));

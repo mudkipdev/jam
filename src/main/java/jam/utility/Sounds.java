@@ -44,4 +44,11 @@ public interface Sounds {
             1.0F, 1.2F
     );
 
+    Sound GHAST_SHOOT = Sound.sound(
+            SoundEvent.ENTITY_GHAST_SHOOT,
+            Sound.Source.MASTER,
+            0.5F,
+            2.0F
+    );
+
 }
