@@ -17,6 +17,7 @@ import net.minestom.server.event.instance.RemoveEntityFromInstanceEvent;
 import net.minestom.server.event.player.PlayerBlockInteractEvent;
 import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.event.player.PlayerUseItemEvent;
+import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
@@ -70,8 +71,9 @@ public final class Lobby {
             }
         });
 
+        var trapdoors = MinecraftServer.getTagManager().getTag(Tag.BasicType.BLOCKS, "minecraft:trapdoors");
         this.instance.eventNode().addListener(PlayerBlockInteractEvent.class, event -> {
-            if (!event.getBlock().name().contains("trapdoor")) {
+            if (!trapdoors.contains(event.getBlock().namespace())) {
                 return;
             }
 
