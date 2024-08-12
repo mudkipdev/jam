@@ -49,6 +49,7 @@ public final class Collectible extends Entity {
 
     @Override
     public void remove() {
+        collected.set(true);
         super.remove();
         this.label.remove();
     }
