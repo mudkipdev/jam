@@ -3,7 +3,6 @@ package jam.game;
 import jam.Server;
 import jam.utility.*;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
@@ -13,7 +12,6 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.utils.time.TimeUnit;
 
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public enum Effect implements Titleable {
@@ -66,7 +64,7 @@ public enum Effect implements Titleable {
 
     Effect(Material icon, String spawnMessage) {
         this.icon = icon;
-        this.spawnMessage = Server.MINI_MESSAGE.deserialize(spawnMessage);
+        this.spawnMessage = Server.MM.deserialize(spawnMessage);
     }
 
     public static Effect random() {
