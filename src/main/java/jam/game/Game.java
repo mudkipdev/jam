@@ -13,6 +13,7 @@ import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
+import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.*;
 import net.minestom.server.entity.attribute.Attribute;
@@ -20,7 +21,6 @@ import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.projectile.FireworkRocketMeta;
 import net.minestom.server.event.player.PlayerDeathEvent;
 import net.minestom.server.event.player.PlayerMoveEvent;
-import net.minestom.server.event.player.PlayerUseItemEvent;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.AbsoluteBlockBatch;
 import net.minestom.server.instance.block.Block;
@@ -45,11 +45,17 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 public final class Game implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Game.class);
     private static final int GRACE_PERIOD = Config.DEBUG ? 1 : 15;
+
+    private static final double COLOR_CHANGE_RANGE = 3.5;
+    private static final Set<Point> COLOR_CHANGE_POINTS = Sphere.getBlocksInSphere(COLOR_CHANGE_RANGE);
+    private static final Zone COLOR_CHANGE_ZONE = new Zone(
+            new Vec(-20, -5, -10),
+            new Vec(20, 10, 50)
+    );
 
     private final Arena arena;
     private final Instance instance;
@@ -148,7 +154,6 @@ public final class Game implements PacketGroupingAudience {
             player.setTag(Tags.GAME, this);
             player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
             player.setGameMode(GameMode.ADVENTURE);
-            this.changeColor(player, JamColor.random());
             player.setInvisible(false);
             player.setEnableRespawnScreen(false);
 
@@ -296,7 +301,7 @@ public final class Game implements PacketGroupingAudience {
     private void endGracePeriod() {
         this.gracePeriodTask.cancel();
         this.gracePeriodTask = null;
-        this.changeMapColor();
+        this.changeMapColor(350);
 
         for (var player : instance.getPlayers()) {
             // fucking vanilla
@@ -448,8 +453,9 @@ public final class Game implements PacketGroupingAudience {
             }
         }
 
+        this.changeMapColor(10);
+
         if (remaining % 20 == 0) {
-            this.changeMapColor();
             this.playSound(Sounds.NOTE);
 
             for (var player : this.getInstance().getPlayers()) {
@@ -633,24 +639,18 @@ public final class Game implements PacketGroupingAudience {
         handleDeath(null, player);
     }
 
-    public void changeMapColor() {
+    public void changeMapColor(int rounds) {
         if (ending.get()) return;
         var blockBatch = new AbsoluteBlockBatch();
 
-        var sphere = Sphere.getBlocksInSphere(3.5);
-        var zonepos = new Zone(
-                new Vec(-20, -5, -10),
-                new Vec(20, 10, 50)
-        );
-
-        for (int i = 0; i < 350; i++) {
+        for (int i = 0; i < rounds; i++) {
             // This task is laggy - make sure the game doesn't end while it's going on.
             if (ending.get()) return;
 
             var color = JamColor.random();
-            var block = zonepos.randomBlock();
+            var block = COLOR_CHANGE_ZONE.randomBlock();
 
-            for (var loc : sphere) {
+            for (var loc : COLOR_CHANGE_POINTS) {
                 int x = loc.blockX() + block.blockX();
                 int y = loc.blockY() + block.blockY();
                 int z = loc.blockZ() + block.blockZ();
