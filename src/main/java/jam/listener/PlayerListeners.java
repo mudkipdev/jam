@@ -2,7 +2,6 @@ package jam.listener;
 
 import jam.Config;
 import jam.Server;
-import jam.utility.Components;
 import jam.utility.Tags;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

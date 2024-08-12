@@ -1,6 +1,5 @@
 package jam.listener;
 
-import jam.game.Game;
 import jam.utility.Sphere;
 import jam.utility.Tags;
 import net.kyori.adventure.sound.Sound;
