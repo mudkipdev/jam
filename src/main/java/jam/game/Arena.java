@@ -113,7 +113,7 @@ public enum Arena implements Titleable {
             meta.setBackgroundColor(0);
         });
 
-        easterEgg.setInstance(instance, getCenter().add(0, 50, 0));
+        easterEgg.setInstance(instance, getCenter().add(0, 80, 0));
         return instance;
     }
 
