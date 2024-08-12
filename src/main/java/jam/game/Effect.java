@@ -36,6 +36,16 @@ public enum Effect implements Titleable {
             var itemStack = JamColor.random().getTnt();
             player.getInventory().addItemStack(itemStack);
         }
+    },
+    HEALTH_PACK(Material.GOLDEN_APPLE, """
+            <newline><prefix><gray>A <yellow><bold>health pack<reset><gray> has spawned in a random spot!
+            <prefix>Collect it to receive a few <gold>bonus hearts<gray>!<newline>
+            """.trim()) {
+        @Override
+        void activate(Player player, Game game) {
+            player.setAdditionalHearts(player.getAdditionalHearts() + 10);
+            player.setHealth(player.getHealth() + 10);
+        }
     };
 
     public static final double SPREAD = 0.15D;
