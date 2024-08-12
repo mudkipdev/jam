@@ -29,7 +29,7 @@ import java.util.Base64;
 import java.util.List;
 
 public final class Server implements Config {
-    public static final MiniMessage MINI_MESSAGE = MiniMessage.builder()
+    public static final MiniMessage MM = MiniMessage.builder()
             .editTags(builder -> builder.tag("prefix", new Inserting() {
                 @Override
                 public @NotNull Component value() {
@@ -125,7 +125,7 @@ public final class Server implements Config {
             data.setMaxPlayer(500);
             data.setFavicon(favicon);
             data.setDescription(Component.textOfChildren(
-                    MINI_MESSAGE.deserialize("<rainbow>Color Chase"),
+                    MM.deserialize("<rainbow>Color Chase"),
                     Component.newline(),
                     Component.text("by mudkip, Cody, GoldenStack")));
 

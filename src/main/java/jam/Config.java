@@ -2,8 +2,6 @@ package jam;
 
 import net.kyori.adventure.resource.ResourcePackInfo;
 import net.kyori.adventure.text.Component;
-import net.minestom.server.command.builder.condition.CommandCondition;
-import net.minestom.server.entity.Player;
 
 import java.net.URI;
 import java.util.List;
@@ -65,6 +63,6 @@ public interface Config {
 
             <rainbow><b>Have fun!
             """.stripIndent())
-                    .map(Server.MINI_MESSAGE::deserialize)
+                    .map(Server.MM::deserialize)
                     .collect(Collectors.toList());
 }

@@ -1,9 +1,7 @@
 package jam.game;
 
-import jam.Config;
 import jam.Lobby;
 import jam.Server;
-import jam.utility.Components;
 import jam.utility.Sounds;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -67,7 +65,7 @@ public final class Queue implements PacketGroupingAudience {
 
                 if (time % 10 == 0) {
                     this.playSound(Sounds.CLICK);
-                    sendMessage(Server.MINI_MESSAGE.deserialize("<prefix>Starting in <white>" + time + "<gray> seconds!"));
+                    sendMessage(Server.MM.deserialize("<prefix>Starting in <white>" + time + "<gray> seconds!"));
                 }
 
                 if (time <= 5) {
