@@ -10,6 +10,7 @@ import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
@@ -389,8 +390,8 @@ public final class Game implements PacketGroupingAudience {
             if (color != null && color != player.getTag(Tags.COLOR)) {
                 if (Config.DEBUG) {
                     player.sendMessage(Component.textOfChildren(
-                            Component.text("[WARNING]", NamedTextColor.YELLOW, TextDecoration.BOLD),
-                            Component.text(" Wrong color!", NamedTextColor.RED),
+                            Component.text("[WARNING]", NamedTextColor.RED, TextDecoration.BOLD),
+                            Component.text(" Wrong color!", TextColor.color(255, 165, 0)),
                             Component.text(" Get off the ", NamedTextColor.GRAY),
                             Component.text(color.title().toLowerCase(), color.getTextColor()),
                             Component.text("!", NamedTextColor.GRAY)
