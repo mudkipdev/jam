@@ -32,6 +32,10 @@ public interface PlayerListeners {
             (DEVELOPERS.contains(event.getPlayer().getUuid()) ? "<gradient:#FF76B6:gold>" : "<gray>")
                     + event.getPlayer().getUsername() + " <gray>» <white>" + event.getMessage());
 
+    Component STARTING_SOON = Server.MINI_MESSAGE.deserialize(
+            "\n<yellow><bold>[INFO]<reset> <gray>The game will start soon!\n<yellow><bold>[INFO]<reset> <gray>Please stay patient. :)\n"
+    );
+
     static void onPlayerSpawn(PlayerSpawnEvent event) {
         var lobbyInstance = Server.getLobby().getInstance();
         var queue = Server.getLobby().getQueue();
@@ -57,11 +61,7 @@ public interface PlayerListeners {
         if (lobbyInstance.equals(event.getInstance())) {
             player.updateViewableRule(viewer -> !player.getInstance().equals(lobbyInstance));
 
-            player.sendMessage(Component.textOfChildren(
-                    Component.newline(),
-                    Component.text("The game will be starting soon! ", NamedTextColor.WHITE),
-                    Component.text("Please stay patient. :)", NamedTextColor.GRAY),
-                    Component.newline()));
+            player.sendMessage(STARTING_SOON);
 
             queue.addPlayer(player);
         }

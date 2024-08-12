@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public enum Effect implements Titleable {
-    INK_BLASTER(Material.WHITE_CANDLE, "<yellow><bold>[INFO]<reset> <gray>An <yellow>Ink Blaster<gray> has spawned in a <light_purple>random<gray> spot!\n<yellow><bold>[INFO]<reset> <gray>Shoot <dark_gray>ink<gray> to change the <red>color<gray> of blocks!") {
+    INK_BLASTER(Material.WHITE_CANDLE, "<yellow><bold>[INFO]<reset> <gray>An <yellow><bold>Ink Blaster<reset><gray> has spawned in a <light_purple>random<gray> spot!\n<yellow><bold>[INFO]<reset> <gray>Shoot <dark_gray>ink<gray> to change the <red>color<gray> of blocks!") {
         private static final Set<Point> POINTS = Sphere.getBlocksInSphere(2.0D);
         private static final double SPREAD = 0.1D;
         private static final double BULLETS = 10.0D;
@@ -144,6 +144,7 @@ public enum Effect implements Titleable {
 
     public ItemStack createItemStack() {
         return ItemStack.of(this.icon)
-                .with(ItemComponent.ITEM_NAME, Component.text(this.title()));
+                .with(ItemComponent.ITEM_NAME, Component.text(this.title()))
+                .withTag(Tags.EFFECT, this);
     }
 }

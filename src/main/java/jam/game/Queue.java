@@ -2,6 +2,7 @@ package jam.game;
 
 import jam.Config;
 import jam.Lobby;
+import jam.Server;
 import jam.utility.Sounds;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -62,7 +63,8 @@ public final class Queue implements PacketGroupingAudience {
 
         if (this.players.size() >= MINIMUM_PLAYERS && this.countdownTask == null) {
             this.countdownTask = MinecraftServer.getSchedulerManager().buildTask(() -> {
-                if (this.countdown.get() == 0) {
+                int time = this.countdown.get();
+                if (time == 0) {
                     LOGGER.info("Starting the game with {} players in queue.", this.players.size());
                     this.clearTitle();
 
@@ -76,10 +78,21 @@ public final class Queue implements PacketGroupingAudience {
                 }
 
                 this.playSound(Sounds.CLICK);
-                this.sendTitle(Component.textOfChildren(
-                        Component.text("Starting in ", NamedTextColor.GRAY),
-                        Component.text(this.countdown.getAndDecrement(), NamedTextColor.WHITE),
-                        Component.text(" seconds", NamedTextColor.GRAY)));
+
+                if (time % 10 == 0 || time <= 10) {
+                    sendMessage(Server.MINI_MESSAGE.deserialize(
+                            "<yellow><bold>[GAME]<reset> <gray>Starting in <gold>" + time + "<gray> second" + (time==1?"":"s") + "!"
+                    ));
+                }
+
+                if (time <= 5) {
+                    this.sendTitle(Component.textOfChildren(
+                            Component.text("Starting in ", NamedTextColor.GRAY),
+                            Component.text(time, NamedTextColor.WHITE),
+                            Component.text(" seconds", NamedTextColor.GRAY)));
+                }
+
+                this.countdown.getAndDecrement();
             }).repeat(1, TimeUnit.SECOND).schedule();
         }
     }

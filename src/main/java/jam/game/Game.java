@@ -358,9 +358,12 @@ public final class Game implements PacketGroupingAudience {
             if (color != null && color != player.getTag(Tags.COLOR)) {
                 if (Config.DEBUG) {
                     player.sendMessage(Component.textOfChildren(
-                            Component.text("Damaging you because you stepped on ", NamedTextColor.GRAY),
-                            Component.text(color.title(), color.getTextColor()),
-                            Component.text("!", NamedTextColor.GRAY)));
+                            Component.text("[WARNING]", NamedTextColor.YELLOW, TextDecoration.BOLD),
+                            Component.text(" Wrong color!", NamedTextColor.RED),
+                            Component.text(" Get off the ", NamedTextColor.GRAY),
+                            Component.text(color.title().toLowerCase(), color.getTextColor()),
+                            Component.text("!", NamedTextColor.GRAY)
+                    ));
                 }
 
                 player.damage(DamageType.GENERIC, 2.0F);
@@ -392,7 +395,7 @@ public final class Game implements PacketGroupingAudience {
 
         if (remaining == 15) {
             sendMessage(Server.MINI_MESSAGE.deserialize(
-                    "<red>15 seconds<gray> left! All <green>runners<gray> are now <yellow>glowing<gray>!"
+                    "<yellow><bold>[GAME]<reset> <red>15 seconds<gray> left! All <green>runners<gray> are now <yellow>glowing<gray>!"
             ));
             for (Player player : instance.getPlayers()) {
                 if (player.getTag(Tags.TEAM) != Team.RUNNER) continue;
