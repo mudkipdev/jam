@@ -384,8 +384,9 @@ public final class Game implements PacketGroupingAudience {
             }
 
             var playerColor = player.getTag(Tags.COLOR);
+            var inWater = Block.WATER.equals(this.instance.getBlock(player.getPosition()));
 
-            if (color != null && color != playerColor) {
+            if (inWater || (color != null && color != playerColor)) {
                 player.sendActionBar(Component.textOfChildren(
                         Component.text("Wrong color! ", NamedTextColor.WHITE),
                         Component.text("Get to the ", NamedTextColor.GRAY),
