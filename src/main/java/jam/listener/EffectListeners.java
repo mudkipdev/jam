@@ -1,17 +1,19 @@
 package jam.listener;
 
+import io.github.togar2.pvp.entity.projectile.ThrownEnderpearl;
+import io.github.togar2.pvp.feature.fall.FallFeature;
 import jam.game.Effect;
-import jam.game.Game;
 import jam.game.TNT;
 import jam.utility.Sounds;
 import jam.utility.Sphere;
 import jam.utility.Tags;
 import net.kyori.adventure.sound.Sound;
 import net.minestom.server.coordinate.Point;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.EntityProjectile;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventFilter;
-import net.minestom.server.event.EventListener;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.entity.projectile.ProjectileCollideWithBlockEvent;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
@@ -21,6 +23,7 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.sound.SoundEvent;
 
+import java.util.Objects;
 import java.util.Set;
 
 public interface EffectListeners {
@@ -105,6 +108,38 @@ public interface EffectListeners {
 
             new TNT(item.getTag(Tags.COLOR)).setInstance(event.getInstance(), event.getBlockPosition().add(0.5, 0, 0.5));
             event.setCancelled(true);
+        });
+    }
+
+    static EventNode<InstanceEvent> enderPearl() {
+
+        return EventNode.type("ender_pearl", EventFilter.INSTANCE).addListener(PlayerUseItemEvent.class, event -> {
+            var effect = event.getItemStack().getTag(Tags.EFFECT);
+
+            if (effect != Effect.ENDER_PEARL) {
+                return;
+            }
+
+            Player player = event.getPlayer();
+
+            switch (event.getHand()) {
+                case MAIN -> player.setItemInMainHand(player.getItemInMainHand().withAmount(i -> i - 1));
+                case OFF -> player.setItemInOffHand(player.getItemInOffHand().withAmount(i -> i - 1));
+            }
+
+            ThrownEnderpearl pearl = new ThrownEnderpearl(player, FallFeature.NO_OP);
+            pearl.setItem(Effect.PEARL_ITEM);
+            event.getInstance().playSound(Sounds.PEARL_THROW.get(), player.getPosition());
+
+            Pos position = player.getPosition().add(0, player.getEyeHeight(), 0);
+            pearl.setInstance(Objects.requireNonNull(player.getInstance()), position);
+
+            pearl.shootFromRotation(position.pitch(), position.yaw(), 0, 1.5, 1.0);
+
+            Vec playerVel = player.getVelocity();
+            pearl.setVelocity(pearl.getVelocity().add(playerVel.x(),
+                    player.isOnGround() ? 0.0D : playerVel.y(), playerVel.z()));
+
         });
     }
 

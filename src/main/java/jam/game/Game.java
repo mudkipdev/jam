@@ -171,6 +171,7 @@ public final class Game implements PacketGroupingAudience {
         // Add the event listeners for effects
         instance.eventNode().addChild(EffectListeners.inkBlaster());
         instance.eventNode().addChild(EffectListeners.tnt());
+        instance.eventNode().addChild(EffectListeners.enderPearl());
     }
 
     @Override

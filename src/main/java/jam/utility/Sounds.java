@@ -3,6 +3,9 @@ package jam.utility;
 import net.kyori.adventure.sound.Sound;
 import net.minestom.server.sound.SoundEvent;
 
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
+
 public interface Sounds {
     Sound CLICK = Sound.sound(
             SoundEvent.UI_BUTTON_CLICK.key(),
@@ -49,6 +52,12 @@ public interface Sounds {
             Sound.Source.MASTER,
             0.5F,
             2.0F
+    );
+
+    Supplier<Sound> PEARL_THROW = () -> Sound.sound(
+            SoundEvent.ENTITY_ENDER_PEARL_THROW,
+            Sound.Source.NEUTRAL,
+            0.5f, 0.4f / (ThreadLocalRandom.current().nextFloat() * 0.4f + 0.8f)
     );
 
 }
