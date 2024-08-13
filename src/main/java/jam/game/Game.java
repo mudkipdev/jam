@@ -118,11 +118,13 @@ public final class Game implements PacketGroupingAudience {
                 BossBar.Color.WHITE,
                 BossBar.Overlay.PROGRESS);
 
-        this.sidebar = new Sidebar(MM.deserialize("<rainbow>Color Chase"));
+        this.sidebar = new Sidebar(MM.deserialize("<rainbow><b>Color Chase"));
+
         for (var player : players) {
             this.sidebar.addViewer(player);
         }
-        initSidebar();
+
+        this.initSidebar();
 
         for (JamColor color : JamColor.values()) {
             net.minestom.server.scoreboard.Team team = MinecraftServer.getTeamManager()
@@ -306,7 +308,7 @@ public final class Game implements PacketGroupingAudience {
             }
         }
 
-        this.maxGameTime = 15 + (30 * runners.size());
+        this.maxGameTime = Config.DEBUG ? 300 : (15 + (30 * runners.size()));
         this.gameTime = new AtomicInteger(this.maxGameTime);
         this.bossBar.addViewer(this);
 
@@ -350,7 +352,7 @@ public final class Game implements PacketGroupingAudience {
         minecraftTeams.values().forEach(MinecraftServer.getTeamManager()::deleteTeam);
 
         this.showTitle(Title.title(
-                Component.text("Round over!", NamedTextColor.GRAY),
+                Component.text("Round over!", NamedTextColor.WHITE),
                 (switch (winner) {
                     case RUNNER -> Component.text("Runners", NamedTextColor.GREEN);
                     case HUNTER -> Component.text("Hunters", NamedTextColor.RED);
@@ -837,11 +839,11 @@ public final class Game implements PacketGroupingAudience {
         }
 
         // Initialize the sidebar
-        updateSidebar();
+        this.updateSidebar();
     }
 
     private void updateSidebar() {
-        sidebar.updateLineContent("round", MM.deserialize("<gray>Round " + round.get()));
+        sidebar.updateLineContent("round", MM.deserialize("<gray>Round: <white>" + round.get()));
 
         List<Map.Entry<UUID, Integer>> pointsSorted = new ArrayList<>(points.entrySet());
         pointsSorted.sort(Map.Entry.comparingByValue());

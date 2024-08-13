@@ -60,7 +60,16 @@ public class Tnt extends Entity {
             }
 
             for (var entity : instance.getNearbyEntities(pos, RANGE)) {
-                if (!(entity instanceof Player player)) continue;
+                if (!(entity instanceof Player player)) {
+                    continue;
+                }
+
+                player.setVelocity(player.getVelocity().add(0.0D, 10.0D, 0.0D));
+                player.takeKnockback(
+                        2.5F,
+                        Math.sin(Math.toRadians(this.getPosition().yaw())),
+                        -Math.cos(Math.toRadians(this.getPosition().yaw())));
+
                 player.sendMessage(Component.textOfChildren(
                         Components.PREFIX,
                         Component.text("You were ", NamedTextColor.GRAY),

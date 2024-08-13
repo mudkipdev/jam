@@ -127,9 +127,7 @@ public final class Lobby implements PacketGroupingAudience {
 
         MinecraftServer.getSchedulerManager().buildTask(() -> MinecraftServer.getSchedulerManager().submitTask(() -> {
             this.instance.getPlayers().forEach(getColorblind()::addViewer);
-                MinecraftServer.getSchedulerManager().buildTask(() -> {
-                    this.instance.getPlayers().forEach(getColorblind()::removeViewer);
-                }).delay(Duration.ofMillis(150)).schedule();
+                MinecraftServer.getSchedulerManager().buildTask(() -> this.instance.getPlayers().forEach(getColorblind()::removeViewer)).delay(Duration.ofMillis(150)).schedule();
             return TaskSchedule.duration(ThreadLocalRandom.current().nextInt(60, 300), TimeUnit.SECOND);
         })).delay(ThreadLocalRandom.current().nextInt(0, 60), TimeUnit.SECOND).schedule();
 

@@ -180,7 +180,7 @@ public final class Server implements Config {
             event.getPlayer().sendPacket(new ServerLinksPacket(
                     new ServerLinksPacket.Entry(Component.text("mudkip's website"), "https://mudkip.dev"),
                     new ServerLinksPacket.Entry(Component.text("golden's website"), "https://goldenstack.net"),
-                    new ServerLinksPacket.Entry(Component.text("Cody's website"), "https://codyq.dev")));
+                    new ServerLinksPacket.Entry(Component.text("cody's website"), "https://codyq.dev")));
         });
 
         eventHandler.addListener(PlayerDisconnectEvent.class, event ->

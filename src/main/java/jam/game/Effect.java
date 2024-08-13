@@ -37,7 +37,7 @@ public enum Effect implements Titleable {
             <prefix>Collect and place it to <light_purple>explode a region into its color!<newline>
             """.trim()) {
         @Override
-        void activate(Player player, Game game) {
+        public void activate(Player player, Game game) {
             var itemStack = JamColor.random().getTnt();
             player.getInventory().addItemStack(itemStack);
         }
@@ -47,7 +47,7 @@ public enum Effect implements Titleable {
             <prefix>Collect it to <light_purple>receive a few bonus hearts!<newline>
             """.trim()) {
         @Override
-        void activate(Player player, Game game) {
+        public void activate(Player player, Game game) {
             player.setAdditionalHearts(player.getAdditionalHearts() + 10);
             player.setHealth(player.getHealth() + 10);
         }
@@ -57,7 +57,7 @@ public enum Effect implements Titleable {
             <prefix>Collect and throw it to <light_purple>teleport where it lands!<newline>
             """.trim()) {
         @Override
-        void activate(Player player, Game game) {
+        public void activate(Player player, Game game) {
             player.getInventory().addItemStack(PEARL_ITEM);
         }
     },
@@ -67,7 +67,7 @@ public enum Effect implements Titleable {
             <prefix>Collect and throw it to <white>mess up other people's vision!<newline>
             """.trim()) {
         @Override
-        void activate(Player player, Game game) {
+        public void activate(Player player, Game game) {
             var item = createItemStack()
                     .with(ItemComponent.HIDE_ADDITIONAL_TOOLTIP)
                     .with(ItemComponent.LORE, List.of(Component.text("Colorblindness (0:15)", NamedTextColor.BLUE).decoration(TextDecoration.ITALIC, false)));
@@ -84,7 +84,7 @@ public enum Effect implements Titleable {
             <prefix>Collect it for a temporary <light_purple>trail<gray> of your <gold>color<gray>!<newline>
             """.trim()) {
         @Override
-        void activate(Player player, Game game) {
+        public void activate(Player player, Game game) {
             player.addEffect(new Potion(PotionEffect.HERO_OF_THE_VILLAGE, (byte) 0, 15 * 20, Potion.ICON_FLAG));
         }
     };
@@ -138,7 +138,12 @@ public enum Effect implements Titleable {
         return values()[ThreadLocalRandom.current().nextInt(values().length)];
     }
 
-    abstract void activate(Player player, Game game);
+    public abstract void activate(Player player, Game game);
+
+    @Override
+    public String title() {
+        return this == TNT ? "TNT" : Titleable.super.title();
+    }
 
     public ItemStack getIcon() {
         return icon;
