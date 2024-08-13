@@ -393,7 +393,7 @@ public final class Game implements PacketGroupingAudience {
     private void endGracePeriod() {
         this.gracePeriodTask.cancel();
         this.gracePeriodTask = null;
-        this.changeMapColor(350);
+        this.changeMapColor(350, false);
 
         for (var player : instance.getPlayers()) {
             // fucking vanilla
@@ -548,7 +548,7 @@ public final class Game implements PacketGroupingAudience {
             }
         }
 
-        this.changeMapColor(10);
+        this.changeMapColor(10, true);
 
         if (remaining % 20 == 0) {
             this.playSound(Sounds.NOTE);
@@ -749,7 +749,7 @@ public final class Game implements PacketGroupingAudience {
         handleDeath(null, player);
     }
 
-    public void changeMapColor(int rounds) {
+    public void changeMapColor(int rounds, boolean effects) {
         if (ending.get()) return;
         var blockBatch = new AbsoluteBlockBatch();
 
@@ -759,6 +759,10 @@ public final class Game implements PacketGroupingAudience {
 
             var color = JamColor.random();
             var block = COLOR_CHANGE_ZONE.randomBlock();
+
+            if (effects) {
+                instance.playSound(Sounds.LAVA_HISS.get(), block);
+            }
 
             for (var loc : COLOR_CHANGE_POINTS) {
                 int x = loc.blockX() + block.blockX();
@@ -771,7 +775,14 @@ public final class Game implements PacketGroupingAudience {
                     continue;
                 }
 
-                blockBatch.setBlock(x, y, z, color.convertBlockMaterial(atPos));
+                Block newBlock = color.convertBlockMaterial(atPos);
+
+                if (effects && !newBlock.isAir() && ThreadLocalRandom.current().nextDouble() > 0.8) {
+                    var packet = new ParticlePacket(Particle.DUST.withColor(color.getTextColor()), x, y+1.2, z, 0.1f, 0.1f, 0.1f, 0.2f, 1);
+                    instance.sendGroupedPacket(packet);
+                }
+
+                blockBatch.setBlock(x, y, z, newBlock);
             }
         }
 
