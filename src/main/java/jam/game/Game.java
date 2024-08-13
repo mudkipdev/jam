@@ -155,16 +155,28 @@ public final class Game implements PacketGroupingAudience {
                 JamColor color = player.getTag(Tags.COLOR);
                 if (color == null) continue;
 
+                Pos pos = player.getPosition();
+                if (player.hasEffect(PotionEffect.HERO_OF_THE_VILLAGE)) {
+                    for (int x = -1; x <= 1; x++) {
+                        for (int y = -1; y <= 1; y++) {
+                            for (int z = -1; z <= 1; z++) {
+                                Pos newPos = pos.add(x, y, z);
+                                instance.setBlock(newPos, color.convertBlockMaterial(instance.getBlock(newPos)));
+                            }
+                        }
+                    }
+                }
+
                 ParticlePacket packet = new ParticlePacket(
                         Particle.DUST.withColor(color.getTextColor()),
-                        player.getPosition().add(0, 1, 0),
+                        pos.add(0, 1, 0),
                         new Vec(
                                 ThreadLocalRandom.current().nextDouble() - 0.5,
                                 ThreadLocalRandom.current().nextDouble() - 0.5,
                                 ThreadLocalRandom.current().nextDouble() - 0.5
                         ),
                         0.2f,
-                        1
+                        player.hasEffect(PotionEffect.HERO_OF_THE_VILLAGE) ? 5 : 1
                 );
 
                 player.sendPacketToViewersAndSelf(packet);

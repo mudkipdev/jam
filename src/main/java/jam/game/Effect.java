@@ -14,6 +14,8 @@ import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.component.PotionContents;
+import net.minestom.server.potion.Potion;
+import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.utils.time.TimeUnit;
 
 import java.util.List;
@@ -61,7 +63,7 @@ public enum Effect implements Titleable {
     },
     SPLASH_COLORBLINDNESS(ItemStack.of(Material.SPLASH_POTION).with(ItemComponent.POTION_CONTENTS, new PotionContents(null, new Color(150, 150, 150), List.of())),
             """
-            <newline><prefix><gray>A <white>Colorblindness Potion<gray> has spawned in a random spot!
+            <newline><prefix><gray>A <white><bold>Colorblindness Potion</bold><gray> has spawned in a random spot!
             <prefix>Collect and throw it to make other players <white>colorblind<gray>!<newline>
             """.trim()) {
         @Override
@@ -75,6 +77,15 @@ public enum Effect implements Titleable {
         @Override
         public String title() {
             return "Splash Potion of Colorblindness";
+        }
+    },
+    MAGIC_PATH(Material.DIAMOND_SHOVEL, """
+            <newline><prefix><gray>A <blue><bold>Magic Path</bold><gray> has spawned in a random spot!
+            <prefix>Collect it for a temporary <light_purple>trail<gray> of your <gold>color<gray>!<newline>
+            """.trim()) {
+        @Override
+        void activate(Player player, Game game) {
+            player.addEffect(new Potion(PotionEffect.HERO_OF_THE_VILLAGE, (byte) 0, 15 * 20, Potion.ICON_FLAG));
         }
     };
 
