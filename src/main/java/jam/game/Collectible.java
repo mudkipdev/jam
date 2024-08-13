@@ -54,7 +54,7 @@ public final class Collectible extends Entity {
     @Override
     public void remove() {
         if (!collected.getAndSet(true)) {
-            this.instance.playSound(Sounds.LAVA_HISS.get(), this);
+            this.instance.playSound(Sounds.LAVA_HISS.get(1.0F), this);
             this.sendPacketToViewers(new ParticlePacket(
                     Particle.SCULK_SOUL,
                     getPosition(),
@@ -83,7 +83,7 @@ public final class Collectible extends Entity {
     public void spawn() {
         super.spawn();
         this.scheduleRemove(30, TimeUnit.SECOND);
-        this.getInstance().playSound(Sounds.CLICK);
+        this.getInstance().playSound(Sounds.LARGE_BLAST);
         this.getInstance().sendMessage(effect.getSpawnMessage());
     }
 

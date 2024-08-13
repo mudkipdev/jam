@@ -822,6 +822,10 @@ public final class Game implements PacketGroupingAudience {
                 continue;
             }
 
+            if (effects) {
+                instance.playSound(Sounds.LAVA_HISS.get(0.05F), block);
+            }
+
             for (var loc : COLOR_CHANGE_POINTS) {
                 int x = loc.blockX() + block.blockX();
                 int y = loc.blockY() + block.blockY();
