@@ -71,7 +71,7 @@ public final class Server implements Config {
 
             this.addSyntax((sender, context) -> {
                 var player = (Player) sender;
-                lobby.sendMessage(Server.MM.deserialize("<prefix><gray>" + player.getUsername() + " has force started the game."));
+                lobby.sendMessage(Server.MM.deserialize("<prefix><white>" + player.getUsername() + " <gray>has force started the game."));
                 lobby.getQueue().start();
             });
         }});

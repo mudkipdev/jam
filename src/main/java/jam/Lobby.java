@@ -25,6 +25,7 @@ import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.component.WrittenBookContent;
+import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.utils.time.TimeUnit;
@@ -47,6 +48,7 @@ public final class Lobby implements PacketGroupingAudience {
     public static DynamicRegistry.Key<DimensionType> dimension;
     private final InstanceContainer instance;
     private final Queue queue;
+    private static net.minestom.server.scoreboard.Team team;
 
     private final Colorblind colorblind;
 
@@ -55,6 +57,10 @@ public final class Lobby implements PacketGroupingAudience {
                 .register("jam:jam", DimensionType.builder()
                         .ambientLight(1.0F)
                         .build());
+
+        team = MinecraftServer.getTeamManager().createBuilder("lobby")
+                .collisionRule(TeamsPacket.CollisionRule.NEVER)
+                .build();
 
         this.instance = MinecraftServer.getInstanceManager().createInstanceContainer(dimension);
         this.instance.setChunkLoader(Arena.createLoader("lobby"));
@@ -98,6 +104,7 @@ public final class Lobby implements PacketGroupingAudience {
             if (event.getEntity() instanceof Player player) {
                 player.refreshCommands();
                 player.setInvisible(false);
+                player.setTeam(team);
                 player.getInventory().setItemStack(0, ItemStack.of(Material.WRITTEN_BOOK)
                         .with(ItemComponent.ITEM_NAME, Component.text("How to Play", NamedTextColor.GREEN))
                         .with(ItemComponent.WRITTEN_BOOK_CONTENT, new WrittenBookContent(
@@ -111,6 +118,7 @@ public final class Lobby implements PacketGroupingAudience {
             if (event.getEntity() instanceof Player player) {
                 player.refreshCommands();
                 player.getInventory().clear();
+                if (player.isOnline()) player.setTeam(null);
             }
         });
 

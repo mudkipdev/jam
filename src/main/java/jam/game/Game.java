@@ -51,6 +51,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static jam.Server.MM;
 
@@ -247,19 +248,13 @@ public final class Game implements PacketGroupingAudience {
             player.setGameMode(GameMode.ADVENTURE);
             player.setInvisible(false);
             player.setEnableRespawnScreen(false);
-
-            player.sendMessage(Component.textOfChildren(
-                    Components.PREFIX,
-                    Component.text("Beginning round ", NamedTextColor.GRAY),
-                    Component.text(round, NamedTextColor.GREEN),
-                    Component.text("!", NamedTextColor.GRAY)));
         }
 
-        var hunters = (int) Math.ceil(players.size() / 3.0);
+        var huntersAmount = (int) Math.ceil(players.size() / 3.0);
         var initial = new ArrayList<>(players);
 
         // Init hunters
-        for (var i = 0; i < hunters && !queuedHunters.isEmpty(); i++) {
+        for (var i = 0; i < huntersAmount && !queuedHunters.isEmpty(); i++) {
             int index = ThreadLocalRandom.current().nextInt(queuedHunters.size());
             var player = queuedHunters.remove(index);
             player.setTag(Tags.TEAM, Team.HUNTER);
@@ -307,6 +302,20 @@ public final class Game implements PacketGroupingAudience {
                 player.teleport(arena.runnerSpawn());
             }
         }
+
+        this.sendMessage(Component.textOfChildren(
+                Component.newline(),
+                Components.PREFIX,
+                Component.text("Beginning round ", NamedTextColor.GRAY),
+                Component.text(round, NamedTextColor.GREEN),
+                Component.text("! The hunters are: ", NamedTextColor.GRAY),
+
+                Component.text(this.players.stream()
+                        .filter(player -> player.getTag(Tags.TEAM) == Team.HUNTER)
+                        .map(Player::getUsername)
+                        .collect(Collectors.joining(", "))),
+
+                Component.newline()));
 
         this.maxGameTime = Config.DEBUG ? 300 : (15 + (30 * runners.size()));
         this.gameTime = new AtomicInteger(this.maxGameTime);
@@ -562,13 +571,13 @@ public final class Game implements PacketGroupingAudience {
 
             var playerColor = player.getTag(Tags.COLOR);
             if (playerColor == null) continue;
-            
+
             var inWater = Block.WATER.equals(this.instance.getBlock(player.getPosition()));
 
             boolean hasColor = color != null;
 
             int counter = damageEvasionCounter.compute(player.getUuid(), (uuid, count) -> hasColor ? 0 : ((count == null ? 0 : count) + 1));
-            
+
             if (inWater || counter >= 5 || (hasColor && color != playerColor)) {
                 player.sendActionBar(Component.textOfChildren(
                         Component.text("Wrong color! ", NamedTextColor.WHITE),
@@ -577,7 +586,7 @@ public final class Game implements PacketGroupingAudience {
                         Component.text("!", NamedTextColor.GRAY)));
 
                 // TODO: add 2-3s invulnerability after color changes
-                player.damage(DamageType.GENERIC, 2.0F);
+                player.damage(DamageType.GENERIC, 1.0F);
             }
         }
 
@@ -627,8 +636,12 @@ public final class Game implements PacketGroupingAudience {
         if (team == null || color == null) return;
 
         if (hunter != null) {
+            if (hunter.getDistance(player) > 4.5D) {
+                return;
+            }
+
             // Give a point to the hunter
-            hunter.sendMessage(MM.deserialize("<prefix><gray>You got <gold>1</gold> point for killing " + player.getUsername() + "."));
+            hunter.sendMessage(MM.deserialize("<prefix><gray>You got <white>1<gray> point for killing " + player.getUsername() + "."));
             points.computeIfPresent(hunter.getUuid(), (ignored, curr) -> curr + 1);
             updateSidebar();
 
@@ -683,34 +696,35 @@ public final class Game implements PacketGroupingAudience {
         player.setGameMode(GameMode.SPECTATOR);
         player.playSound(Sounds.DEATH_LOSE);
         player.setInvisible(true);
+        player.setGlowing(false);
 
         Component message;
 
         if (hunter != null) {
             message = Component.textOfChildren(
                     Components.PREFIX,
-                    Component.text(player.getUsername(), NamedTextColor.GREEN),
-                    Component.text(" was tagged by ", NamedTextColor.YELLOW),
-                    Component.text(hunter.getUsername(), NamedTextColor.RED),
-                    Component.text("!", NamedTextColor.YELLOW),
+                    Component.text(player.getUsername(), NamedTextColor.WHITE),
+                    Component.text(" was tagged by ", NamedTextColor.GRAY),
+                    Component.text(hunter.getUsername(), NamedTextColor.WHITE),
+                    Component.text("!", NamedTextColor.GRAY),
                     Component.text(" There are ", NamedTextColor.GRAY),
-                    Component.text(runners.size(), NamedTextColor.YELLOW),
+                    Component.text(runners.size(), NamedTextColor.WHITE),
                     Component.text(" runners remaining.", NamedTextColor.GRAY));
         } else if (team == Team.RUNNER) {
             message = Component.textOfChildren(
                     Components.PREFIX,
-                    Component.text(player.getUsername(), NamedTextColor.GREEN),
-                    Component.text(" was eliminated! ", NamedTextColor.YELLOW),
+                    Component.text(player.getUsername(), NamedTextColor.WHITE),
+                    Component.text(" was eliminated! ", NamedTextColor.GRAY),
                     Component.text("There are ", NamedTextColor.GRAY),
-                    Component.text(runners.size(), NamedTextColor.YELLOW),
+                    Component.text(runners.size(), NamedTextColor.WHITE),
                     Component.text(" runners remaining.", NamedTextColor.GRAY));
         } else {
             message = Component.textOfChildren(
                     Components.PREFIX,
-                    Component.text(player.getUsername(), NamedTextColor.GREEN),
-                    Component.text(" was eliminated! ", NamedTextColor.YELLOW),
+                    Component.text(player.getUsername(), NamedTextColor.WHITE),
+                    Component.text(" was eliminated! ", NamedTextColor.GRAY),
                     Component.text("There are ", NamedTextColor.GRAY),
-                    Component.text(hunters.size(), NamedTextColor.YELLOW),
+                    Component.text(hunters.size(), NamedTextColor.WHITE),
                     Component.text(" hunters remaining.", NamedTextColor.GRAY));
         }
 
@@ -722,9 +736,10 @@ public final class Game implements PacketGroupingAudience {
         player.setTag(Tags.COLOR, color);
 
         if (old != null) {
-            this.minecraftTeams.get(old).removeMember(player.getUsername());
+            if (player.getTeam() != null)  player.setTeam(null);
         }
-        this.minecraftTeams.get(color).addMember(player.getUsername());
+
+        player.setTeam(this.minecraftTeams.get(color));
 
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItemStack(i);
@@ -794,8 +809,15 @@ public final class Game implements PacketGroupingAudience {
             var color = JamColor.random();
             var block = COLOR_CHANGE_ZONE.randomBlock();
 
-            var value = instance.getBlock(block);
-            if (value.isAir() || value.compare(Block.BARRIER)) {
+            Block value;
+
+            try {
+                value = instance.getBlock(block);
+            } catch (NullPointerException e) {
+                value = null; // chunk unloaded fuck
+            }
+
+            if (value == null || value.isAir() || value.compare(Block.BARRIER)) {
                 i--;
                 continue;
             }

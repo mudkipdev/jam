@@ -34,6 +34,7 @@ public interface PlayerListeners {
         player.setGameMode(GameMode.ADVENTURE);
 
         if (event.isFirstSpawn()) {
+            if (player.getTeam() != null) player.setTeam(null);
             player.setReducedDebugScreenInformation(!Config.DEBUG);
             player.sendPlayerListHeaderAndFooter(
                     Component.newline()
@@ -56,6 +57,7 @@ public interface PlayerListeners {
 
     static void onPlayerDisconnect(PlayerDisconnectEvent event) {
         var player = event.getPlayer();
+//        if (player.getTeam() != null) player.setTeam(null);
 
         if (player.hasTag(Tags.GAME)) {
             player.getTag(Tags.GAME).despawnPlayer(player);

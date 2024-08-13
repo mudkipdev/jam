@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public final class Queue implements PacketGroupingAudience {
     private static final Logger LOGGER = LoggerFactory.getLogger(Queue.class);
     private static final int WAIT_TIME = 60;
-    private static final int MINIMUM_PLAYERS = 2;
+    private static final int MINIMUM_PLAYERS = 3;
     private static final int MAXIMUM_PLAYERS = 8;
 
     private final Set<Player> players;
@@ -65,7 +65,7 @@ public final class Queue implements PacketGroupingAudience {
 
                 if (time % 10 == 0) {
                     this.playSound(Sounds.CLICK);
-                    sendMessage(Server.MM.deserialize("<prefix>Starting in <white>" + time + "<gray> seconds!"));
+                    sendMessage(Server.MM.deserialize("<prefix><gray>Starting in <white>" + time + "<gray> seconds!"));
                 }
 
                 if (time <= 5) {

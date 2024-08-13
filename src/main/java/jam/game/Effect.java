@@ -53,7 +53,7 @@ public enum Effect implements Titleable {
         }
     },
     ENDER_PEARL(Material.ENDER_PEARL, """
-            <newline><prefix><gray>An <dark_purple><bold>Ender Pearl<reset><gray> has spawned in a random spot!
+            <newline><prefix><gray>An <light_purple><bold>Ender Pearl<reset><gray> has spawned in a random spot!
             <prefix>Collect and throw it to <light_purple>teleport where it lands!<newline>
             """.trim()) {
         @Override
@@ -64,7 +64,7 @@ public enum Effect implements Titleable {
     SPLASH_COLORBLINDNESS(ItemStack.of(Material.SPLASH_POTION).with(ItemComponent.POTION_CONTENTS, new PotionContents(null, new Color(150, 150, 150), List.of())),
             """
             <newline><prefix><gray>A <white><bold>Colorblindness Potion</bold><gray> has spawned in a random spot!
-            <prefix>Collect and throw it to <white>mess up other people's vision!<newline>
+            <prefix>Collect and throw it to <light_purple>mess up other people's vision!<newline>
             """.trim()) {
         @Override
         public void activate(Player player, Game game) {
@@ -81,7 +81,7 @@ public enum Effect implements Titleable {
     },
     MAGIC_PATH(Material.DIAMOND_SHOVEL, """
             <newline><prefix><gray>A <blue><bold>Magic Path</bold><gray> has spawned in a random spot!
-            <prefix>Collect it for a temporary <light_purple>trail<gray> of your <gold>color<gray>!<newline>
+            <prefix>Collect it for a temporary <light_purple>trail of your color!<newline>
             """.trim()) {
         @Override
         public void activate(Player player, Game game) {
