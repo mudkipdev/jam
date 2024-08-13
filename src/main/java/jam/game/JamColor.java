@@ -4,6 +4,7 @@ import jam.utility.Tags;
 import jam.utility.Titleable;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.instance.block.Block;
@@ -16,6 +17,7 @@ import net.minestom.server.item.component.DyedItemColor;
 import net.minestom.server.utils.NamespaceID;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
@@ -33,6 +35,22 @@ public enum JamColor implements Titleable {
 
     JamColor(BlockInfo blockInfo) {
         this.blockInfo = blockInfo;
+    }
+
+    public static final Map<JamColor, net.minestom.server.scoreboard.Team> MINECRAFT_TEAMS = new HashMap<>();
+
+    static {
+        for (JamColor color : JamColor.values()) {
+            net.minestom.server.scoreboard.Team team = MinecraftServer.getTeamManager()
+                    .createBuilder("color-" + color.name().toLowerCase())
+                    .prefix(Component.text(
+                            color.name().charAt(0),
+                            color.getTextColor(),
+                            TextDecoration.BOLD).appendSpace())
+                    .teamColor(color.getTextColor())
+                    .build();
+            MINECRAFT_TEAMS.put(color, team);
+        }
     }
 
     public record BlockInfo(Block solid, Block stairs, Block slab, Block trapdoor, Block fence,

@@ -97,8 +97,6 @@ public final class Game implements PacketGroupingAudience {
     private AtomicInteger gameTime;
     private @Nullable Task gameTickTask;
 
-    private final Map<JamColor, net.minestom.server.scoreboard.Team> minecraftTeams = new HashMap<>();
-
     private final Colorblind colorblind;
 
     private final Object2IntMap<UUID> damageEvasionCounter = new Object2IntOpenHashMap<>();
@@ -126,18 +124,6 @@ public final class Game implements PacketGroupingAudience {
         }
 
         this.initSidebar();
-
-        for (JamColor color : JamColor.values()) {
-            net.minestom.server.scoreboard.Team team = MinecraftServer.getTeamManager()
-                    .createBuilder("color-" + color.name().toLowerCase())
-                    .prefix(Component.text(
-                            color.name().charAt(0),
-                            color.getTextColor(),
-                            TextDecoration.BOLD).appendSpace())
-                    .teamColor(color.getTextColor())
-                    .build();
-            minecraftTeams.put(color, team);
-        }
 
         this.instance.eventNode().addListener(PlayerMoveEvent.class, event -> {
             if (event.getPlayer().getTag(Tags.TEAM) == null) {
@@ -358,8 +344,6 @@ public final class Game implements PacketGroupingAudience {
 
         bossBar.removeViewer(this);
 
-        minecraftTeams.values().forEach(MinecraftServer.getTeamManager()::deleteTeam);
-
         this.showTitle(Title.title(
                 Component.text("Round over!", NamedTextColor.WHITE),
                 (switch (winner) {
@@ -417,6 +401,7 @@ public final class Game implements PacketGroupingAudience {
         player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
         player.setGlowing(false);
         player.setAdditionalHearts(0);
+        if (player.getTeam() != null) player.setTeam(null);
         colorblind.removeViewer(player);
     }
 
@@ -736,10 +721,10 @@ public final class Game implements PacketGroupingAudience {
         player.setTag(Tags.COLOR, color);
 
         if (old != null) {
-            if (player.getTeam() != null)  player.setTeam(null);
+            if (player.getTeam() != null) player.setTeam(null);
         }
 
-        player.setTeam(this.minecraftTeams.get(color));
+        player.setTeam(JamColor.MINECRAFT_TEAMS.get(color));
 
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItemStack(i);
