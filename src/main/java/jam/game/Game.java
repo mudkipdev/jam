@@ -547,11 +547,10 @@ public final class Game implements PacketGroupingAudience {
 
             var inWater = Block.WATER.equals(this.instance.getBlock(player.getPosition()));
 
-            boolean hasColor = color != null;
+            final JamColor finalColor = color;
+            int counter = damageEvasionCounter.compute(player.getUuid(), (uuid, count) -> (finalColor == playerColor) ? 0 : ((count == null ? 0 : count) + 1));
 
-            int counter = damageEvasionCounter.compute(player.getUuid(), (uuid, count) -> hasColor ? 0 : ((count == null ? 0 : count) + 1));
-
-            if (inWater || counter >= 5 || (hasColor && color != playerColor)) {
+            if (inWater || counter >= 5 || (color != null && color != playerColor)) {
                 player.sendActionBar(Component.textOfChildren(
                         Component.text("Wrong color! ", NamedTextColor.WHITE),
                         Component.text("Get to the ", NamedTextColor.GRAY),
