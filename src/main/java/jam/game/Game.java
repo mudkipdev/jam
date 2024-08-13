@@ -387,7 +387,7 @@ public final class Game implements PacketGroupingAudience {
         ));
 
         var pointsSorted = getTopPlayersByScore();
-        for (var i = 0; i < Math.min(5, pointsSorted.size()); i++) {
+        for (var i = 0; i < pointsSorted.size(); i++) {
             var entry = pointsSorted.get(i);
             var points = entry.getValue();
             var player = MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(entry.getKey());
@@ -864,7 +864,7 @@ public final class Game implements PacketGroupingAudience {
         sidebar.updateLineScore("round", 999);
         sidebar.createLine(new Sidebar.ScoreboardLine("b1", Component.empty(), 1, Sidebar.NumberFormat.blank()));
         sidebar.updateLineScore("b1", 998);
-        for (var i = 0; i < Math.min(5, players.size()); i++) {
+        for (var i = 0; i < players.size(); i++) {
             sidebar.createLine(new Sidebar.ScoreboardLine("top"+(i+1), Component.empty(), 3+i, Sidebar.NumberFormat.styled(Component.text("", getRankColor(i)))));
         }
 
@@ -876,7 +876,7 @@ public final class Game implements PacketGroupingAudience {
         sidebar.updateLineContent("round", MM.deserialize("<gray>Round: <white>" + round.get()));
 
         var pointsSorted = getTopPlayersByScore();
-        for (var i = 0; i < Math.min(5, pointsSorted.size()); i++) {
+        for (var i = 0; i < pointsSorted.size(); i++) {
             var entry = pointsSorted.get(i);
             var points = entry.getValue();
             var player = MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(entry.getKey());
