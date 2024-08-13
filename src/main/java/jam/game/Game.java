@@ -125,21 +125,6 @@ public final class Game implements PacketGroupingAudience {
 
         this.initSidebar();
 
-        this.instance.eventNode().addListener(PlayerMoveEvent.class, event -> {
-            if (event.getPlayer().getTag(Tags.TEAM) == null) {
-                return;
-            }
-
-            Player player = event.getPlayer();
-            double range = Collectible.COLLECT_DISTANCE * Collectible.COLLECT_DISTANCE;
-
-            for (var collectible : collectibles) {
-                if (collectible.getDistanceSquared(event.getNewPosition()) <= range) {
-                    collectible.collect(player);
-                }
-            }
-        });
-
         instance.eventNode().addListener(InstanceTickEvent.class, event -> {
             for (var player : instance.getPlayers()) {
                 Team team = player.getTag(Tags.TEAM);

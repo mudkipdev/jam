@@ -91,19 +91,31 @@ public final class Collectible extends Entity {
     public void tick(long time) {
         super.tick(time);
 
-        if (ThreadLocalRandom.current().nextBoolean()) return;
+        if (instance == null) return;
 
-        sendPacketToViewers(new ParticlePacket(
-                Particle.HAPPY_VILLAGER,
-                getPosition(),
-                new Vec(
-                        ThreadLocalRandom.current().nextDouble()-0.5,
-                        ThreadLocalRandom.current().nextDouble()-0.5,
-                        ThreadLocalRandom.current().nextDouble()-0.5
-                ),
-                0.2f,
-                1
-        ));
+        if (ThreadLocalRandom.current().nextBoolean()) {
+            sendPacketToViewers(new ParticlePacket(
+                    Particle.HAPPY_VILLAGER,
+                    getPosition(),
+                    new Vec(
+                            ThreadLocalRandom.current().nextDouble() - 0.5,
+                            ThreadLocalRandom.current().nextDouble() - 0.5,
+                            ThreadLocalRandom.current().nextDouble() - 0.5
+                    ),
+                    0.2f,
+                    1
+            ));
+        }
+
+        for (var player : instance.getPlayers()) {
+            if (player.getTag(Tags.TEAM) == null) continue;
+
+            double range = Collectible.COLLECT_DISTANCE * Collectible.COLLECT_DISTANCE;
+
+            if (getDistanceSquared(player.getPosition()) <= range) {
+                collect(player);
+            }
+        }
     }
 
     public void collect(@NotNull Player player) {
