@@ -6,6 +6,7 @@ import jam.utility.JamConditions;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Inserting;
 import net.minestom.server.MinecraftServer;
@@ -72,6 +73,22 @@ public final class Server implements Config {
                 LOGGER.info("{} force started the game.", player.getUsername());
                 lobby.sendMessage(Component.text(player.getUsername() + " has force started the game.", NamedTextColor.GRAY));
                 lobby.getQueue().start();
+            });
+        }});
+
+        MinecraftServer.getCommandManager().register(new Command("find") {{
+            this.setCondition(Conditions.all(
+                    Conditions::playerOnly,
+                    JamConditions.LOBBY));
+
+            this.addSyntax((sender, context) -> {
+                var player = (Player) sender;
+                if (lobby.getColorblind().addViewer(player)) {
+                    player.sendMessage(Component.text("You find yourself very lost...", NamedTextColor.GRAY, TextDecoration.BOLD));
+                } else {
+                    lobby.getColorblind().removeViewer(player);
+                    player.sendMessage(Component.text("You're back! That was weird.", NamedTextColor.GRAY, TextDecoration.BOLD));
+                }
             });
         }});
 

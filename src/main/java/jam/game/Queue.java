@@ -111,6 +111,7 @@ public final class Queue implements PacketGroupingAudience {
         Set<Player> finalPlayers = this.players.stream()
                 .limit(MAXIMUM_PLAYERS)
                 .collect(Collectors.toSet());
+        finalPlayers.forEach(Server.getLobby().getColorblind()::removeViewer);
         Game game = new Game(finalPlayers);
         game.beginNextRound();
         this.players.removeAll(finalPlayers);

@@ -26,13 +26,17 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.item.component.WrittenBookContent;
 import net.minestom.server.registry.DynamicRegistry;
+import net.minestom.server.timer.TaskSchedule;
+import net.minestom.server.utils.time.TimeUnit;
 import net.minestom.server.world.DimensionType;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 public final class Lobby implements PacketGroupingAudience {
     public static final Pos SPAWN = new Pos(0.5D, 2.0D, 0.5D);
@@ -119,6 +123,14 @@ public final class Lobby implements PacketGroupingAudience {
                     Config.INSTRUCTIONS));
         });
 
+        MinecraftServer.getSchedulerManager().buildTask(() -> MinecraftServer.getSchedulerManager().submitTask(() -> {
+            this.instance.getPlayers().forEach(getColorblind()::addViewer);
+                MinecraftServer.getSchedulerManager().buildTask(() -> {
+                    this.instance.getPlayers().forEach(getColorblind()::removeViewer);
+                }).delay(Duration.ofMillis(150)).schedule();
+            return TaskSchedule.duration(ThreadLocalRandom.current().nextInt(60, 300), TimeUnit.SECOND);
+        })).delay(ThreadLocalRandom.current().nextInt(0, 60), TimeUnit.SECOND).schedule();
+
         this.colorblind = new Colorblind(instance, List.of(
                 Map.entry(new Pos(8, -18, 8), 3.25),
                 Map.entry(new Pos(8, -18, -8), 3.25),
@@ -155,5 +167,9 @@ public final class Lobby implements PacketGroupingAudience {
 
     public Queue getQueue() {
         return this.queue;
+    }
+
+    public Colorblind getColorblind() {
+        return colorblind;
     }
 }
