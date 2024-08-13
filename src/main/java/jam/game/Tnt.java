@@ -64,11 +64,9 @@ public class Tnt extends Entity {
                     continue;
                 }
 
-                player.setVelocity(player.getVelocity().add(0.0D, 10.0D, 0.0D));
-                player.takeKnockback(
-                        2.5F,
-                        Math.sin(Math.toRadians(this.getPosition().yaw())),
-                        -Math.cos(Math.toRadians(this.getPosition().yaw())));
+                Vec diff = pos.sub(player.getPosition()).withY(0).asVec().normalize();
+                player.takeKnockback(1.5F, diff.x(), diff.z());
+                player.setVelocity(player.getVelocity().add(0.0D, 5.0D, 0.0D));
 
                 player.sendMessage(Component.textOfChildren(
                         Components.PREFIX,
