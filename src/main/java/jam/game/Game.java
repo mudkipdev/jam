@@ -397,7 +397,7 @@ public final class Game implements PacketGroupingAudience {
             instance.sendMessage(Component.textOfChildren(
                     Components.PREFIX,
                     Component.text((i+1) + ". " + player.getUsername(), getRankColor(i)),
-                    Component.text(" (" + points + " points)", NamedTextColor.GRAY)
+                    Component.text(" (" + points + " point"+(points==1?"":"s")+")", NamedTextColor.GRAY)
             ));
         }
         instance.sendMessage(Component.empty());
