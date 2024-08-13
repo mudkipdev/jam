@@ -1,5 +1,7 @@
 package jam.game;
 
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import jam.Config;
 import jam.Server;
 import jam.listener.EffectListeners;
@@ -97,6 +99,8 @@ public final class Game implements PacketGroupingAudience {
     private final Map<JamColor, net.minestom.server.scoreboard.Team> minecraftTeams = new HashMap<>();
 
     private final Colorblind colorblind;
+
+    private final Object2IntMap<UUID> damageEvasionCounter = new Object2IntOpenHashMap<>();
 
     public Game(Collection<Player> players) {
         this.players = new HashSet<>(players);
@@ -544,23 +548,26 @@ public final class Game implements PacketGroupingAudience {
             }
 
             var pos = player.getPosition();
-            var color = JamColor.colorOfBlock(this.instance.getBlock(pos));
 
-            if (color == null) { // Try another block
-                color = JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -1, 0)));
-                if (color == null) { // Try a final block
-                    color = JamColor.colorOfBlock(this.instance.getBlock(pos.add(0, -2, 0)));
-                }
-            }
-
-            if (!player.hasTag(Tags.COLOR)) {
-                continue;
+            Block block;
+            JamColor color = null;
+            for (int x = 0; x < 3; x++) {
+                block = this.instance.getBlock(pos.add(0, -x, 0));
+                color = JamColor.colorOfBlock(block);
+                if (!block.isAir() && !block.compare(Block.BARRIER)) break;
+                if (color != null) break;
             }
 
             var playerColor = player.getTag(Tags.COLOR);
+            if (playerColor == null) continue;
+            
             var inWater = Block.WATER.equals(this.instance.getBlock(player.getPosition()));
 
-            if (inWater || (color != null && color != playerColor)) {
+            boolean hasColor = color != null;
+
+            int counter = damageEvasionCounter.compute(player.getUuid(), (uuid, count) -> hasColor ? 0 : ((count == null ? 0 : count) + 1));
+            
+            if (inWater || counter >= 5 || (hasColor && color != playerColor)) {
                 player.sendActionBar(Component.textOfChildren(
                         Component.text("Wrong color! ", NamedTextColor.WHITE),
                         Component.text("Get to the ", NamedTextColor.GRAY),
