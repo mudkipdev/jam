@@ -177,7 +177,7 @@ public interface EffectListeners {
 
             ThrownPotion potion = new ThrownPotion(player, new EffectFeature() {
 
-                static final Potion EFFECT = new Potion(PotionEffect.LUCK, (byte) 0, Effect.COLORBLINDNESS_DURATION, Potion.ICON_FLAG | Potion.PARTICLES_FLAG);
+                static final Potion EFFECT = new Potion(PotionEffect.LUCK, (byte) 0, Effect.COLORBLINDNESS_DURATION, Potion.ICON_FLAG);
 
                 @Override
                 public int getPotionColor(PotionContents contents) {
