@@ -41,6 +41,11 @@ public enum Effect implements Titleable {
             var itemStack = JamColor.random().getTnt();
             player.getInventory().addItemStack(itemStack);
         }
+
+        @Override
+        public String title() {
+            return "TNT";
+        }
     },
     HEALTH_PACK(Material.GOLDEN_APPLE, """
             <newline><prefix><gray>A <yellow><bold>Health Pack<reset><gray> has spawned in a random spot!
@@ -139,11 +144,6 @@ public enum Effect implements Titleable {
     }
 
     public abstract void activate(Player player, Game game);
-
-    @Override
-    public String title() {
-        return this == TNT ? "TNT" : Titleable.super.title();
-    }
 
     public ItemStack getIcon() {
         return icon;
