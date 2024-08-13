@@ -28,6 +28,7 @@ import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.event.player.PlayerUseItemEvent;
 import net.minestom.server.event.trait.InstanceEvent;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.component.PotionContents;
 import net.minestom.server.potion.CustomPotionEffect;
@@ -42,6 +43,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 public interface EffectListeners {
 
@@ -98,7 +100,14 @@ public interface EffectListeners {
                 Effect.spawnInkBall(event.getPlayer(), Effect.calculateEyeDirection(player).mul(26));
             }
 
-            player.setItemInMainHand(event.getItemStack().withAmount(i -> i - 1));
+            ItemStack item = event.getItemStack();
+
+            item = item.with(ItemComponent.DAMAGE, (UnaryOperator<Integer>) damage -> damage + 1);
+            if (Objects.equals(item.get(ItemComponent.DAMAGE), item.get(ItemComponent.MAX_DAMAGE))) {
+                item = ItemStack.AIR;
+            }
+
+            player.setItemInMainHand(item);
             player.playSound(Sounds.GHAST_SHOOT, Sound.Emitter.self());
         });
     }

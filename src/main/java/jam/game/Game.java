@@ -698,7 +698,8 @@ public final class Game implements PacketGroupingAudience {
 
             Effect effect = item.getTag(Tags.EFFECT);
             if (effect == Effect.INK_BLASTER) {
-                player.getInventory().setItemStack(i, player.getTag(Tags.COLOR).getInkBlaster().withAmount(item.amount()));
+                ItemStack newItem = player.getTag(Tags.COLOR).getInkBlaster().with(ItemComponent.DAMAGE, item.get(ItemComponent.DAMAGE));
+                player.getInventory().setItemStack(i, newItem);
             }
         }
 

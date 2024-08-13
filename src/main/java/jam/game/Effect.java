@@ -26,7 +26,7 @@ public enum Effect implements Titleable {
             """.trim()) {
         @Override
         public void activate(Player player, Game game) {
-            var itemStack = player.getTag(Tags.COLOR).getInkBlaster().withAmount(16);
+            var itemStack = player.getTag(Tags.COLOR).getInkBlaster();
             player.getInventory().addItemStack(itemStack);
         }
     },

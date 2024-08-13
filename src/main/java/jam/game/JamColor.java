@@ -147,6 +147,8 @@ public enum JamColor implements Titleable {
             case BLUE -> Material.LIGHT_BLUE_CANDLE;
             case PINK -> Material.PINK_CANDLE;
         }).with(ItemComponent.ITEM_NAME, Component.text("Ink Blaster", NamedTextColor.YELLOW))
+                .with(ItemComponent.MAX_DAMAGE, 16)
+                .with(ItemComponent.DAMAGE, 0)
                 .withTag(Tags.EFFECT, Effect.INK_BLASTER);
     }
 
