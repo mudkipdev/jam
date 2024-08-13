@@ -70,6 +70,7 @@ public final class Server implements Config {
                     JamConditions.LOBBY));
 
             this.addSyntax((sender, context) -> {
+                if (!this.getCondition().canUse(sender, context.getInput())) return;
                 var player = (Player) sender;
                 lobby.sendMessage(Server.MM.deserialize("<prefix><white>" + player.getUsername() + " <gray>has force started the game."));
                 lobby.getQueue().start();
@@ -82,6 +83,7 @@ public final class Server implements Config {
                     JamConditions.LOBBY));
 
             this.addSyntax((sender, context) -> {
+                if (!this.getCondition().canUse(sender, context.getInput())) return;
                 var player = (Player) sender;
 
                 if (lobby.getColorblind().addViewer(player)) {
