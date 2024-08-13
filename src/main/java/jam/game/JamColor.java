@@ -149,6 +149,7 @@ public enum JamColor implements Titleable {
         }).with(ItemComponent.ITEM_NAME, Component.text("Ink Blaster", NamedTextColor.YELLOW))
                 .with(ItemComponent.MAX_DAMAGE, 16)
                 .with(ItemComponent.DAMAGE, 0)
+                .with(ItemComponent.MAX_STACK_SIZE, 1)
                 .withTag(Tags.EFFECT, Effect.INK_BLASTER);
     }
 
