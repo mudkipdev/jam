@@ -11,6 +11,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Inserting;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.builder.Command;
+import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.command.builder.condition.Conditions;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.entity.EntityAttackEvent;
@@ -95,6 +96,22 @@ public final class Server implements Config {
                 }
             });
         }});
+
+        // Red herring easter eggs
+        MinecraftServer.getCommandManager().register(new Command("shallow") {{
+            this.addSyntax((sender, context) -> {});
+        }});
+        MinecraftServer.getCommandManager().register(new Command("vignette") {{
+            this.addSyntax((sender, context) -> {}, ArgumentType.Integer("count"));
+        }});
+        MinecraftServer.getCommandManager().register(new Command("custom") {{
+            this.addSyntax((sender, context) -> {}, ArgumentType.StringArray("count"));
+        }});
+        MinecraftServer.getCommandManager().register(new Command("secret") {{
+            this.addSyntax((sender, context) -> {});
+        }});
+
+
 
         // TODO: re-enable bungeecord forwarding (you can check git version history)
         if (!Config.OFFLINE_MODE) {
