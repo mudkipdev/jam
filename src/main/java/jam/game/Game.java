@@ -512,9 +512,19 @@ public final class Game implements PacketGroupingAudience {
             return;
         }
 
+        float progress = Math.min(1, remaining / (float) this.maxGameTime);
+        BossBar.Color bossbarColor;
+        if (progress < 0.2) {
+            bossbarColor = BossBar.Color.RED;
+        } else if (progress < 0.5) {
+            bossbarColor = BossBar.Color.YELLOW;
+        } else {
+            bossbarColor = BossBar.Color.GREEN;
+        }
+
         bossBar.name(Component.text(remaining + " second" + (remaining == 1 ? "" : "s") + " left"));
-        bossBar.color(remaining < 0.2 * this.maxGameTime ? BossBar.Color.RED : BossBar.Color.GREEN);
-        bossBar.progress(remaining / (float) this.maxGameTime);
+        bossBar.color(bossbarColor);
+        bossBar.progress(progress);
 
         if (remaining < 15 || remaining == 30 || remaining == 60) {
             this.playSound(Sounds.CLICK);
