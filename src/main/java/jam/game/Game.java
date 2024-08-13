@@ -59,8 +59,8 @@ public final class Game implements PacketGroupingAudience {
     private static final double COLOR_CHANGE_RANGE = 3.5;
     private static final Set<Point> COLOR_CHANGE_POINTS = Sphere.getBlocksInSphere(COLOR_CHANGE_RANGE);
     private static final Zone COLOR_CHANGE_ZONE = new Zone(
-            new Vec(-20, -5, -10),
-            new Vec(20, 10, 50)
+            new Vec(-20, 0, -3),
+            new Vec(20, 14, 50)
     );
 
     private final Arena arena;
