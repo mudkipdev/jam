@@ -65,4 +65,7 @@ public interface Config {
             """.stripIndent())
                     .map(Server.MM::deserialize)
                     .collect(Collectors.toList());
+
+    // Banlist (unfortunately we must have this)
+    Set<String> BANNED_USERNAMES = Set.of("PizzaV_Bot");
 }

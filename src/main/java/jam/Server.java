@@ -172,7 +172,7 @@ public final class Server implements Config {
         });
 
         eventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
-            if (event.getPlayer().getUsername().equals("PizzaV_Bot")) {
+            if (Config.BANNED_USERNAMES.contains(event.getPlayer().getUsername())) {
                 event.getPlayer().kick(Component.text("You have been banned for cheating.", NamedTextColor.RED));
             }
 
