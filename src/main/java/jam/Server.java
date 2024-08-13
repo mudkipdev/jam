@@ -70,11 +70,8 @@ public final class Server implements Config {
                     JamConditions.LOBBY));
 
             this.addSyntax((sender, context) -> {
-                if (!this.getCondition().canUse(sender, context.getInput())) return;
-
                 var player = (Player) sender;
-                LOGGER.info("{} force started the game.", player.getUsername());
-                lobby.sendMessage(Component.text(player.getUsername() + " has force started the game.", NamedTextColor.GRAY));
+                lobby.sendMessage(Server.MM.deserialize("<prefix><gray>" + player.getUsername() + " has force started the game."));
                 lobby.getQueue().start();
             });
         }});
@@ -85,9 +82,8 @@ public final class Server implements Config {
                     JamConditions.LOBBY));
 
             this.addSyntax((sender, context) -> {
-                if (!this.getCondition().canUse(sender, context.getInput())) return;
-
                 var player = (Player) sender;
+
                 if (lobby.getColorblind().addViewer(player)) {
                     player.sendMessage(Component.text("You find yourself very lost...", NamedTextColor.GRAY, TextDecoration.BOLD));
                 } else {
@@ -101,12 +97,15 @@ public final class Server implements Config {
         MinecraftServer.getCommandManager().register(new Command("shallow") {{
             this.addSyntax((sender, context) -> {});
         }});
+
         MinecraftServer.getCommandManager().register(new Command("vignette") {{
             this.addSyntax((sender, context) -> {}, ArgumentType.Integer("count"));
         }});
+
         MinecraftServer.getCommandManager().register(new Command("custom") {{
             this.addSyntax((sender, context) -> {}, ArgumentType.StringArray("count"));
         }});
+
         MinecraftServer.getCommandManager().register(new Command("secret") {{
             this.addSyntax((sender, context) -> {});
         }});

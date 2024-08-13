@@ -64,7 +64,7 @@ public enum Effect implements Titleable {
     SPLASH_COLORBLINDNESS(ItemStack.of(Material.SPLASH_POTION).with(ItemComponent.POTION_CONTENTS, new PotionContents(null, new Color(150, 150, 150), List.of())),
             """
             <newline><prefix><gray>A <white><bold>Colorblindness Potion</bold><gray> has spawned in a random spot!
-            <prefix>Collect and throw it to make other players <white>colorblind<gray>!<newline>
+            <prefix>Collect and throw it to <white>mess up other people's vision!<newline>
             """.trim()) {
         @Override
         void activate(Player player, Game game) {

@@ -54,7 +54,8 @@ public final class Collectible extends Entity {
     @Override
     public void remove() {
         if (!collected.getAndSet(true)) {
-            sendPacketToViewers(new ParticlePacket(
+            this.instance.playSound(Sounds.LAVA_HISS.get(), this);
+            this.sendPacketToViewers(new ParticlePacket(
                     Particle.SCULK_SOUL,
                     getPosition(),
                     new Vec(

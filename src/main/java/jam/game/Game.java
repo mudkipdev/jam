@@ -350,11 +350,11 @@ public final class Game implements PacketGroupingAudience {
         minecraftTeams.values().forEach(MinecraftServer.getTeamManager()::deleteTeam);
 
         this.showTitle(Title.title(
-                Component.text("Round over.", NamedTextColor.GRAY),
+                Component.text("Round over!", NamedTextColor.GRAY),
                 (switch (winner) {
                     case RUNNER -> Component.text("Runners", NamedTextColor.GREEN);
                     case HUNTER -> Component.text("Hunters", NamedTextColor.RED);
-                }).append(Component.text(" have won the round.", NamedTextColor.GRAY))
+                }).append(Component.text(" have won this round.", NamedTextColor.GRAY))
         ));
 
         // The amount of points given is the number of runners at the beginning minus the current amount of runners
@@ -796,10 +796,6 @@ public final class Game implements PacketGroupingAudience {
             if (value.isAir() || value.compare(Block.BARRIER)) {
                 i--;
                 continue;
-            }
-
-            if (effects) {
-                instance.playSound(Sounds.LAVA_HISS.get(), block);
             }
 
             for (var loc : COLOR_CHANGE_POINTS) {
