@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.Player;
@@ -13,10 +14,13 @@ import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
 import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.network.packet.server.play.ParticlePacket;
+import net.minestom.server.particle.Particle;
 import net.minestom.server.utils.time.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class Collectible extends Entity {
@@ -50,6 +54,19 @@ public final class Collectible extends Entity {
     @Override
     public void remove() {
         collected.set(true);
+
+        sendPacketToViewers(new ParticlePacket(
+                Particle.SCULK_SOUL,
+                getPosition(),
+                new Vec(
+                        ThreadLocalRandom.current().nextDouble()-0.5,
+                        ThreadLocalRandom.current().nextDouble()-0.5,
+                        ThreadLocalRandom.current().nextDouble()-0.5
+                ),
+                0.2f,
+                55
+        ));
+
         super.remove();
         this.label.remove();
     }
@@ -67,6 +84,25 @@ public final class Collectible extends Entity {
         this.scheduleRemove(30, TimeUnit.SECOND);
         this.getInstance().playSound(Sounds.CLICK);
         this.getInstance().sendMessage(effect.getSpawnMessage());
+    }
+
+    @Override
+    public void tick(long time) {
+        super.tick(time);
+
+        if (ThreadLocalRandom.current().nextBoolean()) return;
+
+        sendPacketToViewers(new ParticlePacket(
+                Particle.HAPPY_VILLAGER,
+                getPosition(),
+                new Vec(
+                        ThreadLocalRandom.current().nextDouble()-0.5,
+                        ThreadLocalRandom.current().nextDouble()-0.5,
+                        ThreadLocalRandom.current().nextDouble()-0.5
+                ),
+                0.2f,
+                1
+        ));
     }
 
     public void collect(@NotNull Player player) {

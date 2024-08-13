@@ -69,7 +69,7 @@ public interface Sounds {
     Supplier<Sound> LAVA_HISS = () -> Sound.sound(
             SoundEvent.BLOCK_LAVA_EXTINGUISH,
             Sound.Source.NEUTRAL,
-            0.05f, 1
+            0.075f, 1
     );
 
 }
