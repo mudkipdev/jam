@@ -53,19 +53,19 @@ public final class Collectible extends Entity {
 
     @Override
     public void remove() {
-        collected.set(true);
-
-        sendPacketToViewers(new ParticlePacket(
-                Particle.SCULK_SOUL,
-                getPosition(),
-                new Vec(
-                        ThreadLocalRandom.current().nextDouble()-0.5,
-                        ThreadLocalRandom.current().nextDouble()-0.5,
-                        ThreadLocalRandom.current().nextDouble()-0.5
-                ),
-                0.2f,
-                55
-        ));
+        if (!collected.getAndSet(true)) {
+            sendPacketToViewers(new ParticlePacket(
+                    Particle.SCULK_SOUL,
+                    getPosition(),
+                    new Vec(
+                            ThreadLocalRandom.current().nextDouble()-0.5,
+                            ThreadLocalRandom.current().nextDouble()-0.5,
+                            ThreadLocalRandom.current().nextDouble()-0.5
+                    ),
+                    0.2f,
+                    55
+            ));
+        }
 
         super.remove();
         this.label.remove();
