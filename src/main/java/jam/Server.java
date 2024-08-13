@@ -69,6 +69,8 @@ public final class Server implements Config {
                     JamConditions.LOBBY));
 
             this.addSyntax((sender, context) -> {
+                if (!this.getCondition().canUse(sender, context.getInput())) return;
+
                 var player = (Player) sender;
                 LOGGER.info("{} force started the game.", player.getUsername());
                 lobby.sendMessage(Component.text(player.getUsername() + " has force started the game.", NamedTextColor.GRAY));
@@ -82,6 +84,8 @@ public final class Server implements Config {
                     JamConditions.LOBBY));
 
             this.addSyntax((sender, context) -> {
+                if (!this.getCondition().canUse(sender, context.getInput())) return;
+
                 var player = (Player) sender;
                 if (lobby.getColorblind().addViewer(player)) {
                     player.sendMessage(Component.text("You find yourself very lost...", NamedTextColor.GRAY, TextDecoration.BOLD));
