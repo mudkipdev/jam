@@ -170,6 +170,10 @@ public final class Server implements Config {
         });
 
         eventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
+            if (event.getPlayer().getUsername().equals("PizzaV_Bot")) {
+                event.getPlayer().kick(Component.text("You have been banned for cheating.", NamedTextColor.RED));
+            }
+
             LOGGER.info("{} connected", event.getPlayer().getUsername());
             event.setSpawningInstance(lobby.getInstance());
             event.getPlayer().setRespawnPoint(Lobby.SPAWN);
