@@ -823,7 +823,7 @@ public final class Game implements PacketGroupingAudience {
             }
 
             if (effects) {
-                instance.playSound(Sounds.LAVA_HISS.get(0.05F), block);
+                instance.playSound(Sounds.LAVA_HISS.get(0.025F), block);
             }
 
             for (var loc : COLOR_CHANGE_POINTS) {
