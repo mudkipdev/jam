@@ -150,7 +150,7 @@ public final class Game implements PacketGroupingAudience {
         instance.eventNode().addListener(InstanceTickEvent.class, event -> {
             for (var player : instance.getPlayers()) {
                 Team team = player.getTag(Tags.TEAM);
-                if (team == null || team == Team.SPECTATOR) continue;
+                if (team == null) continue;
 
                 JamColor color = player.getTag(Tags.COLOR);
                 if (color == null) continue;
@@ -334,7 +334,10 @@ public final class Game implements PacketGroupingAudience {
         minecraftTeams.values().forEach(MinecraftServer.getTeamManager()::deleteTeam);
 
         this.showTitle(Title.title(
-                Component.empty(),
+                (switch (winner) {
+                    case RUNNER -> Component.text("Runners", NamedTextColor.GREEN);
+                    case HUNTER -> Component.text("Hunters", NamedTextColor.RED);
+                }).append(Component.text(" have won the round.", NamedTextColor.GRAY)),
                 Component.text("Round over.", NamedTextColor.GRAY)
         ));
 
@@ -448,8 +451,7 @@ public final class Game implements PacketGroupingAudience {
 
         if (remaining == GRACE_PERIOD) {
             for (var player : this.instance.getPlayers()) {
-                var team = player.getTag(Tags.TEAM);
-                if (team == null || team == Team.SPECTATOR) continue;
+                if (player.getTag(Tags.TEAM) == null) continue;
 
                 this.changeColor(player, JamColor.random());
             }

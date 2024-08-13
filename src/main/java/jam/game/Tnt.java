@@ -71,8 +71,7 @@ public class Tnt extends Entity {
                         Component.text("!", NamedTextColor.GRAY)
                 ));
 
-                Team team = player.getTag(Tags.TEAM);
-                if (team == null || team == Team.SPECTATOR) continue;
+                if (player.getTag(Tags.TEAM) == null) continue;
                 player.getTag(Tags.GAME).changeColor(player, color);
             }
 
