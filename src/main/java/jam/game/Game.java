@@ -177,9 +177,26 @@ public final class Game implements PacketGroupingAudience {
         instance.eventNode().addChild(EffectListeners.enderPearl());
         instance.eventNode().addChild(EffectListeners.splashColorblindness());
 
-        colorblind = new Colorblind(instance,
-                Map.entry(new Pos(0, -18, 0), 3.25)
-        );
+        List<Map.Entry<Pos, Double>> positions = new ArrayList<>();
+
+        for (int x = 0; x < 3; x++) {
+            for (int z = 0; z < 4; z++) {
+                positions.add(Map.entry(new Pos(x * 16 - 16, -16, z * 16 + 4), 3.25));
+                positions.add(Map.entry(new Pos(x * 16 - 16, -16+32, z * 16 + 4), 3.25));
+            }
+        }
+
+        for (int x = 0; x < 3; x++) {
+            positions.add(Map.entry(new Pos(x * 16 - 16, 0, -1 * 16 + 4), 3.25));
+            positions.add(Map.entry(new Pos(x * 16 - 16, 0, 4 * 16 + 4), 3.25));
+        }
+
+        for (int z = 0; z < 4; z++) {
+            positions.add(Map.entry(new Pos(-1 * 16 - 16, 0, z * 16 + 4), 3.25));
+            positions.add(Map.entry(new Pos(3 * 16 - 16, 0, z * 16 + 4), 3.25));
+        }
+
+        colorblind = new Colorblind(instance, positions);
     }
 
     @Override

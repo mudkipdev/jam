@@ -119,7 +119,7 @@ public final class Lobby implements PacketGroupingAudience {
                     Config.INSTRUCTIONS));
         });
 
-        this.colorblind = new Colorblind(instance,
+        this.colorblind = new Colorblind(instance, List.of(
                 Map.entry(new Pos(8, -18, 8), 3.25),
                 Map.entry(new Pos(8, -18, -8), 3.25),
                 Map.entry(new Pos(-8, -18, 8), 3.25),
@@ -141,7 +141,7 @@ public final class Lobby implements PacketGroupingAudience {
                 Map.entry(new Pos(-31, -3, 0), 7.0),
                 Map.entry(new Pos(33 + 8, -3, 0), 7.0),
                 Map.entry(new Pos(5, 25, 0), 8.0)
-        );
+        ));
     }
 
     @Override

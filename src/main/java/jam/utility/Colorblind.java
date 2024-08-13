@@ -31,8 +31,7 @@ public class Colorblind implements Viewable {
     private final Set<Player> viewers = new CopyOnWriteArraySet<>();
     private final Set<Player> unmodifiableViewers = Collections.unmodifiableSet(viewers);
 
-    @SafeVarargs
-    public Colorblind(@NotNull Instance instance, @NotNull Map.Entry<Pos, Double> @NotNull... entries) {
+    public Colorblind(@NotNull Instance instance, @NotNull List<Map.Entry<Pos, Double>> entries) {
         for (var entry : entries) {
             LivingEntity slime = new LivingEntity(EntityType.SLIME);
             slime.editEntityMeta(SlimeMeta.class, meta -> {
