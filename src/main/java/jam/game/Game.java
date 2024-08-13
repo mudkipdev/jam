@@ -24,6 +24,7 @@ import net.minestom.server.entity.metadata.projectile.FireworkRocketMeta;
 import net.minestom.server.event.instance.InstanceTickEvent;
 import net.minestom.server.event.player.PlayerDeathEvent;
 import net.minestom.server.event.player.PlayerMoveEvent;
+import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.AbsoluteBlockBatch;
 import net.minestom.server.instance.block.Block;
@@ -530,12 +531,14 @@ public final class Game implements PacketGroupingAudience {
 
             var pos = player.getPosition();
 
+            Tag climbable = MinecraftServer.getTagManager().getTag(Tag.BasicType.BLOCKS, "minecraft:climbable");
+
             Block block;
             JamColor color = null;
             for (int x = 0; x < 3; x++) {
                 block = this.instance.getBlock(pos.add(0, -x, 0));
                 color = JamColor.colorOfBlock(block);
-                if (!block.isAir() && !block.compare(Block.BARRIER)) break;
+                if (block.isSolid() || climbable.contains(block.namespace())) break;
                 if (color != null) break;
             }
 
