@@ -377,7 +377,14 @@ public final class Game implements PacketGroupingAudience {
     }
 
     private void handleGameEnd() {
-        instance.sendMessage(Component.text("Top Players: "));
+        instance.sendMessage(Component.textOfChildren(
+                Component.newline(),
+                Components.PREFIX, Component.text("Game over!"),
+                Component.newline(),
+                Components.PREFIX,
+                Component.newline(),
+                Components.PREFIX, Component.text("Top Players: ")
+        ));
 
         var pointsSorted = getTopPlayersByScore();
         for (var i = 0; i < Math.min(5, pointsSorted.size()); i++) {
@@ -388,10 +395,12 @@ public final class Game implements PacketGroupingAudience {
                 continue;
             }
             instance.sendMessage(Component.textOfChildren(
+                    Components.PREFIX,
                     Component.text((i+1) + ". " + player.getUsername(), getRankColor(i)),
                     Component.text(" (" + points + " points)", NamedTextColor.GRAY)
             ));
         }
+        instance.sendMessage(Component.empty());
 
         MinecraftServer.getSchedulerManager().buildTask(() -> {
             for (Player player : instance.getPlayers()) {
