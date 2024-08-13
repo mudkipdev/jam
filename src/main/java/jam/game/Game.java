@@ -785,6 +785,12 @@ public final class Game implements PacketGroupingAudience {
             var color = JamColor.random();
             var block = COLOR_CHANGE_ZONE.randomBlock();
 
+            var value = instance.getBlock(block);
+            if (value.isAir() || value.compare(Block.BARRIER)) {
+                i--;
+                continue;
+            }
+
             if (effects) {
                 instance.playSound(Sounds.LAVA_HISS.get(), block);
             }
