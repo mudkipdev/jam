@@ -11,6 +11,7 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.metadata.other.SlimeMeta;
 import net.minestom.server.instance.Instance;
+import net.minestom.server.network.packet.server.play.TeamsPacket;
 import net.minestom.server.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,11 +19,11 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public class Colorblind implements Viewable {
-
     public static final Team COLORBLIND_TEAM;
 
     static {
         COLORBLIND_TEAM = MinecraftServer.getTeamManager().createTeam("colorblind");
+        COLORBLIND_TEAM.setCollisionRule(TeamsPacket.CollisionRule.NEVER); // golden u silly goose
         COLORBLIND_TEAM.setTeamColor(NamedTextColor.DARK_GREEN);
     }
 

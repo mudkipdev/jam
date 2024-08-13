@@ -8,6 +8,8 @@ import jam.utility.Sounds;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.adventure.audience.PacketGroupingAudience;
 import net.minestom.server.coordinate.BlockVec;
@@ -134,9 +136,16 @@ public final class Lobby implements PacketGroupingAudience {
         });
 
         MinecraftServer.getSchedulerManager().buildTask(() -> MinecraftServer.getSchedulerManager().submitTask(() -> {
+            // idk if i should keep
+//            this.instance.showTitle(Title.title(
+//                    Component.text("EASTEREGG", NamedTextColor.WHITE, TextDecoration.OBFUSCATED),
+//                    Component.empty(),
+//                    Title.Times.times(Duration.ofMillis(0), Duration.ofMillis(150), Duration.ofMillis(0))));
+
             this.instance.getPlayers().forEach(getColorblind()::addViewer);
                 MinecraftServer.getSchedulerManager().buildTask(() -> this.instance.getPlayers().forEach(getColorblind()::removeViewer)).delay(Duration.ofMillis(150)).schedule();
-            return TaskSchedule.duration(ThreadLocalRandom.current().nextInt(60, 300), TimeUnit.SECOND);
+
+            return TaskSchedule.duration(ThreadLocalRandom.current().nextInt(10, 300), TimeUnit.SECOND);
         })).delay(ThreadLocalRandom.current().nextInt(0, 60), TimeUnit.SECOND).schedule();
 
         this.colorblind = new Colorblind(instance, List.of(
