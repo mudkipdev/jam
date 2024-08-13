@@ -63,11 +63,14 @@ public final class Server implements Config {
         registerEventListeners();
 
         MinecraftServer.getCommandManager().register(new Command("start") {{
-            this.setCondition(Conditions.all(
-                    Conditions::playerOnly,
-                    Conditions.any(JamConditions.DEVELOPER, (sender, commandString) ->
-                            "notmattw".equals(((Player) sender).getUsername())),
-                    JamConditions.LOBBY));
+            this.setCondition(
+                    Conditions.all(
+                            Conditions::playerOnly,
+                            Conditions.any(
+                                    JamConditions.DEVELOPER,
+                                    (sender, commandString) -> Config.DEBUG,
+                                    (sender, commandString) -> "notmattw".equals(((Player) sender).getUsername())),
+                            JamConditions.LOBBY));
 
             this.addSyntax((sender, context) -> {
                 if (!this.getCondition().canUse(sender, context.getInput())) return;
@@ -97,21 +100,24 @@ public final class Server implements Config {
 
         // Red herring easter eggs
         MinecraftServer.getCommandManager().register(new Command("shallow") {{
-            this.addSyntax((sender, context) -> {});
+            this.addSyntax((sender, context) -> {
+            });
         }});
 
         MinecraftServer.getCommandManager().register(new Command("vignette") {{
-            this.addSyntax((sender, context) -> {}, ArgumentType.Integer("count"));
+            this.addSyntax((sender, context) -> {
+            }, ArgumentType.Integer("count"));
         }});
 
         MinecraftServer.getCommandManager().register(new Command("custom") {{
-            this.addSyntax((sender, context) -> {}, ArgumentType.StringArray("count"));
+            this.addSyntax((sender, context) -> {
+            }, ArgumentType.StringArray("count"));
         }});
 
         MinecraftServer.getCommandManager().register(new Command("secret") {{
-            this.addSyntax((sender, context) -> {});
+            this.addSyntax((sender, context) -> {
+            });
         }});
-
 
 
         // TODO: re-enable bungeecord forwarding (you can check git version history)
