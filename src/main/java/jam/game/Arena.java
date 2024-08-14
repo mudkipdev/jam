@@ -1,7 +1,6 @@
 package jam.game;
 
 import jam.Lobby;
-import jam.Server;
 import jam.utility.Titleable;
 import jam.utility.Zone;
 import net.kyori.adventure.text.Component;
@@ -21,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -98,9 +96,8 @@ public enum Arena implements Titleable {
 
     public static IChunkLoader createLoader(String world) {
         try {
-            var url = Server.class.getResource("/" + world);
-            return new AnvilLoader(Path.of(url.toURI()));
-        } catch (URISyntaxException e) {
+            return new AnvilLoader(Path.of(world));
+        } catch (Exception e) { // bad practice, but whatever
             LOGGER.error("Failed to load Anvil world.", e);
             System.exit(1);
             return null; // W code
