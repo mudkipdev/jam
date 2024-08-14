@@ -2,7 +2,7 @@
 Our submission for the 2024 Minestom Game Jam.
 
 ## Game
-- Name: Color Clash
+- Name: Color Chase
 - Description: A unique twist on the classic Parkour Tag game.
 - Minimum Players: 3
 - Maximum Players: 8
