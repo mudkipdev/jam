@@ -1,7 +1,7 @@
 package jam.game;
 
-import jam.utility.Components;
-import jam.utility.Sphere;
+import jam.utility.constants.Components;
+import jam.utility.constants.Sphere;
 import jam.utility.Tags;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

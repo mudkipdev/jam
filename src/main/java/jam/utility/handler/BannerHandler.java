@@ -1,4 +1,4 @@
-package jam.utility;
+package jam.utility.handler;
 
 import net.minestom.server.instance.block.BlockHandler;
 import net.minestom.server.tag.Tag;
@@ -8,19 +8,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Set;
 
-public final class SignHandler implements BlockHandler {
-    public static final NamespaceID KEY = NamespaceID.from("minecraft:sign");
+public final class BannerHandler implements BlockHandler {
+    public static final NamespaceID KEY = NamespaceID.from("minecraft:banner");
 
     @Override
     public @NotNull NamespaceID getNamespaceId() {
-        return NamespaceID.from(KEY);
+        return KEY;
     }
 
     @Override
     public @NotNull Collection<Tag<?>> getBlockEntityTags() {
         return Set.of(
-                Tag.Byte("is_waxed"),
-                Tag.NBT("front_text"),
-                Tag.String("back_text"));
+                Tag.NBT("patterns"));
     }
 }

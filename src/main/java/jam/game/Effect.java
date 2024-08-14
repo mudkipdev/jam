@@ -2,6 +2,7 @@ package jam.game;
 
 import jam.Server;
 import jam.utility.*;
+import jam.utility.BetterEntityProjectile;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;

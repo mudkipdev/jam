@@ -1,4 +1,4 @@
-package jam.utility;
+package jam.utility.constants;
 
 import net.kyori.adventure.sound.Sound;
 import net.minestom.server.sound.SoundEvent;

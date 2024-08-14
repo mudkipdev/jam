@@ -1,6 +1,6 @@
 package jam.game;
 
-import jam.utility.Sounds;
+import jam.utility.constants.Sounds;
 import jam.utility.Tags;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

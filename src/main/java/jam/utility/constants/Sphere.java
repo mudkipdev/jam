@@ -1,6 +1,7 @@
-package jam.utility;
+package jam.utility.constants;
 
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
+import jam.utility.WorldBlock;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;

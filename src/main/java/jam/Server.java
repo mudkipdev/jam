@@ -1,7 +1,7 @@
 package jam;
 
 import jam.listener.PlayerListeners;
-import jam.utility.Components;
+import jam.utility.constants.Components;
 import jam.utility.JamConditions;
 import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;

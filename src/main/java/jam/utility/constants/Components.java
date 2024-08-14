@@ -1,4 +1,4 @@
-package jam.utility;
+package jam.utility.constants;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

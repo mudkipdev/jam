@@ -2,7 +2,7 @@ package jam.game;
 
 import jam.Lobby;
 import jam.Server;
-import jam.utility.Sounds;
+import jam.utility.constants.Sounds;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.TitlePart;
