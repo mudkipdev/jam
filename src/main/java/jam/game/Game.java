@@ -226,7 +226,7 @@ public final class Game implements PacketGroupingAudience {
             player.setEnableRespawnScreen(false);
         }
 
-        var huntersAmount = (int) Math.ceil(players.size() / 3.0);
+        var huntersAmount = 1;
         var initial = new ArrayList<>(players);
 
         // Init hunters
