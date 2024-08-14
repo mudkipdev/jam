@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public enum Arena implements Titleable {
-    CITY(
+    LONDON(
             new Vec(0, 0, 16),
             new Zone(
                     new BlockVec(-19, 2, -2),
