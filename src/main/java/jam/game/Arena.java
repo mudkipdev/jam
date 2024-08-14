@@ -28,21 +28,34 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public enum Arena implements Titleable {
     LONDON(
-            new Vec(0, 0, 16),
+            new Vec(0, 0, 17),
             new Zone(
-                    new BlockVec(-19, 2, -2),
-                    new BlockVec(19, 2, 49)
+                    new BlockVec(-18, 2, -1),
+                    new BlockVec(19, 2, 36)
             ),
             List.of(new Zone(
-                    new BlockVec(-18, 2, 13),
-                    new BlockVec(-15, 2, 16)
-            ), new Zone(
-                    new BlockVec(-1, 2, -1),
-                    new BlockVec(2, 2, 0)
-            )),
+                            new BlockVec(10, 1, -1),
+                            new BlockVec(13, 1, 1)
+                    ), new Zone(
+                            new BlockVec(-1, 4, 12),
+                            new BlockVec(2, 4, 13)
+                    ), new Zone(
+                            new BlockVec(-12, 1, 0),
+                            new BlockVec(-9, 1, 4)
+                    ), new Zone(
+                            new BlockVec(7, 1, 26),
+                            new BlockVec(11, 1, 30)
+                    ), new Zone(
+                            new BlockVec(9, 1, 11),
+                            new BlockVec(11, 1, 14)
+                    ), new Zone(
+                            new BlockVec(-13, 1, 11),
+                            new BlockVec(-9, 1, 15)
+                    )
+            ),
             List.of(new Zone(
-                    new BlockVec(-2, 2, 43),
-                    new BlockVec(5, 2, 48)
+                    new BlockVec(-10, 2, 28),
+                    new BlockVec(-10, 2, 28)
             ))
     );
 
