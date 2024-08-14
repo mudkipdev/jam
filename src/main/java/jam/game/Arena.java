@@ -54,8 +54,8 @@ public enum Arena implements Titleable {
                     )
             ),
             List.of(new Zone(
-                    new BlockVec(-10, 2, 28),
-                    new BlockVec(-10, 2, 28)
+                    new BlockVec(-11, 2, 28),
+                    new BlockVec(-11, 2, 28)
             ))
     );
 
