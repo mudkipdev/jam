@@ -117,7 +117,7 @@ public enum JamColor implements Titleable {
             }
         }
 
-        if (!block.isSolid() || block == Block.BARRIER) {
+        if (!block.isSolid() || block == Block.BARRIER || block == Block.SLIME_BLOCK) {
             return block;
         }
 
