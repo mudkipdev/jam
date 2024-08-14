@@ -55,6 +55,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 
 import static jam.Server.MM;
@@ -815,8 +816,14 @@ public final class Game implements PacketGroupingAudience {
             // This task is laggy - make sure the game doesn't end while it's going on.
             if (ending.get()) return;
 
+            DoubleUnaryOperator mapY = y -> {
+                var min = COLOR_CHANGE_ZONE.start().blockY();
+                
+                return ((y - min) * (y - min) + min) / (COLOR_CHANGE_ZONE.end().blockY() - min);
+            };
+
             var color = JamColor.random();
-            var block = COLOR_CHANGE_ZONE.randomBlock();
+            var block = COLOR_CHANGE_ZONE.randomBlock().withY(mapY);
 
             Block value;
 
