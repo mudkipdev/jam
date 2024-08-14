@@ -57,7 +57,6 @@ public interface PlayerListeners {
 
     static void onPlayerDisconnect(PlayerDisconnectEvent event) {
         var player = event.getPlayer();
-//        if (player.getTeam() != null) player.setTeam(null);
 
         if (player.hasTag(Tags.GAME)) {
             player.getTag(Tags.GAME).despawnPlayer(player);

@@ -1,5 +1,6 @@
 package jam.utility.constants;
 
+import it.unimi.dsi.fastutil.floats.Float2ObjectFunction;
 import net.kyori.adventure.sound.Sound;
 import net.minestom.server.sound.SoundEvent;
 
@@ -57,8 +58,14 @@ public interface Sounds {
             Sound.Source.NEUTRAL,
             0.5F, 1.0F);
 
-    Supplier<Sound> LAVA_HISS = () -> Sound.sound(
+    Float2ObjectFunction<Sound> LAVA_HISS = volume -> Sound.sound(
             SoundEvent.BLOCK_LAVA_EXTINGUISH,
             Sound.Source.NEUTRAL,
-            1.0F, 1.0F);
+            volume, 1.0F
+    );
+
+    Sound LARGE_BLAST = Sound.sound(
+            SoundEvent.ENTITY_FIREWORK_ROCKET_LARGE_BLAST,
+            Sound.Source.NEUTRAL,
+            0.5F, 1.0F);
 }

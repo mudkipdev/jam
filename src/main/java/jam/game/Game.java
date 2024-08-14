@@ -12,7 +12,7 @@ import jam.utility.constants.Sphere;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.TitlePart;
 import net.minestom.server.MinecraftServer;
@@ -26,7 +26,7 @@ import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.projectile.FireworkRocketMeta;
 import net.minestom.server.event.instance.InstanceTickEvent;
 import net.minestom.server.event.player.PlayerDeathEvent;
-import net.minestom.server.event.player.PlayerMoveEvent;
+import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.batch.AbsoluteBlockBatch;
 import net.minestom.server.instance.block.Block;
@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -86,7 +87,7 @@ public final class Game implements PacketGroupingAudience {
     // Store the players that will be hunters in the next rounds
     private final List<Player> queuedHunters;
 
-    private final Map<UUID, Integer> points = new HashMap<>();
+    private final Map<UUID, Integer> points = new ConcurrentHashMap<>();
     private final AtomicInteger round = new AtomicInteger();
 
     private final AtomicBoolean ending = new AtomicBoolean(false);
@@ -99,8 +100,6 @@ public final class Game implements PacketGroupingAudience {
     private int maxGameTime;
     private AtomicInteger gameTime;
     private @Nullable Task gameTickTask;
-
-    private final Map<JamColor, net.minestom.server.scoreboard.Team> minecraftTeams = new HashMap<>();
 
     private final Colorblind colorblind;
 
@@ -129,33 +128,6 @@ public final class Game implements PacketGroupingAudience {
         }
 
         this.initSidebar();
-
-        for (JamColor color : JamColor.values()) {
-            net.minestom.server.scoreboard.Team team = MinecraftServer.getTeamManager()
-                    .createBuilder("color-" + color.name().toLowerCase())
-                    .prefix(Component.text(
-                            color.name().charAt(0),
-                            color.getTextColor(),
-                            TextDecoration.BOLD).appendSpace())
-                    .teamColor(color.getTextColor())
-                    .build();
-            minecraftTeams.put(color, team);
-        }
-
-        this.instance.eventNode().addListener(PlayerMoveEvent.class, event -> {
-            if (event.getPlayer().getTag(Tags.TEAM) == null) {
-                return;
-            }
-
-            Player player = event.getPlayer();
-            double range = Collectible.COLLECT_DISTANCE * Collectible.COLLECT_DISTANCE;
-
-            for (var collectible : collectibles) {
-                if (collectible.getDistanceSquared(event.getNewPosition()) <= range) {
-                    collectible.collect(player);
-                }
-            }
-        });
 
         instance.eventNode().addListener(InstanceTickEvent.class, event -> {
             for (var player : instance.getPlayers()) {
@@ -335,6 +307,11 @@ public final class Game implements PacketGroupingAudience {
     private void purgeOfflinePlayers() {
         players.removeIf(player -> !player.isOnline());
         queuedHunters.removeIf(player -> !player.isOnline());
+        for (var uuid : points.keySet()) {
+            if (MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(uuid) == null) {
+                points.remove(uuid);
+            }
+        }
     }
 
     public void handlePlayerAttack(@NotNull Player attacker, @NotNull Player target) {
@@ -360,8 +337,6 @@ public final class Game implements PacketGroupingAudience {
         gameTickTask = null;
 
         bossBar.removeViewer(this);
-
-        minecraftTeams.values().forEach(MinecraftServer.getTeamManager()::deleteTeam);
 
         this.showTitle(Title.title(
                 Component.text("Round over!", NamedTextColor.WHITE),
@@ -394,15 +369,7 @@ public final class Game implements PacketGroupingAudience {
         this.getPlayers().forEach(this::despawnPlayer);
 
         if (queuedHunters.isEmpty()) {
-            MinecraftServer.getSchedulerManager().buildTask(() -> {
-                for (Player player : instance.getPlayers()) {
-                    // Hide the sidebar from the player
-                    this.sidebar.removeViewer(player);
-
-                    // Send the player to the lobby
-                    player.setInstance(Server.getLobby().getInstance());
-                }
-            }).delay(Duration.of(10, TimeUnit.SECOND)).schedule();
+            handleGameEnd();
         } else {
             // Begin the next round after 5 seconds
             MinecraftServer.getSchedulerManager()
@@ -410,6 +377,43 @@ public final class Game implements PacketGroupingAudience {
                     .delay(Duration.of(5, TimeUnit.SECOND))
                     .schedule();
         }
+    }
+
+    private void handleGameEnd() {
+        instance.sendMessage(Component.textOfChildren(
+                Component.newline(),
+                Components.PREFIX, Component.text("Game over!"),
+                Component.newline(),
+                Components.PREFIX,
+                Component.newline(),
+                Components.PREFIX, Component.text("Top Players: ")
+        ));
+
+        var pointsSorted = getTopPlayersByScore();
+        for (var i = 0; i < pointsSorted.size(); i++) {
+            var entry = pointsSorted.get(i);
+            var points = entry.getValue();
+            var player = MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(entry.getKey());
+            if (player == null) {
+                continue;
+            }
+            instance.sendMessage(Component.textOfChildren(
+                    Components.PREFIX,
+                    Component.text((i+1) + ". " + player.getUsername(), getRankColor(i)),
+                    Component.text(" (" + points + " point"+(points==1?"":"s")+")", NamedTextColor.GRAY)
+            ));
+        }
+        instance.sendMessage(Component.empty());
+
+        MinecraftServer.getSchedulerManager().buildTask(() -> {
+            for (Player player : instance.getPlayers()) {
+                // Hide the sidebar from the player
+                this.sidebar.removeViewer(player);
+
+                // Send the player to the lobby
+                player.setInstance(Server.getLobby().getInstance());
+            }
+        }).delay(Duration.of(10, TimeUnit.SECOND)).schedule();
     }
 
     public void despawnPlayer(Player player) {
@@ -420,6 +424,7 @@ public final class Game implements PacketGroupingAudience {
         player.setHealth((float) player.getAttributeValue(Attribute.GENERIC_MAX_HEALTH));
         player.setGlowing(false);
         player.setAdditionalHearts(0);
+        if (player.getTeam() != null) player.setTeam(null);
         colorblind.removeViewer(player);
     }
 
@@ -563,12 +568,14 @@ public final class Game implements PacketGroupingAudience {
 
             var pos = player.getPosition();
 
+            Tag climbable = MinecraftServer.getTagManager().getTag(Tag.BasicType.BLOCKS, "minecraft:climbable");
+
             Block block;
             JamColor color = null;
             for (int x = 0; x < 3; x++) {
                 block = this.instance.getBlock(pos.add(0, -x, 0));
                 color = JamColor.colorOfBlock(block);
-                if (!block.isAir() && !block.compare(Block.BARRIER)) break;
+                if (block.isSolid() || climbable.contains(block.namespace())) break;
                 if (color != null) break;
             }
 
@@ -577,11 +584,10 @@ public final class Game implements PacketGroupingAudience {
 
             var inWater = Block.WATER.equals(this.instance.getBlock(player.getPosition()));
 
-            boolean hasColor = color != null;
+            final JamColor finalColor = color;
+            int counter = damageEvasionCounter.compute(player.getUuid(), (uuid, count) -> (finalColor == playerColor) ? 0 : ((count == null ? 0 : count) + 1));
 
-            int counter = damageEvasionCounter.compute(player.getUuid(), (uuid, count) -> hasColor ? 0 : ((count == null ? 0 : count) + 1));
-
-            if (inWater || counter >= 5 || (hasColor && color != playerColor)) {
+            if (inWater || counter >= 5 || (color != null && color != playerColor)) {
                 player.sendActionBar(Component.textOfChildren(
                         Component.text("Wrong color! ", NamedTextColor.WHITE),
                         Component.text("Get to the ", NamedTextColor.GRAY),
@@ -739,10 +745,10 @@ public final class Game implements PacketGroupingAudience {
         player.setTag(Tags.COLOR, color);
 
         if (old != null) {
-            if (player.getTeam() != null)  player.setTeam(null);
+            if (player.getTeam() != null) player.setTeam(null);
         }
 
-        player.setTeam(this.minecraftTeams.get(color));
+        player.setTeam(JamColor.MINECRAFT_TEAMS.get(color));
 
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack item = player.getInventory().getItemStack(i);
@@ -825,6 +831,10 @@ public final class Game implements PacketGroupingAudience {
                 continue;
             }
 
+            if (effects) {
+                instance.playSound(Sounds.LAVA_HISS.get(0.025F), block);
+            }
+
             for (var loc : COLOR_CHANGE_POINTS) {
                 int x = loc.blockX() + block.blockX();
                 int y = loc.blockY() + block.blockY();
@@ -857,10 +867,8 @@ public final class Game implements PacketGroupingAudience {
         sidebar.updateLineScore("round", 999);
         sidebar.createLine(new Sidebar.ScoreboardLine("b1", Component.empty(), 1, Sidebar.NumberFormat.blank()));
         sidebar.updateLineScore("b1", 998);
-        sidebar.createLine(new Sidebar.ScoreboardLine("top", MM.deserialize("<gray>Top 5"), 2, Sidebar.NumberFormat.blank()));
-        sidebar.updateLineScore("top", 997);
-        for (var i = 0; i < Math.min(5, players.size()); i++) {
-            sidebar.createLine(new Sidebar.ScoreboardLine("top"+(i+1), Component.empty(), 3+i, Sidebar.NumberFormat.styled(Component.text("", NamedTextColor.YELLOW))));
+        for (var i = 0; i < players.size(); i++) {
+            sidebar.createLine(new Sidebar.ScoreboardLine("top"+(i+1), Component.empty(), 3+i, Sidebar.NumberFormat.styled(Component.text("", getRankColor(i)))));
         }
 
         // Initialize the sidebar
@@ -870,18 +878,32 @@ public final class Game implements PacketGroupingAudience {
     private void updateSidebar() {
         sidebar.updateLineContent("round", MM.deserialize("<gray>Round: <white>" + round.get()));
 
-        List<Map.Entry<UUID, Integer>> pointsSorted = new ArrayList<>(points.entrySet());
-        pointsSorted.sort(Map.Entry.comparingByValue());
-
-        for (var i = 0; i < Math.min(5, pointsSorted.size()); i++) {
+        var pointsSorted = getTopPlayersByScore();
+        for (var i = 0; i < pointsSorted.size(); i++) {
             var entry = pointsSorted.get(i);
             var points = entry.getValue();
             var player = MinecraftServer.getConnectionManager().getOnlinePlayerByUuid(entry.getKey());
             if (player == null) {
                 continue;
             }
-            sidebar.updateLineContent("top"+(i+1), MM.deserialize(" " + player.getUsername()));
+            sidebar.updateLineContent("top"+(i+1), Component.text((i+1)+". " + player.getUsername(), getRankColor(i)));
             sidebar.updateLineScore("top"+(i+1), points);
         }
+    }
+
+    private List<Map.Entry<UUID, Integer>> getTopPlayersByScore() {
+        purgeOfflinePlayers();
+        var pointsSorted = new ArrayList<>(points.entrySet());
+        pointsSorted.sort(Map.Entry.comparingByValue());
+        return pointsSorted.reversed();
+    }
+
+    private TextColor getRankColor(int rank) {
+        return switch (rank) {
+            case 0 -> TextColor.color(0xFFD700);
+            case 1 -> TextColor.color(0xC1C9C2);
+            case 2 -> TextColor.color(0xCD7F32);
+            default -> TextColor.color(0x808080);
+        };
     }
 }
