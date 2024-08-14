@@ -8,6 +8,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.gamedata.tags.Tag;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.instance.block.BlockFace;
 import net.minestom.server.instance.block.predicate.BlockPredicate;
 import net.minestom.server.item.ItemComponent;
 import net.minestom.server.item.ItemStack;
@@ -118,6 +119,12 @@ public enum JamColor implements Titleable {
 
         if (!block.isSolid() || block == Block.BARRIER) {
             return block;
+        }
+
+        for (var face : BlockFace.values()) {
+            if (!block.registry().collisionShape().isFaceFull(face)) {
+                return block;
+            }
         }
 
         return blockInfo.solid;
