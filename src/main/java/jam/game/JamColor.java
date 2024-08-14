@@ -25,12 +25,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public enum JamColor implements Titleable {
-    RED(new BlockInfo(Block.RED_CONCRETE, Block.CRIMSON_STAIRS, Block.CRIMSON_SLAB, Block.CRIMSON_TRAPDOOR, Block.CRIMSON_FENCE, Block.CRIMSON_FENCE_GATE, Block.CRIMSON_PRESSURE_PLATE, Block.CRIMSON_BUTTON, Block.TUFF_WALL, Block.RED_WOOL)), // Crimson (tuff wall)
-    ORANGE(new BlockInfo(Block.ORANGE_CONCRETE, Block.ACACIA_STAIRS, Block.ACACIA_SLAB, Block.ACACIA_TRAPDOOR, Block.ACACIA_FENCE, Block.ACACIA_FENCE_GATE, Block.ACACIA_PRESSURE_PLATE, Block.ACACIA_BUTTON, Block.POLISHED_TUFF_WALL, Block.ORANGE_WOOL)), // Acacia (polished_tuff wall)
-    YELLOW(new BlockInfo(Block.YELLOW_CONCRETE, Block.MANGROVE_STAIRS, Block.MANGROVE_SLAB, Block.MANGROVE_TRAPDOOR, Block.MANGROVE_FENCE, Block.MANGROVE_FENCE_GATE, Block.MANGROVE_PRESSURE_PLATE, Block.MANGROVE_BUTTON, Block.TUFF_BRICK_WALL, Block.YELLOW_WOOL)), // Mangrove (tuff brick wall)
-    GREEN(new BlockInfo(Block.LIME_CONCRETE, Block.JUNGLE_STAIRS, Block.JUNGLE_SLAB, Block.JUNGLE_TRAPDOOR, Block.JUNGLE_FENCE, Block.JUNGLE_FENCE_GATE, Block.JUNGLE_PRESSURE_PLATE, Block.JUNGLE_BUTTON, Block.END_STONE_BRICK_WALL, Block.GREEN_WOOL)), // Dark oak (end_stone_brick wall)
-    BLUE(new BlockInfo(Block.LIGHT_BLUE_CONCRETE, Block.WARPED_STAIRS, Block.WARPED_SLAB, Block.WARPED_TRAPDOOR, Block.WARPED_FENCE, Block.WARPED_FENCE_GATE, Block.WARPED_PRESSURE_PLATE, Block.WARPED_BUTTON, Block.RED_NETHER_BRICK_WALL, Block.LIGHT_BLUE_WOOL)), // Warped (red_nether_brick wall)
-    PINK(new BlockInfo(Block.PINK_CONCRETE, Block.CHERRY_STAIRS, Block.CHERRY_SLAB, Block.CHERRY_TRAPDOOR, Block.CHERRY_FENCE, Block.CHERRY_FENCE_GATE, Block.CHERRY_PRESSURE_PLATE, Block.CHERRY_BUTTON, Block.PRISMARINE_WALL, Block.PINK_WOOL)); // Cherry (prismarine wall)
+    RED(new BlockInfo(Block.RED_CONCRETE, Block.CRIMSON_STAIRS, Block.CRIMSON_SLAB, Block.CRIMSON_TRAPDOOR, Block.CRIMSON_FENCE, Block.CRIMSON_FENCE_GATE, Block.CRIMSON_PRESSURE_PLATE, Block.CRIMSON_BUTTON, Block.TUFF_WALL, Block.RED_WOOL, Block.RED_CARPET)), // Crimson (tuff wall)
+    ORANGE(new BlockInfo(Block.ORANGE_CONCRETE, Block.ACACIA_STAIRS, Block.ACACIA_SLAB, Block.ACACIA_TRAPDOOR, Block.ACACIA_FENCE, Block.ACACIA_FENCE_GATE, Block.ACACIA_PRESSURE_PLATE, Block.ACACIA_BUTTON, Block.POLISHED_TUFF_WALL, Block.ORANGE_WOOL, Block.ORANGE_CARPET)), // Acacia (polished_tuff wall)
+    YELLOW(new BlockInfo(Block.YELLOW_CONCRETE, Block.MANGROVE_STAIRS, Block.MANGROVE_SLAB, Block.MANGROVE_TRAPDOOR, Block.MANGROVE_FENCE, Block.MANGROVE_FENCE_GATE, Block.MANGROVE_PRESSURE_PLATE, Block.MANGROVE_BUTTON, Block.TUFF_BRICK_WALL, Block.YELLOW_WOOL, Block.YELLOW_CARPET)), // Mangrove (tuff brick wall)
+    GREEN(new BlockInfo(Block.LIME_CONCRETE, Block.JUNGLE_STAIRS, Block.JUNGLE_SLAB, Block.JUNGLE_TRAPDOOR, Block.JUNGLE_FENCE, Block.JUNGLE_FENCE_GATE, Block.JUNGLE_PRESSURE_PLATE, Block.JUNGLE_BUTTON, Block.END_STONE_BRICK_WALL, Block.LIME_WOOL, Block.LIME_CARPET)), // Jungle (end_stone_brick wall)
+    BLUE(new BlockInfo(Block.LIGHT_BLUE_CONCRETE, Block.WARPED_STAIRS, Block.WARPED_SLAB, Block.WARPED_TRAPDOOR, Block.WARPED_FENCE, Block.WARPED_FENCE_GATE, Block.WARPED_PRESSURE_PLATE, Block.WARPED_BUTTON, Block.RED_NETHER_BRICK_WALL, Block.LIGHT_BLUE_WOOL, Block.LIGHT_BLUE_CARPET)), // Warped (red_nether_brick wall)
+    PINK(new BlockInfo(Block.PINK_CONCRETE, Block.CHERRY_STAIRS, Block.CHERRY_SLAB, Block.CHERRY_TRAPDOOR, Block.CHERRY_FENCE, Block.CHERRY_FENCE_GATE, Block.CHERRY_PRESSURE_PLATE, Block.CHERRY_BUTTON, Block.PRISMARINE_WALL, Block.PINK_WOOL, Block.PINK_CARPET)); // Cherry (prismarine wall)
 
     private final BlockInfo blockInfo;
 
@@ -55,7 +55,7 @@ public enum JamColor implements Titleable {
     }
 
     public record BlockInfo(Block solid, Block stairs, Block slab, Block trapdoor, Block fence,
-                            Block fenceGate, Block pressurePlate, Block button, Block wall, Block wool) {
+                            Block fenceGate, Block pressurePlate, Block button, Block wall, Block wool, Block carpet) {
 
         private boolean contains(Block block) {
             // i love boilerplate
@@ -68,7 +68,8 @@ public enum JamColor implements Titleable {
                     || id == fenceGate.id()
                     || id == pressurePlate.id()
                     || id == button.id()
-                    || id == wall.id();
+                    || id == wall.id()
+                    || id == carpet.id();
         }
     }
 
@@ -88,7 +89,8 @@ public enum JamColor implements Titleable {
             make("pressure_plates", BlockInfo::pressurePlate),
             make("buttons", BlockInfo::button),
             make("walls", BlockInfo::wall),
-            make("wool", BlockInfo::wool)
+            make("wool", BlockInfo::wool),
+            make("wool_carpets", BlockInfo::carpet)
     );
 
     public static JamColor colorOfBlock(Block block) {
