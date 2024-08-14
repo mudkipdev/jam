@@ -20,6 +20,7 @@ import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.player.*;
 import net.minestom.server.event.server.ServerListPingEvent;
 import net.minestom.server.extras.MojangAuth;
+import net.minestom.server.extras.bungee.BungeeCordProxy;
 import net.minestom.server.extras.lan.OpenToLAN;
 import net.minestom.server.network.packet.server.common.ServerLinksPacket;
 import org.jetbrains.annotations.NotNull;
@@ -119,11 +120,14 @@ public final class Server implements Config {
             });
         }});
 
-
-        // TODO: re-enable bungeecord forwarding (you can check git version history)
-        if (!Config.OFFLINE_MODE) {
+        if (FORWARDING) {
+            BungeeCordProxy.enable();
+            LOGGER.info("Enabled BungeeCord forwarding.");
+        } else if (!OFFLINE_MODE) {
             MojangAuth.init();
             LOGGER.info("Enabled Mojang authentication.");
+        } else {
+            LOGGER.info("Enabled neither BungeeCord formatting nor Mojang authentication.");
         }
 
         if (Config.DEBUG) {

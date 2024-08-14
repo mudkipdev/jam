@@ -35,7 +35,7 @@ public interface Config {
             "7f3c415029eb1cc8f963be02574102c9a19afc3f");
 
     // BungeeCord Forwarding
-    String[] SECRETS = System.getProperty("forwarding", "").split(",");
+    boolean FORWARDING = Boolean.parseBoolean(System.getProperty("forwarding", "true"));
 
     // Server Address
     String ADDRESS = System.getProperty("address", "0.0.0.0");
