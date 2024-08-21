@@ -120,6 +120,24 @@ public final class Server implements Config {
             });
         }});
 
+        MinecraftServer.getCommandManager().register(new Command("debug_reset") {{
+            this.addSyntax((sender, context) -> sender.sendMessage(Component.text(
+                    "You just lost the game lol idiot",
+                    NamedTextColor.RED)));
+        }});
+
+        MinecraftServer.getCommandManager().register(new Command("debug_next") {{
+            this.addSyntax((sender, context) -> sender.sendMessage(Component.text(
+                    "You just lost the game lol idiot",
+                    NamedTextColor.RED)));
+        }});
+
+        MinecraftServer.getCommandManager().register(new Command("debug_reset") {{
+            this.addSyntax((sender, context) -> sender.sendMessage(Component.text(
+                    "You just lost the game lol idiot",
+                    NamedTextColor.RED)));
+        }});
+
         if (FORWARDING) {
             BungeeCordProxy.enable();
             LOGGER.info("Enabled BungeeCord forwarding.");

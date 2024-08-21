@@ -293,7 +293,7 @@ public final class Game implements PacketGroupingAudience {
 
                 Component.newline()));
 
-        this.maxGameTime = Config.DEBUG ? 300 : (15 + (30 * runners.size()));
+        this.maxGameTime = Config.DEBUG ? 1000 : Math.min(60, 15 + (20 * runners.size()));
         this.gameTime = new AtomicInteger(this.maxGameTime);
         this.bossBar.addViewer(this);
 
@@ -818,7 +818,7 @@ public final class Game implements PacketGroupingAudience {
 
             DoubleUnaryOperator mapY = y -> {
                 var min = COLOR_CHANGE_ZONE.start().blockY();
-                
+
                 return ((y - min) * (y - min) + min) / (COLOR_CHANGE_ZONE.end().blockY() - min);
             };
 
