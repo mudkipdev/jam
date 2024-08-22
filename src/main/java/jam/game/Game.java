@@ -293,7 +293,7 @@ public final class Game implements PacketGroupingAudience {
 
                 Component.newline()));
 
-        this.maxGameTime = Config.DEBUG ? 1000 : Math.min(60, 15 + (20 * runners.size()));
+        this.maxGameTime = Config.DEBUG? 1000 : Math.min(75, 15 + (20 * runners.size()));
         this.gameTime = new AtomicInteger(this.maxGameTime);
         this.bossBar.addViewer(this);
 

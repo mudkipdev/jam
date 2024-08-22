@@ -120,6 +120,7 @@ public final class Server implements Config {
             });
         }});
 
+        // playtest easter eggs
         MinecraftServer.getCommandManager().register(new Command("debug_reset") {{
             this.addSyntax((sender, context) -> sender.sendMessage(Component.text(
                     "You just lost the game lol idiot",
@@ -132,7 +133,7 @@ public final class Server implements Config {
                     NamedTextColor.RED)));
         }});
 
-        MinecraftServer.getCommandManager().register(new Command("debug_reset") {{
+        MinecraftServer.getCommandManager().register(new Command("debug_item") {{
             this.addSyntax((sender, context) -> sender.sendMessage(Component.text(
                     "You just lost the game lol idiot",
                     NamedTextColor.RED)));
