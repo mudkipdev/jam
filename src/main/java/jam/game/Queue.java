@@ -42,9 +42,9 @@ public final class Queue implements PacketGroupingAudience {
 
     // this code is sponsored by my server
     public void addPlayer(Player player) {
-        if (this.players.contains(player)) {
-            return;
-        }
+            if (this.players.contains(player)) {
+                return;
+            }
 
         player.teleport(Lobby.SPAWN);
 
@@ -59,7 +59,7 @@ public final class Queue implements PacketGroupingAudience {
             this.countdownTask = MinecraftServer.getSchedulerManager().buildTask(() -> {
                 int time = this.countdown.get();
 
-                if (time == 0) {
+                if (time <= 0) {
                     this.start();
                 }
 
@@ -105,16 +105,18 @@ public final class Queue implements PacketGroupingAudience {
     }
 
     public void start() {
-        LOGGER.info("Starting the game with {} players in queue.", this.players.size());
-        this.clearTitle();
+        while (this.players.size() >= 8) {
+            LOGGER.info("Starting the game with {} players in queue.", this.players.size());
+            this.clearTitle();
 
-        Set<Player> finalPlayers = this.players.stream()
-                .limit(MAXIMUM_PLAYERS)
-                .collect(Collectors.toSet());
-        finalPlayers.forEach(Server.getLobby().getColorblind()::removeViewer);
-        Game game = new Game(finalPlayers);
-        game.beginNextRound();
-        this.players.removeAll(finalPlayers);
+            Set<Player> finalPlayers = this.players.stream()
+                    .limit(MAXIMUM_PLAYERS)
+                    .collect(Collectors.toSet());
+            finalPlayers.forEach(Server.getLobby().getColorblind()::removeViewer);
+            Game game = new Game(finalPlayers);
+            game.beginNextRound();
+            this.players.removeAll(finalPlayers);
+        }
     }
 
     private void sendTitle(Component component) {

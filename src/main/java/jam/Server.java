@@ -71,6 +71,7 @@ public final class Server implements Config {
                                     JamConditions.DEVELOPER,
                                     (sender, commandString) -> Config.DEBUG,
                                     (sender, commandString) -> "notmattw".equals(((Player) sender).getUsername())),
+                                    (sender, commandString) -> "iam4722202468".equals(((Player) sender).getUsername()),
                             JamConditions.LOBBY));
 
             this.addSyntax((sender, context) -> {
